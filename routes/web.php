@@ -25,6 +25,12 @@ Route::get('/', function () {
     ]);
 });
 
+
+Route::get('/app', function () {
+    return Inertia::render('App');
+})->middleware(['auth', 'verified'])->name('app');
+
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
