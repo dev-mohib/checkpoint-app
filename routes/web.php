@@ -11,6 +11,7 @@ Route::get('/', function () {
     return Inertia::render('Landingpage/index', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'canOpenDashboard' => Route::has('dashboard'),
     ]);
 });
 
