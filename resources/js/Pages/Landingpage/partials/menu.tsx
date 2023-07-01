@@ -1,6 +1,7 @@
-import { Navbar, Dropdown, Button, Link, Text } from "@nextui-org/react";
+import { Navbar, Dropdown, Button, Text } from "@nextui-org/react";
+import { Link } from '@inertiajs/react'
 import { Layout } from "./Layout";
-// import { AcmeLogo } from "./AcmeLogo";
+// import { AcmeLogo } from "./AcmeLogo.js";
 import { icons } from "./icons";
 
 export default function App() {
@@ -8,7 +9,7 @@ export default function App() {
     <Layout>
       <Navbar isBordered variant="sticky">
         <Navbar.Brand>
-          {/* <AcmeLogo />   */}
+          {/* <AcmeLogo /> */}
           <Text b color="inherit" hideIn="xs">
             ACME
           </Text>
@@ -17,7 +18,7 @@ export default function App() {
           enableCursorHighlight
           activeColor="secondary"
           hideIn="xs"
-          variant="underline"
+          variant="highlight"
         >
           <Dropdown>
             <Navbar.Item>
@@ -58,42 +59,34 @@ export default function App() {
               <Dropdown.Item
                 key="autoscaling"
                 showFullDescription
-                description="ACME scales apps to meet user demand, automagically, based on load."
+                description="Receive real-time feedback and personalized recommendations to enhance your learning journey."
                 icon={icons.scale}
               >
-                Autoscaling
+                Organizations
               </Dropdown.Item>
               <Dropdown.Item
                 key="usage_metrics"
                 showFullDescription
-                description="Real-time metrics to debug issues. Slow query added? We’ll show you exactly where."
+                description="Join a vibrant community of students, collaborate on projects, and access educational resources."
                 icon={icons.activity}
               >
-                Usage Metrics
+                Students
               </Dropdown.Item>
               <Dropdown.Item
                 key="production_ready"
                 showFullDescription
-                description="ACME runs on ACME, join us and others serving requests at web scale."
+                description="Connect with experienced teachers who are passionate about educating and guiding students towards success."
                 icon={icons.flash}
               >
-                Production Ready
+                Instructors
               </Dropdown.Item>
               <Dropdown.Item
                 key="99_uptime"
                 showFullDescription
-                description="Applications stay on the grid with high availability and high uptime guarantees."
+                description="Keep track of your grades and progress. Get valuable feedback from teachers to improve your performance."
                 icon={icons.server}
               >
-                +99% Uptime
-              </Dropdown.Item>
-              <Dropdown.Item
-                key="supreme_support"
-                showFullDescription
-                description="Overcome any challenge with a supporting team ready to respond."
-                icon={icons.user}
-              >
-                +Supreme Support
+                Checkpoints
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
@@ -104,11 +97,11 @@ export default function App() {
           <Navbar.Link href="#">Company</Navbar.Link>
         </Navbar.Content>
         <Navbar.Content>
-          <Navbar.Link color="inherit" href="#">
-            Login
-          </Navbar.Link>
+          <Navbar.Item color="inherit">
+            <Link href={route('login')}>Login</Link>
+          </Navbar.Item>
           <Navbar.Item>
-            <Button auto flat as={Link} href="#">
+            <Button auto flat as={Link} href={route('register')}>
               Sign Up
             </Button>
           </Navbar.Item>

@@ -1,8 +1,5 @@
 import { Link, Head } from '@inertiajs/react';
 import { PageProps } from '@/types';
-import { Button } from '@nextui-org/react';
-
-
 
 export default function Welcome({ auth, laravelVersion, phpVersion }: PageProps<{ laravelVersion: string, phpVersion: string }>) {
     return (
@@ -77,6 +74,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }: PageProps<
                                     <h2 className="mt-6 text-xl font-semibold text-gray-900 dark:text-white">
                                         Documentation
                                     </h2>
+
                                     <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                                         Laravel has wonderful documentation covering every aspect of the framework.
                                         Whether you are a newcomer or have prior experience with Laravel, we recommend
