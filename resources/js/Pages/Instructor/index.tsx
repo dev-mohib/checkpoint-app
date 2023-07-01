@@ -1,9 +1,11 @@
 import React from 'react'
-
-const Instructor = () => {
+import AppLayout from '@/Components/next/layout/app-layout'
+const Index = () => {
   return (
-    <div>Instructor</div>
+    <AppLayout> 
+      <h1>Some Basic Stuf for instructor page</h1>
+    </AppLayout>
   )
 }
 
-export default Instructor
+export default Index

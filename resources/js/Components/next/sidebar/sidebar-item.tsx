@@ -1,5 +1,5 @@
-import {Text, Link} from '@nextui-org/react';
-// import { Link } from 'next/link';
+import {Text} from '@nextui-org/react';
+import { Link } from '@inertiajs/react';
 import React from 'react';
 import {useSidebarContext} from '../layout/layout-context';
 import {Flex} from '../styles/flex';
@@ -11,23 +11,20 @@ interface Props {
    href?: string;
 }
 
-export const SidebarItem = ({icon, title, isActive, href = ''}: Props) => {
+export const SidebarItem = ({icon, title, isActive, href = 'profile.edit'}: Props) => {
    const {collapsed, setCollapsed} = useSidebarContext();
 
-   const handleClick = () => {
-      if (window.innerWidth < 768) {
-         setCollapsed();
-      }
-   };
+   // const handleClick = () => {
+   //    if (window.innerWidth < 768) {
+   //       setCollapsed();
+   //    }
+   // };
    return (
          <Link
-            css={{
-               color: '$accents9',
-               maxWidth: '100%',
-            }}
+            href={route(href)}
          >
             <Flex
-               onClick={handleClick}
+               // onClick={handleClick}
                css={{
                   'gap': '$6',
                   'width': '100%',

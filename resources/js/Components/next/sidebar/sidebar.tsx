@@ -14,7 +14,7 @@ import {SidebarItem} from './sidebar-item';
 import {SidebarMenu} from './sidebar-menu';
 import {useSidebarContext} from '../layout/layout-context';
 
-export const SidebarWrapper = () => {
+export const SidebarWrapper = ({active}:any) => {
    const {collapsed, setCollapsed} = useSidebarContext();
    return (
       <Box
@@ -41,42 +41,35 @@ export const SidebarWrapper = () => {
                   <SidebarItem
                      title="Home"
                      icon={<HomeIcon />}
-                     href="/"
+                     href='dashboard'
                   />
-                  <SidebarMenu title="Menu">
-                     
-                  <Link href={route('dashboard')}>
+                  <SidebarMenu title="Menu">  
                      <SidebarItem
                         title="Organization"
                         icon={<AccountsIcon />}
-                        href="accounts"
+                        href='organization.index'
                      />
-                  </Link>
-                  <Link href={route('dashboard')}>
                         <SidebarItem
                            title="Instructors"
                            icon={<PaymentsIcon />}
+                           href='instructor.index'
                         />
-                     </Link>
-                  <Link href={route('dashboard')}>
                      <SidebarItem
                         title="Students"
                         icon={<CustomersIcon />}
+                        href='student.index'
                      />
-                  </Link>
-                  <Link href={route('dashboard')}>
                      <SidebarItem
                         title="Checkpoints"
                         icon={<ProductsIcon />}
+                        href='checkpoint.index'
                      />
-                  </Link>
-                  <Link href={route('dashboard')}>
                      <SidebarItem
                         title="Reports"
                         icon={<ReportsIcon />}
+                        href='checkpoint.index'
                      />
-                  </Link>
-                  </SidebarMenu>
+                     </SidebarMenu>
                </Sidebar.Body>
                {/* <Sidebar.Footer>
                   <Tooltip content={'Settings'} rounded color="primary" css={undefined} contentColor={undefined}>

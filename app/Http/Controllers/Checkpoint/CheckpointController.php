@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Organization;
+namespace App\Http\Controllers\Checkpoint;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
-class Organization extends Controller
+class CheckpointController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,6 +14,7 @@ class Organization extends Controller
     public function index()
     {
         //
+        return Inertia::render('Checkpoint/index');
     }
 
     /**
@@ -37,6 +39,7 @@ class Organization extends Controller
     public function show(string $id)
     {
         //
+        return Inertia::render('Checkpoint/index');
     }
 
     /**

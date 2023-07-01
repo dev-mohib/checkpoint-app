@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
-class Admin extends Controller
+class StudentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,6 +14,7 @@ class Admin extends Controller
     public function index()
     {
         //
+        return Inertia::render('Student/index');
     }
 
     /**
@@ -37,6 +39,7 @@ class Admin extends Controller
     public function show(string $id)
     {
         //
+        return Inertia::render('Student/index');
     }
 
     /**

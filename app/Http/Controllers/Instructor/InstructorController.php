@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Student;
+namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
-class Student extends Controller
+class InstructorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,6 +14,7 @@ class Student extends Controller
     public function index()
     {
         //
+        return Inertia::render('Instructor/index');
     }
 
     /**

@@ -1,5 +1,6 @@
-import {Avatar, Dropdown, Navbar, Text} from '@nextui-org/react';
 import React from 'react';
+import {Avatar, Dropdown, Navbar, Text} from '@nextui-org/react';
+import { Link } from '@inertiajs/react';
 import {DarkModeSwitch} from './darkmodeswitch';
 
 export const UserDropdown = () => {
@@ -31,11 +32,11 @@ export const UserDropdown = () => {
             <Dropdown.Item key="settings" withDivider>
                Settings
             </Dropdown.Item>
-            <Dropdown.Item key="analytics" withDivider>
-               Profile
-            </Dropdown.Item>
-            {/* <Dropdown.Item key="system">System</Dropdown.Item> */}
-            {/* <Dropdown.Item key="configurations">Configurations</Dropdown.Item> */}
+               <Dropdown.Item key="analytics" withDivider>
+                  <Link href={route('profile.edit')}>
+                        Profile
+                  </Link>
+               </Dropdown.Item>
             <Dropdown.Item key="help_and_feedback" withDivider>
                Help & Feedback
             </Dropdown.Item>
