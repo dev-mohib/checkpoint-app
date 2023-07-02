@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.mainLayout{}
+.SideBar{}
+.Navbar{
+    width: calc(100% - 288px);
+}
+
+/* Mobile */
+@media (max-width: 1020px) {
+    .Navbar{
+        width: 100%;
+    }
+}
+
+.flex-r-c{
+    @apply flex flex-row justify-center items-center
+}

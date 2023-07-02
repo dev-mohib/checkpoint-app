@@ -1,0 +1,1 @@
+import{j as o}from"./app-fa08ede2.js";import{A as a}from"./AppLayout-185ccab5.js";const i=({page:r})=>o(a,{page:r,children:o("h1",{children:"Some Basic Stuf for organization page"})});export{i as default};

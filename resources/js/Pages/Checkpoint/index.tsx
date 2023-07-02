@@ -1,9 +1,11 @@
+import AppLayout from '@/Layouts/AppLayout'
 import React from 'react'
-const Index = () => {
+const Index = ({page} : any) => {
+  
   return (
-    <div> 
+    <AppLayout page={page}> 
       <h1>Some Basic Stuf for checkpoint page</h1>
-    </div>
+    </AppLayout>
   )
 }
 

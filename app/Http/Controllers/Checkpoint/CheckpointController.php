@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Checkpoint;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 class CheckpointController extends Controller
@@ -14,7 +15,7 @@ class CheckpointController extends Controller
     public function index()
     {
         //
-        return Inertia::render('Checkpoint/index');
+        return Inertia::render('Checkpoint/index', ['page' => 'checkpoint']);
     }
 
     /**
