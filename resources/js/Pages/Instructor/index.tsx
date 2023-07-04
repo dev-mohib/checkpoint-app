@@ -1,9 +1,13 @@
 import AppLayout from '@/Layouts/AppLayout'
+import { Head } from '@inertiajs/react'
 import React from 'react'
-const Index = ({page} : any) => {
+import Table from './partial/instructor_table'
+const Index = ({page, activeMenu, title} : any) => {
   return (
-    <AppLayout page={page}> 
-      <h1>Some Basic Stuf for instructor page</h1>
+    <AppLayout activeMenu={activeMenu} title={title}> 
+      <Head title='Instructors'/>
+
+      <Table />
     </AppLayout>
   )
 }

@@ -8,7 +8,7 @@ const Sidebar = ({page} : any) => {
       <input id="dashboardSideBar" type="checkbox" className="drawer-toggle" />
       <div className="drawer-side p-0">
         <label htmlFor="dashboardSideBar" className="drawer-overlay"></label> 
-        <div className="w-72 h-full bg-white">
+        <div className="w-72 h-full bg-base-100">
           <Link href='/' className='pt-3 flex items-center pl-5 w-full '>
             <CheckpointLogoIcon className="w-12 h-12" />
             <h1 className='font-sans text-xl'>Checkpoint</h1>

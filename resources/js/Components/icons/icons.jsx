@@ -21,3 +21,9 @@ export const UserIcon = (props) => <img {...props}  src="https://img.icons8.com/
 export const NotificationIcon = (props) => <img {...props} src="https://img.icons8.com/ios/50/appointment-reminders--v1.png" alt="appointment-reminders--v1"/>
 
 export const MenuIcon = (props) => <img {...props} src="https://img.icons8.com/external-jumpicon-line-ayub-irawan/64/external-_18-user-interface-jumpicon-(line)-jumpicon-line-ayub-irawan.png" alt="external-_18-user-interface-jumpicon-(line)-jumpicon-line-ayub-irawan"/>
+
+export const NavigateIcon = (props) => <img {...props} src="https://img.icons8.com/pastel-glyph/64/circled-chevron-right.png" alt="circled-chevron-right"/>
+
+export const DeleteIcon = (props) => <img {...props} src="https://img.icons8.com/ios/50/delete--v1.png" alt="delete--v1"/>
+
+export const EditIcon = (props) => <img {...props} src="https://img.icons8.com/fluency-systems-regular/96/create-new.png" alt="create-new"/> 

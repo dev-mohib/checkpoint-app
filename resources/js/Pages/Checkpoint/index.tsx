@@ -1,13 +1,14 @@
 import LoginUI from '@/Components/daisy/login'
 import AppLayout from '@/Layouts/AppLayout'
+import { Head } from '@inertiajs/react'
 import React from 'react'
-const Index = ({page} : any) => {
+import Table from './partial/checkpoint_table'
+const Index = ({activeMenu, title} : any) => {
   
   return (
-    <AppLayout page={page}> 
-      <div className='flex-c-c'>
-        <LoginUI />
-      </div>
+    <AppLayout activeMenu={activeMenu} title={title}> 
+      <Head title='Checkpoints'/>
+      <Table />
     </AppLayout>
   )
 }

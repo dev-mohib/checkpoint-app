@@ -5,6 +5,7 @@ use App\Http\Controllers\Instructor\InstructorController;
 use App\Http\Controllers\Organization\OrganizationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\StudentController;
+use Illuminate\Support\Facades\Log;
 // use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,7 +49,9 @@ Route::middleware('auth')->group(function(){
 
 Route::middleware('auth')->group(function(){
     Route::get('/organization', [OrganizationController::class, 'index'])->name('organization.index');
-    Route::get('/organization/:id  ', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organization/view/{id}  ', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organization/new', [OrganizationController::class, 'create'])->name('organization.create');
+    Route::post('/organization/store', [OrganizationController::class, 'store'])->name('organization.store');
 });
 
 Route::middleware('auth')->group(function(){

@@ -15,7 +15,7 @@ class InstructorController extends Controller
     public function index()
     {
         //
-        return Inertia::render('Instructor/index',  ['page' => 'instructor']);
+        return Inertia::render('Instructor/index',  ['activeMenu' => 'instructor', 'title'=>'Instructors']);
     }
 
     /**

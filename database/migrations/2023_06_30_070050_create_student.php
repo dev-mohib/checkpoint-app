@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Ramsey\Uuid\Uuid;
 
 return new class extends Migration
 {
@@ -11,14 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('student', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('created_by');
+        Schema::create('students', function (Blueprint $table) {
+            $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
+            $table->string('user_id', 36)->default(Uuid::uuid4()->toString());
+            $table->string('created_by', 36)->default(Uuid::uuid4()->toString());
             $table->string('parent_name')->nullable();
             $table->string('parent_relationship')->nullable();
-            $table->string('photo_id_front');
-            $table->string('photo_id_back');
+            $table->string('photo_id_front')->nullable();
+            $table->string('photo_id_back')->nullable();
             $table->string('organizations')->nullable();
             $table->timestamps();
         });

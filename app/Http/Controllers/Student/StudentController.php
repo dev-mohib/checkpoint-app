@@ -15,7 +15,7 @@ class StudentController extends Controller
     public function index()
     {
         //
-        return Inertia::render('Student/index', ['page' => 'student']);
+        return Inertia::render('Student/index', ['activeMenu' => 'student', 'title'=>'Students']);
     }
 
     /**

@@ -15,7 +15,7 @@ class CheckpointController extends Controller
     public function index()
     {
         //
-        return Inertia::render('Checkpoint/index', ['page' => 'checkpoint']);
+        return Inertia::render('Checkpoint/index', ['activeMenu' => 'checkpoint', 'title'=>'Checkpoints']);
     }
 
     /**
