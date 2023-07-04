@@ -1,1 +1,0 @@
-import{j as r}from"./app-fa08ede2.js";import{A as e}from"./AppLayout-185ccab5.js";const s=({page:t})=>r(e,{page:t,children:r("h1",{children:"Some Basic Stuf for student page"})});export{s as default};

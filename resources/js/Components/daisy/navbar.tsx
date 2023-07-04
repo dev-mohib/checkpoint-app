@@ -15,18 +15,17 @@ const Navbar = ({page = "Checkpoint"} : {page : string}) => {
             <a className="normal-case text-xl font-extrabold">{page.toLocaleUpperCase()}</a>
         </div>
         <div className="flex-grow justify-end">
-            {/* <CiDark className="rounded-full w-7 h-7 cursor-pointer" /> */}
             <label onClick={() => setDark(d => !d)}  className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
                 {
-                isDark ?<LightThemeIcon className="w-7 rounded-full h-7"/>
+                isDark ?<LightThemeIcon className="w-5 rounded-full h-5"/>
                 :
-                <DarkThemeIcon className="w-7 rounded-full h-7"/>
+                <DarkThemeIcon className="w-5 rounded-full h-5"/>
                 }                
             </label>
             <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <div className="indicator">
-                    <NotificationIcon className="w-7 h-7" />
+                    <NotificationIcon className="w-5 h-5" />
                     <span className="badge badge-sm indicator-item">8</span>
                 </div>
             </label>
@@ -42,7 +41,7 @@ const Navbar = ({page = "Checkpoint"} : {page : string}) => {
             </div>
             <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
-                <UserIcon className="w-7 rounded-full h-7"/>
+                <UserIcon className="w-5 rounded-full h-5"/>
             </label>
             <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
                 <li>

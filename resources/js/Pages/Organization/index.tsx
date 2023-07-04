@@ -1,9 +1,12 @@
 import AppLayout from '@/Layouts/AppLayout'
+import { Head } from '@inertiajs/react'
 import React from 'react'
+import OragnizationTable from './partial/oragnization_table'
 const Index = ({page}:any) => {
   return (
     <AppLayout page={page}> 
-      <h1>Some Basic Stuf for organization page</h1>
+      <Head title='Organization'/>
+      <OragnizationTable />
     </AppLayout>
   )
 }

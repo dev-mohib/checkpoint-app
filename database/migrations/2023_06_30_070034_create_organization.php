@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('user_id');
             $table->string('created_by');
+            $table->string('name');
             $table->string('logo');
             $table->string('user_name');
             $table->string('registration_doc');

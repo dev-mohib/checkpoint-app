@@ -1,1 +1,0 @@
-import{j as o}from"./app-fa08ede2.js";import{A as e}from"./AppLayout-185ccab5.js";const p=({page:r})=>o(e,{page:r,children:o("h1",{children:"Some Basic Stuf for checkpoint page"})});export{p as default};

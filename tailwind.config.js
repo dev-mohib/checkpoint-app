@@ -12,6 +12,7 @@ export default {
     darkMode: ["class", '[data-theme="dark"]'],
     daisyui: {
         themes: ["light", "dark",],
+        base: true
       },
     theme: {
         extend: {

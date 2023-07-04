@@ -11,7 +11,7 @@ const AppLayout = ({children, page} : any) => {
         </div>
         <div className='Navbar'>
             <Navbar page={page} />
-            <div className='px-5 bg-base-200 min-h-screen pt-20'>
+            <div className='px-5 bg-base-200 min-h-screen py-20'>
                     {
                         children
                     }

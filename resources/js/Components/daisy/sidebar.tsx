@@ -9,10 +9,10 @@ const Sidebar = ({page} : any) => {
       <div className="drawer-side p-0">
         <label htmlFor="dashboardSideBar" className="drawer-overlay"></label> 
         <div className="w-72 h-full bg-white">
-          <div className='pt-3 flex items-center pl-5 w-full '>
+          <Link href='/' className='pt-3 flex items-center pl-5 w-full '>
             <CheckpointLogoIcon className="w-12 h-12" />
             <h1 className='font-sans text-xl'>Checkpoint</h1>
-          </div>
+          </Link>
           <ul className="menu w-full rounded-none px-0 text-xl mt-14">
             <li className={`${page == 'dashboard' ? 'border-l-4 border-l-purple-600 bg-base-200' : ''}`}>
               <Link href={route('dashboard')}>

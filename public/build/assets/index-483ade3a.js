@@ -1,0 +1,1 @@
+import{a as t,j as a,b as o}from"./app-188610c6.js";import{A as i}from"./AppLayout-697d95a2.js";import s from"./oragnization_table-4627e6d0.js";const p=({page:r})=>t(i,{page:r,children:[a(o,{title:"Organization"}),a(s,{})]});export{p as default};

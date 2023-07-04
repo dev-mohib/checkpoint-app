@@ -1,9 +1,12 @@
+import RegisterUI from '@/Components/daisy/register'
 import AppLayout from '@/Layouts/AppLayout'
 import React from 'react'
 const Index = ({page} : any) => {
   return (
     <AppLayout page={page}> 
-      <h1>Some Basic Stuf for student page</h1>
+      <div className='flex-c-c'>
+          <RegisterUI />
+      </div>
     </AppLayout>
   )
 }
