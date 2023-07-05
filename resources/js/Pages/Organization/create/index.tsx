@@ -1,3 +1,4 @@
+import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, useForm } from '@inertiajs/react'
 import React, { FormEventHandler } from 'react'
@@ -20,12 +21,12 @@ const submit: FormEventHandler = (e) => {
   return (
     <AppLayout activeMenu={activeMenu} title={title}> 
       <Head title='Create Organization'/>
-      <h1>Create new organization</h1>
+      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Create New', href : null}]}/>
       
       
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-6">Organization Form</h2>
+        <h2 className="text-2xl font-semibold mb-6">Create Organization</h2>
 
         {/* <form> */}
           <div className="mb-6">
@@ -88,10 +89,10 @@ const submit: FormEventHandler = (e) => {
               />
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="image">Image Upload</label>
-            <input type="file" id="image" name="image" accept="image/*" className="w-full py-2 border rounded-lg focus:outline-none focus:border-blue-500" />
-          </div>
+          <div className="ml-2 mb-6">
+              <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
+              <input type="file" id="org_image" name="org_image" accept="image/*" className="file-input  w-full  " />
+            </div>
 
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={submit}>Submit</button>

@@ -11,7 +11,7 @@ const AppLayout = ({children, activeMenu, title} : {activeMenu:string, children:
         </div>
         <div className='Navbar'>
             <Navbar page={activeMenu} title={title} />
-            <div className='px-5 bg-base-200 min-h-screen py-20'>
+            <div className='bg-base-200 min-h-screen py-20 px-12'>
                     {
                         children
                     }

@@ -22,10 +22,37 @@ class OrganizationController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization']);
+        $name = $request->query('name')??'';
+        $email = $request->query('email')??'';
+        $id = $request->query('id')??'';
+        $address = $request->query('address')??'';
+        $username = $request->query('username')??'';
+        $perPage = 5;
+        $page = $request->query('page')??1;
+        $organizations = DB::table('organizations')
+        ->join('users', 'users.id', '=', 'organizations.user_id')
+        ->select('organizations.id', 'organizations.name', 'users.email', 'users.username', 'users.address', 'organizations.logo', 'users.status')
+        ->where('users.type', '=', 'organization')
+        ->where('organizations.name', 'like', '%' . $name . '%')
+        ->where('users.username', 'like', '%' . $username . '%')
+        ->where('users.email', 'like', '%' . $email . '%')
+        ->where('users.address', 'like', '%' . $address . '%')
+        ->where('organizations.id', 'like', '%' . $id . '%')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+        // $organizations = Organization::with('users')
+        // ->where('users.type', '=', 'organization')
+        // ->get();
+
+        $total = $organizations->total();
+        $from = ($page - 1) * $perPage + 1;
+        $to = $from + $perPage - 1;
+        $to = min($to, $total);
+                
+        return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'data'=>$organizations, 'from'=>$from, 'to'=>$to,'total'=>$total]);
     }
 
     /**
@@ -79,37 +106,54 @@ class OrganizationController extends Controller
      */
     public function show(string $id)
     {
-        // if(!$id){
-        // return Inertia::render('Organization/show/index',['organization' => $organization]);
-        // }
-        //
-        $organization = DB::table('organizations')
-        ->join('users', 'organizations.user_id','=','users.id')
-        ->select('organizations.*', 'users.*', 'users.id as user_id')
-        ->where('organizations.id', $id)
-        ->get();
-        
-        if(count($organization)=== 0){
+        $organization = Organization::with(
+            ['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
+        ->find($id);
+        if(!$organization){
             return Inertia::render('Organization/show/index',['isEmpty'=> true, 'title'=> 'Organization', 'activeMenu'=>'organization']);
         }else {
-            return Inertia::render('Organization/show/index',['organization' => $organization[0], 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization']);
+            return Inertia::render('Organization/show/index',['organization' => $organization, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization']);
+        }
+    }
+    public function showEdit(string $id)
+    {   
+        // $id = $request->query('id');
+        $organization = Organization::with(['user'])
+        ->find($id??'1234');
+        if(!$organization){
+            return Inertia::render('Organization/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+        }else {
+            return Inertia::render('Organization/edit/index',['organization' => $organization, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization', 'isFound'=>true]);
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request)
     {
-        //
-    }
+        $form = $request->all();
+        $org = Organization::with('user')
+        ->find($form['id']);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        $org->name = $form['name'];
+        $org->save();
+
+        $user = $org->user;
+        $user->contact_number = $form['contact_number'];
+        if($form['password'])
+            $user->password = $form['password'];
+        $user->email = $form['email'];
+        $user->address = $form['address'];
+        $user->username = $form['username'];
+
+        $user->save();
+
+        
+        // $email = $request->form
+        if(true){
+            return Redirect::route('organization.show',['id'=>$form['id']]);
+        }else {
+            // return Inertia::render('Organization/edit/index',['organization' => $update, 'isSuccess'=> true, 'title'=>'Organization','activeMenu'=>'organization']);
+            return Redirect::route('organization.show',['id'=>$form['id']]);
+        }
     }
 
     /**

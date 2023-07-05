@@ -27,7 +27,7 @@ Route::get('/app', function () {
 
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard/index', ['page' => 'dashboard']);
+    return Inertia::render('Dashboard/index', ['activeMenu' => 'dashboard', 'title'=>'Dashboard']);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -49,7 +49,9 @@ Route::middleware('auth')->group(function(){
 
 Route::middleware('auth')->group(function(){
     Route::get('/organization', [OrganizationController::class, 'index'])->name('organization.index');
-    Route::get('/organization/view/{id}  ', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organization/view/{id}', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organization/edit/{id}', [OrganizationController::class, 'showEdit'])->name('organization.showEdit');
+    Route::put('/organization/edit', [OrganizationController::class, 'update'])->name('organization.edit');
     Route::get('/organization/new', [OrganizationController::class, 'create'])->name('organization.create');
     Route::post('/organization/store', [OrganizationController::class, 'store'])->name('organization.store');
 });

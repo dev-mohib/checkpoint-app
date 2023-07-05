@@ -4,8 +4,8 @@ import { Link } from '@inertiajs/react'
 const Navbar = ({page = "Checkpoint", title} : {page : string, title : string}) => {
     const [isDark, setDark] = useState(false)
   return (
-    <div className='fixed bg-purple-300 Navbar z-40'>
-    <div className="navbar bg-base-100">
+    <div className='fixed Navbar z-40'>
+    <div className="navbar bg-base-100 border-b-2 border-b-primary">
         <div className='ml-4 cursor-pointer mr-1'>
             <label htmlFor="dashboardSideBar" className="drawer-button lg:hidden">
                 <MenuIcon className="w-7 h-7 cursor-pointer" />

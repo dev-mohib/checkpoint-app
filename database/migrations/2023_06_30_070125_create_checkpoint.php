@@ -14,7 +14,6 @@ return new class extends Migration
     {
         Schema::create('checkpoints', function (Blueprint $table) {
             $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
-            $table->string('user_id', 36)->default(Uuid::uuid4()->toString());
             $table->string('name')->nullable();
             $table->string('description')->nullable();
             $table->string('type')->nullable();

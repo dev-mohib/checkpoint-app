@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('address')->default('A');
             $table->string('gender')->nullable();
             $table->string('type')->nullable();
-            $table->string('status')->default('inactive');
+            $table->string('status')->default('active');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
