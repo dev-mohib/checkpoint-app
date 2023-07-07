@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('type')->nullable();
             $table->string('created_by', 36)->default(Uuid::uuid4()->toString());
+            $table->string('org_id', 36)->default(Uuid::uuid4()->toString());
             $table->string('instructor_id', 36)->default(Uuid::uuid4()->toString());
             $table->string('validity_period')->nullable();
             $table->string('assigned_instructor')->nullable();

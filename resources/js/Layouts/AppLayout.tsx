@@ -5,7 +5,7 @@ import React, { PropsWithChildren } from 'react'
 const AppLayout = ({children, activeMenu, title} : {activeMenu:string, children:React.ReactNode, title:string}) => {
   return (
     <>
-    <div className='flex justify-between w-screen mainLayout'>
+    <div className='flex justify-between w-full mainLayout'>
         <div className='Sidebar'>   
             <Sidebar page={activeMenu} />
         </div>

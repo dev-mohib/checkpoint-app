@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Checkpoint extends Model
 {
     use HasFactory;
+    protected $keyType = 'string';
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class,'org_id');
+    }
 }

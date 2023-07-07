@@ -2,20 +2,21 @@ import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, useForm } from '@inertiajs/react'
 import React, { FormEventHandler } from 'react'
-
+import { FilePond } from 'react-filepond'
 const Index = ({activeMenu, title}:any) => {
   const { data, setData,post, errors, processing, recentlySuccessful } = useForm({
     name: '',
     email: '',
     address : '',
-    contact : '',
+    contact_number : '',
     username: '',
     password : ''
 });
 
+const [files, setFiles] = React.useState<any[]>([])
+
 const submit: FormEventHandler = (e) => {
   // e.preventDefault();
-  console.log("sending request")
   post(route('organization.store'));
 };
   return (
@@ -52,8 +53,8 @@ const submit: FormEventHandler = (e) => {
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="contact">Contact</label>
               <input type="tel" id="contact" name="contact" placeholder='+42'  
                 className="input border-2 border-base-200 input-ghost w-full" 
-                value={data.contact}
-                onChange={(e) => setData('contact', e.target.value)}
+                value={data.contact_number}
+                onChange={(e) => setData('contact_number', e.target.value)}
                 />
             </div>
             <div className="ml-2">
@@ -89,11 +90,20 @@ const submit: FormEventHandler = (e) => {
               />
           </div>
 
-          <div className="ml-2 mb-6">
+          {/*<div className="ml-2 mb-6">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
               <input type="file" id="org_image" name="org_image" accept="image/*" className="file-input  w-full  " />
-            </div>
-
+            </div> */}
+      <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
+      <FilePond
+        files={files}
+        onupdatefiles={setFiles}
+        allowMultiple={true}
+        maxFiles={3}
+        server="/api/upload/organization-document"
+        name="organization-document" /* sets the file input name, it's filepond by default */
+        labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+      />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={submit}>Submit</button>
           </div>

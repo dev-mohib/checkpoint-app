@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
             $table->string('user_id', 36)->default(Uuid::uuid4()->toString());
             $table->string('created_by', 36)->default(Uuid::uuid4()->toString());
+            $table->string('org_id', 36)->default(Uuid::uuid4()->toString());
             $table->string('parent_name')->nullable();
             $table->string('parent_relationship')->nullable();
             $table->string('photo_id_front')->nullable();
             $table->string('photo_id_back')->nullable();
-            $table->string('organizations')->nullable();
             $table->timestamps();
         });
     }

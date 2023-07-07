@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Instructor extends Model
 {
     use HasFactory;
+    protected $keyType = 'string';
     public function organization()
     {
-        return $this->belongsTo(Organization::class,'id', 'created_by');
+        return $this->belongsToMany(Organization::class,'id', 'created_by');
     }
     public function user()
     {

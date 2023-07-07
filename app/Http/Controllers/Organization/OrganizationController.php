@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -42,10 +43,6 @@ class OrganizationController extends Controller
         ->where('users.address', 'like', '%' . $address . '%')
         ->where('organizations.id', 'like', '%' . $id . '%')
         ->paginate($perPage, ['*'], 'page', $page);
-
-        // $organizations = Organization::with('users')
-        // ->where('users.type', '=', 'organization')
-        // ->get();
 
         $total = $organizations->total();
         $from = ($page - 1) * $perPage + 1;
@@ -80,9 +77,11 @@ class OrganizationController extends Controller
         
         $userUid = Uuid::uuid4()->toString();
         $orgUid = Uuid::uuid4()->toString();
+
+        Log::info(['user'=>$request->username, 'message'=>'This is create organization message']);
         $user = User::create([
             'id'=> $userUid,
-            'name' => $request->name,
+            'name' => $request->name.' - Admin',
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address'=> $request->address,
@@ -97,7 +96,15 @@ class OrganizationController extends Controller
             'created_by'=> $request->user()->id,
             'user_id'=> $userUid,
             'name'=> $request->name,  
+            'logo'=>'/laptop.jpg'
         ]);
+
+
+        try {
+            Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         return redirect('/organization/view/'.$orgUid);
     }
 
@@ -106,9 +113,10 @@ class OrganizationController extends Controller
      */
     public function show(string $id)
     {
-        $organization = Organization::with(
-            ['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
-        ->find($id);
+        $organization = Organization::with(['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
+            ->where('id', '=', $id)
+            ->first();
+        Log::info($organization);
         if(!$organization){
             return Inertia::render('Organization/show/index',['isEmpty'=> true, 'title'=> 'Organization', 'activeMenu'=>'organization']);
         }else {
@@ -162,5 +170,30 @@ class OrganizationController extends Controller
     public function destroy(string $id)
     {
         //
+        $organization = Organization::with(['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
+            ->where('id', '=', $id)
+            ->first();
+        Log::info($organization);
+
+        $students = $organization->students;
+        $instructors = $organization->instructors;
+        $checkpoints = $organization->checkpoints;
+
+        foreach($students as $student){
+            $student->organizations = 'Deleted';
+            $student->save();
+        }
+        foreach($instructors as $instructor){
+            $instructor->organizations = 'Deleted';
+            $instructor->save();
+        }
+        foreach($checkpoints as $checkpoint){
+            $checkpoint->is_approved = true;
+            $checkpoint->save();
+        }
+        $user = $organization->user;
+        $user->address = 'Deleted Address';
+        $user->save();
+        return Redirect::route('organization.index');
     }
 }

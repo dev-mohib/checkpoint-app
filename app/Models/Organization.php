@@ -9,6 +9,7 @@ class Organization extends Model
 {
 
     use HasFactory;
+    protected $keyType = 'string';
     protected $fillable = [
         // other existing fields
         'id',
@@ -18,12 +19,12 @@ class Organization extends Model
     ];
     public function instructors()
     {
-        return $this->hasMany(Instructor::class, 'created_by', 'id');
+        return $this->belongsToMany(Instructor::class, 'created_by', 'id');
     }
 
     public function students()
     {
-        return $this->hasMany(Student::class, 'created_by', 'id');
+        return $this->belongsToMany(Student::class, 'created_by', 'id');
     }
 
     public function checkpoints()

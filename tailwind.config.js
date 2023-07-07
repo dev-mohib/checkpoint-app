@@ -14,12 +14,23 @@ export default {
     darkMode: ["class", '[data-theme="dark"]'],
     daisyui: {
         themes: [{
+            // light : {
+            //     ...daisyThemes["[data-theme=light]"],
+            //     "primary": '#7c3aed',
+            //     "primary-focus" : "#8b5cf6"
+            // }
             light : {
-                ...daisyThemes["[data-theme=light]"],
-                "primary": '#7c3aed',
-                "primary-focus" : "#8b5cf6"
+                ...daisyThemes["[data-theme=corporate]"],
+            },
+            dark : {
+                ...daisyThemes["[data-theme=business]"],
             }
-        }, "dark",],
+        }, 
+        "dark",
+        "corporate",
+        "cmyk",
+
+    ],
         base: true
       },
     theme: {

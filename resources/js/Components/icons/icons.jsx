@@ -27,3 +27,5 @@ export const NavigateIcon = (props) => <img {...props} src="https://img.icons8.c
 export const DeleteIcon = (props) => <img {...props} src="https://img.icons8.com/ios/50/delete--v1.png" alt="delete--v1"/>
 
 export const EditIcon = (props) => <img {...props} src="https://img.icons8.com/fluency-systems-regular/96/create-new.png" alt="create-new"/> 
+
+export const ClearIcon = (props) => <img {...props} src="https://img.icons8.com/fluency-systems-regular/48/cancel.png" alt="cancel"/>

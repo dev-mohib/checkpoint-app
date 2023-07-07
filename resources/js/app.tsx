@@ -1,5 +1,6 @@
 import './bootstrap';
 import '../css/app.css';
+import 'filepond/dist/filepond.min.css'
 
 import { createRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
@@ -13,7 +14,11 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<div data-theme="luxury">
+        // themes
+        // emerald
+        // corporate
+        // cmyk
+        root.render(<div>
                 <App {...props} />
             </div>
             );

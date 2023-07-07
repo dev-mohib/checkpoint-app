@@ -1,11 +1,26 @@
+import React, { useEffect } from 'react'
+import { useForm } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
-import React from 'react'
 import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
 const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
-  
+  console.log({organization})
+  const {data, errors, processing, delete : deleteOrg} = useForm()
+  const handleDeleteOrg = () => {
+    // organization.destroy
+    deleteOrg('/organization/'+organization.id, {
+      onSuccess : () => {
+        console.log("organization deleted")
+      },
+      onError : (e) => console.log("Found an error ", e)
+    })
+  }
+
+  useEffect(() => {
+    console.log({deleteOrgData : data})
+  },[processing, errors])
   if(isEmpty)
   return (
     <AppLayout activeMenu={activeMenu} title={title}>
@@ -19,7 +34,7 @@ const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
       <Modal id="deleteOrgModal" title="Delete Organization">
         <h1>Do you really want to delete this organization?</h1>
         <div className='w-full flex justify-end'>
-          <div className='btn btn-error m-2'>YES!</div>
+          <div onClick={handleDeleteOrg}  className='btn btn-error m-2'>YES!</div>
           <button className='btn btn-ghost my-2'>CANCEL</button>
         </div>
       </Modal>

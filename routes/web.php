@@ -15,7 +15,7 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Landingpage/index', [
         'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
+        // 'canRegister' => Route::has('register'),
         'canOpenDashboard' => Route::has('dashboard'),
     ]);
 });
@@ -49,11 +49,12 @@ Route::middleware('auth')->group(function(){
 
 Route::middleware('auth')->group(function(){
     Route::get('/organization', [OrganizationController::class, 'index'])->name('organization.index');
-    Route::get('/organization/view/{id}', [OrganizationController::class, 'show'])->name('organization.show');
-    Route::get('/organization/edit/{id}', [OrganizationController::class, 'showEdit'])->name('organization.showEdit');
-    Route::put('/organization/edit', [OrganizationController::class, 'update'])->name('organization.edit');
+    Route::delete('/organization/{id}', [OrganizationController::class, 'destroy'])->name('organization.destroy');
     Route::get('/organization/new', [OrganizationController::class, 'create'])->name('organization.create');
     Route::post('/organization/store', [OrganizationController::class, 'store'])->name('organization.store');
+    Route::put('/organization/edit', [OrganizationController::class, 'update'])->name('organization.edit');
+    Route::get('/organization/view/{id}', [OrganizationController::class, 'show'])->name('organization.show');
+    Route::get('/organization/edit/{id}', [OrganizationController::class, 'showEdit'])->name('organization.showEdit');
 });
 
 Route::middleware('auth')->group(function(){

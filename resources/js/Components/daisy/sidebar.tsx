@@ -13,7 +13,7 @@ const Sidebar = ({page} : any) => {
             <CheckpointLogoIcon className="w-12 h-12" />
             <h1 className='font-sans text-xl'>Checkpoint</h1>
           </Link>
-          <div className='border-r-2 border-r-primary h-full'>
+          <div className='shadow-md h-full'>
             <ul className="menu w-full rounded-none px-0 text-xl pt-14">
               <li className={`${page == 'dashboard' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
                 <Link href={route('dashboard')}>
