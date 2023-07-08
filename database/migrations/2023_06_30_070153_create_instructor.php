@@ -14,13 +14,15 @@ return new class extends Migration
     {
         // instructor is created by organization
         Schema::create('instructors', function (Blueprint $table) {
-            $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
-            $table->string('user_id', 36)->default(Uuid::uuid4()->toString());
-            $table->string('created_by', 36)->default(Uuid::uuid4()->toString());
+            $table->id();
+            // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
+            $table->bigInteger('users_id')->nullable();
+            $table->bigInteger('created_by')->nullable();
+            $table->bigInteger('organization_id')->nullable();
+            $table->string('status')->default('active');
             $table->string('access_start_date')->nullable();
             $table->string('access_end_date')->nullable();
             $table->string('qualification')->nullable();
-            $table->string('organizations')->nullable();
             $table->string('photo_id_front')->nullable();
             $table->string('photo_id_back')->nullable();
             $table->timestamps();
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('instructor');
+        Schema::dropIfExists('instructors');
     }
 };

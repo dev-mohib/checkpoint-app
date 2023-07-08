@@ -8,14 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     use HasFactory;
-    protected $keyType = 'string';
+    // protected $keyType = 'string';
+    protected $table = 'students';
 
-    public function organization()
+    public function organizations()
     {
         return $this->belongsToMany(Organization::class);
     }
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class);
     }
 }

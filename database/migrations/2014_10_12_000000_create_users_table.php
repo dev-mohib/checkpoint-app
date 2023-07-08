@@ -13,7 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
+            $table->id();
+            // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

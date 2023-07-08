@@ -8,5 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Admin extends Model
 {
     use HasFactory;
-    protected $keyType = 'string';
+    // protected $keyType = 'string';
+    protected $table = 'admins';
+
 }

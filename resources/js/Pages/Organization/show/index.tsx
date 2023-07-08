@@ -51,9 +51,9 @@ const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
         <h1 className='py-2 text-secondary font-extrabold'>{organization.name}</h1>
         <table className='table table-sm  bg-base-100 shadow-md'>
           <thead>
-            <tr>
-              <td className='font-extrabold text-lg bg-primary rounded-tl-xl text-base-100 '>Details</td>
-              <td className='bg-primary rounded-tr-xl'></td>
+            <tr className='bg-primary'>
+              <td className='font-extrabold text-lg text-base-100 '>Details</td>
+              <td></td>
             </tr>
           </thead>
           <tbody>
@@ -63,19 +63,19 @@ const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
             </tr>
             <tr>
               <td>Username</td>
-              <td>{organization.user.username}</td>
+              <td>{organization.users.username}</td>
             </tr>
             <tr>
               <td>Email</td>
-              <td>{organization.user.email}</td>
+              <td>{organization.users.email}</td>
             </tr>
             <tr>
               <td>Address</td>
-              <td>{organization.user.address}</td>
+              <td>{organization.users.address}</td>
             </tr>
             <tr>
               <td>Contact</td>
-              <td>{organization.user.contact_number}</td>
+              <td>{organization.users.contact_number}</td>
             </tr>
           </tbody>
         </table>
@@ -125,19 +125,19 @@ const Instructors = ({instructors} : {instructors : any[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
-            <tr className='text-base-100'>
-              <td className='font-extrabold text-lg bg-primary rounded-tl-xl '>Name</td>
-              <td className='font-extrabold text-lg bg-primary'>Email</td>
-              <td className='font-extrabold text-lg bg-primary'>Address</td>
-              <td className='font-extrabold text-lg bg-primary rounded-tr-xl '></td>
+            <tr className='text-base-100 bg-primary'>
+              <td className='font-extrabold text-lg '>Name</td>
+              <td className='font-extrabold text-lg '>Email</td>
+              <td className='font-extrabold text-lg '>Address</td>
+              <td className='font-extrabold text-lg '></td>
             </tr>
           </thead>
           <tbody>
             {
               instructors.map((instructor : any, index) => <tr key={instructor.id}  className='hover'>
-                <td>{instructor.user.name}</td>
-                <td>{instructor.user.email}</td>
-                <td>{instructor.user.address}</td>
+                <td>{instructor.users.name}</td>
+                <td>{instructor.users.email}</td>
+                <td>{instructor.users.address}</td>
                 <td>
                   <Link href={route('instructor.index')}>
                     <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
@@ -154,19 +154,19 @@ const Students = ({students} : {students : any[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
-          <tr className='text-base-100'>
-              <td className='font-extrabold text-lg bg-primary rounded-tl-xl '>Name</td>
-              <td className='font-extrabold text-lg bg-primary'>Email</td>
-              <td className='font-extrabold text-lg bg-primary'>Address</td>
-              <td className='font-extrabold text-lg bg-primary rounded-tr-xl '></td>
+          <tr className='text-base-100 bg-primary'>
+              <td className='font-extrabold text-lg '>Name</td>
+              <td className='font-extrabold text-lg '>Email</td>
+              <td className='font-extrabold text-lg '>Address</td>
+              <td className='font-extrabold text-lg '></td>
             </tr>
           </thead>
           <tbody>
             {
               students.map((student : any, index) => <tr key={student.id}  className='hover'>
-                  <td>{student.user.name}</td>
-                  <td>{student.user.email}</td>
-                  <td>{student.user.address}</td>
+                  <td>{student.users.name}</td>
+                  <td>{student.users.email}</td>
+                  <td>{student.users.address}</td>
                 <td>
                   <Link href={route('student.index')}>
                     <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
@@ -183,11 +183,11 @@ const Checkpoints = ({checkpoints} : {checkpoints : any[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
-          <tr className='text-base-100'>
-              <td className='font-extrabold text-lg bg-primary rounded-tl-xl '>Name</td>
-              <td className='font-extrabold text-lg bg-primary'>Validity</td>
-              <td className='font-extrabold text-lg bg-primary'>Grades</td>
-              <td className='font-extrabold text-lg bg-primary rounded-tr-xl '></td>
+          <tr className='text-base-100 bg-primary'>
+              <td className='font-extrabold text-lg '>Name</td>
+              <td className='font-extrabold text-lg '>Validity</td>
+              <td className='font-extrabold text-lg '>Grades</td>
+              <td className='font-extrabold text-lg '></td>
             </tr>
           </thead>
           <tbody>

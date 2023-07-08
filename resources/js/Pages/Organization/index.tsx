@@ -3,9 +3,11 @@ import { Head } from '@inertiajs/react'
 import React from 'react'
 import OragnizationTable from './partial/org_table'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
-const Index = ({activeMenu, title, data, ziggy}:any) => {
+const Index = ({activeMenu, title, organizations, ziggy, to, from, total}:any) => {
   
-  if(!data || data.length ==0 )
+  console.log({organizations})
+  
+  if(!organizations || organizations.length ==0 )
   return (
     <AppLayout activeMenu={activeMenu} title={title}> 
       <Head title='Organization'/>
@@ -20,7 +22,7 @@ const Index = ({activeMenu, title, data, ziggy}:any) => {
     <AppLayout activeMenu={activeMenu} title={title}> 
       <Head title='Organization'/>
       <Breadcrumb list={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]} />
-      <OragnizationTable organizations={data} query={ziggy.query}/>
+      <OragnizationTable organizations={organizations} query={ziggy.query}/>
     </AppLayout>
   )
 }

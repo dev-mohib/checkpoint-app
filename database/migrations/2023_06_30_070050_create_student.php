@@ -13,14 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
-            $table->string('user_id', 36)->default(Uuid::uuid4()->toString());
-            $table->string('created_by', 36)->default(Uuid::uuid4()->toString());
-            $table->string('org_id', 36)->default(Uuid::uuid4()->toString());
+            $table->id();
+            // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
+            $table->bigInteger('users_id')->nullable();
+            $table->bigInteger('created_by')->nullable();
+            $table->bigInteger('organization_id')->nullable();
             $table->string('parent_name')->nullable();
             $table->string('parent_relationship')->nullable();
             $table->string('photo_id_front')->nullable();
             $table->string('photo_id_back')->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('student');
+        Schema::dropIfExists('students');
     }
 };

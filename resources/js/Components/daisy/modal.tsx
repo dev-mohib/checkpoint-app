@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Modal = ({id, children, title} : any) => {
+const Modal = ({id, children, title} : {id: string, children : any, title: string}) => {
   return (
     <dialog id={id} className="modal">
         <form method="dialog" className="modal-box">

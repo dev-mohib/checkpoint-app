@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Organization;
@@ -15,55 +16,41 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
-use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class OrganizationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
-        //
         $name = $request->query('name')??'';
         $email = $request->query('email')??'';
         $id = $request->query('id')??'';
         $address = $request->query('address')??'';
         $username = $request->query('username')??'';
-        $perPage = 5;
-        $page = $request->query('page')??1;
-        $organizations = DB::table('organizations')
-        ->join('users', 'users.id', '=', 'organizations.user_id')
-        ->select('organizations.id', 'organizations.name', 'users.email', 'users.username', 'users.address', 'organizations.logo', 'users.status')
-        ->where('users.type', '=', 'organization')
-        ->where('organizations.name', 'like', '%' . $name . '%')
-        ->where('users.username', 'like', '%' . $username . '%')
-        ->where('users.email', 'like', '%' . $email . '%')
-        ->where('users.address', 'like', '%' . $address . '%')
-        ->where('organizations.id', 'like', '%' . $id . '%')
-        ->paginate($perPage, ['*'], 'page', $page);
 
-        $total = $organizations->total();
-        $from = ($page - 1) * $perPage + 1;
-        $to = $from + $perPage - 1;
-        $to = min($to, $total);
-                
-        return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'data'=>$organizations, 'from'=>$from, 'to'=>$to,'total'=>$total]);
+        $organizations = Organization::with(['users'])
+        ->where('organizations.name', 'like', '%' . $name . '%')
+        ->whereHas('users', function ($query) use ($username) {
+            $query->where('username', 'like', '%'.$username.'%');
+        })
+        ->whereHas('users', function ($query) use ($email) {
+            $query->where('email', 'like', '%'.$email.'%');
+        })
+        ->whereHas('users', function ($query) use ($address) {
+            $query->where('address', 'like', '%'.$address.'%');
+        })
+        ->where('id', 'like', '%' . $id . '%')
+        ->paginate(5);
+        return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'organizations'=>$organizations]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
         return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         // $request->validate([
@@ -108,14 +95,12 @@ class OrganizationController extends Controller
         return redirect('/organization/view/'.$orgUid);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        $organization = Organization::with(['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
-            ->where('id', '=', $id)
-            ->first();
+        $organization = Organization::with([
+            'students','instructors', 'checkpoints','users', 'instructors.users', 'students.users'
+            ])
+        ->find($id);
         Log::info($organization);
         if(!$organization){
             return Inertia::render('Organization/show/index',['isEmpty'=> true, 'title'=> 'Organization', 'activeMenu'=>'organization']);
@@ -126,8 +111,8 @@ class OrganizationController extends Controller
     public function showEdit(string $id)
     {   
         // $id = $request->query('id');
-        $organization = Organization::with(['user'])
-        ->find($id??'1234');
+        $organization = Organization::with(['users'])
+        ->find($id);
         if(!$organization){
             return Inertia::render('Organization/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
         }else {
@@ -138,13 +123,13 @@ class OrganizationController extends Controller
     public function update(Request $request)
     {
         $form = $request->all();
-        $org = Organization::with('user')
+        $org = Organization::with('users')
         ->find($form['id']);
 
         $org->name = $form['name'];
         $org->save();
 
-        $user = $org->user;
+        $user = $org->users;
         $user->contact_number = $form['contact_number'];
         if($form['password'])
             $user->password = $form['password'];
@@ -164,36 +149,45 @@ class OrganizationController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
-        //
-        $organization = Organization::with(['students','instructors', 'checkpoints','user', 'students.user' , 'instructors.user'])
-            ->where('id', '=', $id)
-            ->first();
-        Log::info($organization);
+        $organization = Organization::find($id);
+        if($organization){
+            $instructors = $organization->instructors;
+            $checkpoints = $organization->checkpoints;
+            $students = $organization->students;
 
-        $students = $organization->students;
-        $instructors = $organization->instructors;
-        $checkpoints = $organization->checkpoints;
+            foreach($checkpoints as $checkpoint){
+                $checkpoint->delete();
+            }
 
-        foreach($students as $student){
-            $student->organizations = 'Deleted';
-            $student->save();
+            foreach($instructors as $instructor){
+                $organization->instructors()->detach($instructor);
+                $alreadyAttached = Organization::whereHas('instructors', function ($query) use ($instructor) {
+                    $query->where('instructors.id', $instructor->id);
+                })->exists();
+
+                if(!$alreadyAttached){
+                    $instructor->users->delete();
+                    $instructor->delete();
+                }
+            }
+
+            foreach($students as $student){
+                $organization->students()->detach($student);
+                $alreadyAttached = Organization::whereHas('students', function ($query) use ($student) {
+                    $query->where('students.id', $student->id);
+                })->exists();
+
+                if(!$alreadyAttached){
+                    $student->users->delete();
+                    $student->delete();
+                }
+            }
+           
+            $organization->users->delete();
+            $organization->delete();
         }
-        foreach($instructors as $instructor){
-            $instructor->organizations = 'Deleted';
-            $instructor->save();
-        }
-        foreach($checkpoints as $checkpoint){
-            $checkpoint->is_approved = true;
-            $checkpoint->save();
-        }
-        $user = $organization->user;
-        $user->address = 'Deleted Address';
-        $user->save();
         return Redirect::route('organization.index');
     }
 }

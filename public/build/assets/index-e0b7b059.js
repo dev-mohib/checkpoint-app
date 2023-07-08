@@ -1,0 +1,1 @@
+import{a as t,j as a,b as s}from"./app-4885bbf9.js";import{A as e}from"./AppLayout-e25d1d8a.js";import i from"./cards-d95104da.js";import"./icons-a6ae82bc.js";function h({auth:p,page:m,activeMenu:r,title:o}){return t(e,{activeMenu:r,title:o,children:[a(s,{title:"Dashboard"}),a(i,{})]})}export{h as default};

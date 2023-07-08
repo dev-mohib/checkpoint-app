@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Checkpoint extends Model
 {
     use HasFactory;
-    protected $keyType = 'string';
+    // protected $keyType = 'string';
+    protected $table = 'checkpoints';
 
-    public function organization()
+
+    public function organizations()
     {
-        return $this->belongsTo(Organization::class,'org_id');
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 }

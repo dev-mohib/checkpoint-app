@@ -1,6 +1,7 @@
+import React, { useState } from 'react';
 import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
 import { Link } from '@inertiajs/react';
-import React, { useState } from 'react';
+import Filter from './filter';
 
   const Table = ({organizations, query} : {organizations : any, query : any}) => {
     
@@ -155,9 +156,9 @@ import React, { useState } from 'react';
                         </div>
                     </div>
                   </td>
-                  <td className="py-2 px-4">{row.username}</td>
-                  <td className="py-2 px-4">{row.email}</td>
-                  <td className="py-2 px-4">{row.address}</td>
+                  <td className="py-2 px-4">{row.users.username}</td>
+                  <td className="py-2 px-4">{row.users.email}</td>
+                  <td className="py-2 px-4">{row.users.address}</td>
                   <td className="py-2 px-4">{row.id}</td>
                   <td className='py-2 px-4'>
                     <div className='w-full flex-c-c'>

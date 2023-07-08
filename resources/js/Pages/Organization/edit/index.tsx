@@ -19,10 +19,10 @@ const Index = ({activeMenu, title, organization, isFound}:any) => {
   const { data, setData,put, errors, processing, recentlySuccessful } = useForm({
     id: organization.id,
     name: organization.name,
-    email: organization.user.email,
-    address : organization.user.address,
-    contact_number : organization.user.contact_number,
-    username: organization.user.username,
+    email: organization.users.email,
+    address : organization.users.address,
+    contact_number : organization.users.contact_number,
+    username: organization.users.username,
     password : ''
 });
 
