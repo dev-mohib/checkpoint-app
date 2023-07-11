@@ -5,7 +5,7 @@ import { Head, Link } from '@inertiajs/react'
 import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
+const ViewOrganization = ({organization, isEmpty, activeMenu, title, auth} : any) => {
   console.log({organization})
   const {data, errors, processing, delete : deleteOrg} = useForm()
   const handleDeleteOrg = () => {
@@ -23,13 +23,13 @@ const ViewOrganization = ({organization, isEmpty, activeMenu, title} : any) => {
   },[processing, errors])
   if(isEmpty)
   return (
-    <AppLayout activeMenu={activeMenu} title={title}>
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
       <Head title="Organization"/>
       <div className='min-h-screen flex-c-c text-3xl font-extrabold'>Organization not found</div>
     </AppLayout>
   )
   return (
-    <AppLayout activeMenu={activeMenu} title={title}>
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
       <Head title={organization.name}/>
       <Modal id="deleteOrgModal" title="Delete Organization">
         <h1>Do you really want to delete this organization?</h1>

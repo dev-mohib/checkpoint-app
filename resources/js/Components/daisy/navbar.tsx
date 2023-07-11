@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { DarkThemeIcon, LightThemeIcon, UserIcon, NotificationIcon, MenuIcon} from '@/Components/icons/icons'
+import { DarkThemeIcon, LightThemeIcon, NotificationIcon } from '@/Components/icons/icons'
+import { MoonIcon, SunIcon, UserIcon, BellIcon, MenuIcon} from '@/Components/icons'
 import { Link } from '@inertiajs/react'
 const Navbar = ({page = "Checkpoint", title} : {page : string, title : string}) => {
     const [isDark, setDark] = useState(false)
@@ -17,15 +18,15 @@ const Navbar = ({page = "Checkpoint", title} : {page : string, title : string}) 
         <div className="flex-grow justify-end">
             <label onClick={() => setDark(d => !d)}  className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
                 {
-                isDark ?<LightThemeIcon className="w-5 rounded-full h-5"/>
+                isDark ?<SunIcon className="w-6 rounded-full h-6"/>
                 :
-                <DarkThemeIcon className="w-5 rounded-full h-5"/>
+                <MoonIcon className="w-6 rounded-full h-6"/>
                 }                
             </label>
             <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <div className="indicator">
-                    <NotificationIcon className="w-5 h-5" />
+                    <BellIcon className="w-6 h-6" />
                     <span className="badge badge-sm indicator-item">8</span>
                 </div>
             </label>

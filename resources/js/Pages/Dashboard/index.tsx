@@ -5,7 +5,7 @@ import Welcome from '../Welcome';
 import CardSection from './partials/cards';
 export default function Dashboard({ auth, page, activeMenu, title }: any) {
     return (
-        <AppLayout activeMenu={activeMenu} title={title}>
+        <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
           <Head title='Dashboard'/>
           <CardSection />              
              

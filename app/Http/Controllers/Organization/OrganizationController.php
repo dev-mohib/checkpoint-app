@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Utils\UserType;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Uuid; 
 
 class OrganizationController extends Controller
 {
@@ -29,22 +30,29 @@ class OrganizationController extends Controller
         $address = $request->query('address')??'';
         $username = $request->query('username')??'';
 
-        $organizations = Organization::with(['users'])
-        ->where('organizations.name', 'like', '%' . $name . '%')
-        ->whereHas('users', function ($query) use ($username) {
-            $query->where('username', 'like', '%'.$username.'%');
-        })
-        ->whereHas('users', function ($query) use ($email) {
-            $query->where('email', 'like', '%'.$email.'%');
-        })
-        ->whereHas('users', function ($query) use ($address) {
-            $query->where('address', 'like', '%'.$address.'%');
-        })
-        ->where('id', 'like', '%' . $id . '%')
-        ->paginate(5);
-        return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'organizations'=>$organizations]);
-    }
+        if(UserType::is_instructor($request) || UserType::is_student($request)){
+            return UserType::notAllowed();
+        }
+        
+        if(UserType::is_admin($request)){
+            $organizations = Organization::with(['users'])
+            ->where('organizations.name', 'like', '%' . $name . '%')
+            ->whereHas('users', function ($query) use ($username) {
+                $query->where('username', 'like', '%'.$username.'%');
+            })
+            ->whereHas('users', function ($query) use ($email) {
+                $query->where('email', 'like', '%'.$email.'%');
+            })
+            ->whereHas('users', function ($query) use ($address) {
+                $query->where('address', 'like', '%'.$address.'%');
+            })
+            ->where('id', 'like', '%' . $id . '%')
+            ->paginate(5);
+            return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'organizations'=>$organizations]);
+        }
+     
 
+    }
     public function create()
     {
         //

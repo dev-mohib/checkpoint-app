@@ -13,12 +13,7 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
-
-        // themes
-        // emerald
-        // corporate
-        // cmyk
-        root.render(<div>
+        root.render(<div data-theme="light">
                 <App {...props} />
             </div>
             );

@@ -6,13 +6,10 @@ const Breadcrumb = ({list}:{list : {title : string, href: string | null}[]}) => 
     <div className="text-sm breadcrumbs">
         <ul>
             {
-              list.map((item, index)=> <li>
+              list.map((item, index)=> <li key={index}>
                 {item.href ? <Link href={item.href}>{item.title}</Link> : item.title}
               </li>)
             }
-            {/* <li><Link href='/'>Home</Link></li> 
-            <li><Link href='/'>Documents</Link></li> 
-            <li>Add Document</li> */}
         </ul>
     </div>
   )

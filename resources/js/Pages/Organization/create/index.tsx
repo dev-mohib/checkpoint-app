@@ -3,7 +3,8 @@ import AppLayout from '@/Layouts/AppLayout'
 import { Head, useForm } from '@inertiajs/react'
 import React, { FormEventHandler } from 'react'
 import { FilePond } from 'react-filepond'
-const Index = ({activeMenu, title}:any) => {
+import { PlusIcon } from '@/Components/icons';
+const Index = ({activeMenu, title, auth}:any) => {
   const { data, setData,post, errors, processing, recentlySuccessful } = useForm({
     name: '',
     email: '',
@@ -20,7 +21,7 @@ const submit: FormEventHandler = (e) => {
   post(route('organization.store'));
 };
   return (
-    <AppLayout activeMenu={activeMenu} title={title}> 
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
       <Head title='Create Organization'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Create New', href : null}]}/>
       
@@ -33,7 +34,7 @@ const submit: FormEventHandler = (e) => {
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">Name</label>
             <input type="text" id="name" name="name" 
-              placeholder='Organization' className="input border-2 border-base-200 input-ghost w-full" 
+              placeholder='Hauck PLC' className="input border-2 border-base-200 input-ghost w-full" 
               value={data.name}
               onChange={(e) => setData('name', e.target.value)}
               />
@@ -59,10 +60,23 @@ const submit: FormEventHandler = (e) => {
             </div>
             <div className="ml-2">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Logo</label>
-              <input type="file" id="logo" name="logo" accept="image/*" className="file-input  w-full  " />
+              <input type="file" id="logo" name="logo" accept="image/*" className="file-input  w-full  file-input-primary" />
             </div>
           </div>
-
+          <div>
+            <h1 className='block text-gray-700 font-semibold mb-2'>Belongs to</h1>
+            <div className='p-3 w-full border-2 rounded-lg bg-base-200 flex items-center'>
+              <div className="badge badge-primary  gap-1 rounded py-4 pl-3 pr-1">
+                <p className='font-bold text-md'>
+                  Hauck PLC
+                </p>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-4 h-4 stroke-current cursor-pointer"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </div>
+              <div className='mx-2'>
+                <PlusIcon className='w-6 h-6 cursor-pointer hover:opacity-70' />
+              </div>
+            </div>
+          </div>
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">Email</label>
             <input type="email" id="email" name="email" 

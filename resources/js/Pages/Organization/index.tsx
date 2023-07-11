@@ -3,13 +3,11 @@ import { Head } from '@inertiajs/react'
 import React from 'react'
 import OragnizationTable from './partial/org_table'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
-const Index = ({activeMenu, title, organizations, ziggy, to, from, total}:any) => {
-  
-  console.log({organizations})
-  
+const Index = ({activeMenu, title, organizations, ziggy, auth}:any) => {
+
   if(!organizations || organizations.length ==0 )
   return (
-    <AppLayout activeMenu={activeMenu} title={title}> 
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
       <Head title='Organization'/>
       <Breadcrumb list={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]} />
       {/* <OragnizationTable /> */}
@@ -19,7 +17,7 @@ const Index = ({activeMenu, title, organizations, ziggy, to, from, total}:any) =
     </AppLayout>
   )
   return (
-    <AppLayout activeMenu={activeMenu} title={title}> 
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
       <Head title='Organization'/>
       <Breadcrumb list={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]} />
       <OragnizationTable organizations={organizations} query={ziggy.query}/>

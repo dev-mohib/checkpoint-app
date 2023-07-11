@@ -1,142 +1,93 @@
-import React, { useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
-import { Link } from '@inertiajs/react';
+import { Link, useForm  } from '@inertiajs/react';
 import Filter from './filter';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
   const Table = ({organizations, query} : {organizations : any, query : any}) => {
-    
-    const [name, setName] = useState(query.name??'')
-    const [username, setUsername] = useState(query.username??'')
-    const [email, setEmail] = useState(query.email??'')
-    const [address, setAddress] = useState(query.address??'')
-    const [id, setId] = useState(query.id??'')
+    const [input, setInput] = useState('')
+    const [filter, setFilter] = useState('name')
+
+    useEffect(() => {
+      const f = `${query.filter}`
+      if(f == 'name'){
+        setFilter(f)
+        setInput(query.name)
+      }
+      else if(f == 'email'){
+        setFilter(f)
+        setInput(query.email)
+      }
+      else if(f == 'address'){
+        setFilter(f)
+        setInput(query.address)
+      }
+      else if(f == 'id'){
+        setFilter(f)
+        setInput(query.id)
+      }else{
+        setFilter('all')
+      }
+
+    },[])
     const createOrganization = () =>{ 
         // @ts-ignore
         document.getElementById("CreateNewOrgModel")?.showModal()
     }
+
     return (
       <div className=" p-4">
         <div className='flex-r-b'>
-            {/* <SearchOrganization /> */}
+            {/* <SearchOrganization  /> */}
+            <div className="join my-5 border-2 border-primary">
+                    <div className='input-group flex-r-c'>
+                      <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
+                      <button onClick={() => setInput('')}  className='btn bg-base-100 hover:bg-base-100 join-item'>
+                          {/* <ClearIcon className="w-4 h-4"/> */}
+                          <FontAwesomeIcon icon={faXmark}/>
+                        </button>
+                    </div>
+                <select className="select select-bordered join-item" value={filter} onChange={(e) => setFilter(e.target.value)}>
+                    <option disabled selected value="all">Search By</option>
+                    <option value="name">Name</option>
+                    <option value="id">ID</option>
+                    <option value="email">Email</option>
+                    <option value="username">Username</option>
+                </select>
+                <div className="indicator ">
+                    <Link href={route('organization.index', {
+                      name: filter == 'name' ? input:'', 
+                      email : filter == 'email'?input:'', 
+                      username:filter == 'username'?input:'', 
+                      id: filter == 'id'?input : '', 
+                      filter: filter})}  className="btn join-item btn-primary">Search</Link>
+                </div>
+            </div>
+        {/* End */}
             <div></div>
-            <Link href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
             <table className="table table-sm bg-base-100 shadow-md">
             <thead>
-                <tr>
-                  <th className="py-2 px-4 bg-primary">
-                      <div 
-                          className="flex items-center cursor-pointer text-sm font-extrabold m-1 text-base-200" 
-                          >
+                <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
+                  <th>
                       Name
-                      </div>
-                      <div className='input-group'>
-                      <input 
-                          className="input border-none input-xs w-full" 
-                          placeholder="Search..."
-                          type="text"
-                          value={name}
-                          onChange={(e) =>
-                          setName(e.target.value )
-                          }    
-                      />
-                        <button onClick={() => setName('')}  className='btn px-2 bg-base-100  btn-xs py-1'>
-                          <ClearIcon className="w-4 h-4"/>
-                        </button>
-                      </div>
                   </th>
-                  <th className="py-2 px-4 bg-primary">
-                      <div 
-                          className="flex items-center cursor-pointer text-sm font-extrabold m-1 text-base-200" 
-                      >
+                  <th className="">
                       Username
-                      </div>
-                      <div className='input-group'>
-                      <input 
-                          className="input border-none input-xs w-full" 
-                          placeholder="Search..."
-                          type="text"
-                          value={username}
-                          onChange={(e) =>
-                          setUsername(e.target.value )
-                          }    
-                      />
-                        <button onClick={() => setUsername('')}  className='btn px-2 bg-base-100  btn-xs py-1'>
-                          <ClearIcon className="w-4 h-4"/>
-                        </button>
-                      </div>
                   </th>
-                  <th className="py-2 px-4 bg-primary">
-                      <div 
-                          className="flex items-center cursor-pointer text-sm font-extrabold m-1 text-base-200" 
-                      >
+                  <th>
                       Email
-                      </div>
-                      <div className='input-group'>
-                      <input 
-                          className="input border-none input-xs w-full" 
-                          placeholder="Search..."
-                          type="text"
-                          value={email}
-                          onChange={(e) =>
-                          setEmail(e.target.value )
-                          }    
-                      />
-                        <button onClick={() => setEmail('')}  className='btn px-2 bg-base-100  btn-xs py-1'>
-                          <ClearIcon className="w-4 h-4"/>
-                        </button>
-                      </div>
                   </th>
-                  <th className="py-2 px-4 bg-primary">
-                      <div 
-                          className="flex items-center cursor-pointer text-sm font-extrabold m-1 text-base-200" 
-                      >
+                  <th>
                       Address
-                      </div>
-                      <div className='input-group'>
-                      <input 
-                          className="input border-none input-xs w-full" 
-                          placeholder="Search..."
-                          type="text"
-                          value={address}
-                          onChange={(e) =>
-                          setAddress(e.target.value )
-                          }    
-                      />
-                        <button onClick={() => setAddress('')}  className='btn px-2 bg-base-100 btn-xs py-1'>
-                          <ClearIcon className="w-4 h-4"/>
-                        </button>
-                      </div>
                   </th>
-                  <th className="py-2 px-4 bg-primary">
-                      <div 
-                          className="flex items-center cursor-pointer text-sm font-extrabold m-1 text-base-200" 
-                      >
+                  <th>
                       ID
-                      </div>
-                      <div className='input-group'>
-                      <input 
-                          className="input border-none input-xs w-full"
-                          style={{minWidth : 50}}  
-                          placeholder="Search..."
-                          type="text"
-                          value={id}
-                          onChange={(e) =>
-                          setId(e.target.value )
-                          }    
-                      />
-                        <button onClick={()=>setId('')}  className='btn px-2 bg-base-100  btn-xs py-1'>
-                          <ClearIcon className="w-4 h-4"/>
-                        </button>
-                      </div>
                   </th>
-                  <th className='bg-primary'>
-                    <div className='flex-r-c'>
-                      <Link href={route('organization.index', {name,email,id,address,username})} className='btn btn-secondary btn-sm  mt-4 mr-4'>
-                        Search
-                      </Link>
-                    </div>
+                  <th>
                   </th>
                 </tr>
             </thead>
@@ -201,12 +152,12 @@ import Filter from './filter';
   };
 
 
-  const SearchOrganization = () => {
+  const SearchFilter = ({input, setInput, onClick} : {input : string, setInput: any, onClick:MouseEventHandler<HTMLButtonElement>}) => {
     return(
         <div className="join my-5 border-2 border-primary">
             <div>
                 <div>
-                <input className="input input-bordered join-item" placeholder="Search..."/>
+                  <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
                 </div>
             </div>
             <select className="select select-bordered join-item">
@@ -217,8 +168,7 @@ import Filter from './filter';
                 <option>Username</option>
             </select>
             <div className="indicator">
-                {/* <span className="indicator-item badge badge-secondary">new</span>  */}
-                <button className="btn join-item btn-primary">Search</button>
+                <button onClick={onClick}  className="btn join-item btn-primary">Search</button>
             </div>
         </div>
     )

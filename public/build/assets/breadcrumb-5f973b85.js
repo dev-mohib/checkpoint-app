@@ -1,0 +1,1 @@
+import{j as e,d as s}from"./app-fffb7e5e.js";const c=({list:d})=>e("div",{className:"text-sm breadcrumbs",children:e("ul",{children:d.map((r,l)=>e("li",{children:r.href?e(s,{href:r.href,children:r.title}):r.title},l))})});export{c as B};
