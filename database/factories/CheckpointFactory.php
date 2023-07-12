@@ -49,7 +49,9 @@ class CheckpointFactory extends Factory
             'name'=>$v,
             'description' => fake()->realText($maxNbChars = 50, $indexSize = 2),
             'instructor_input' => fake()->realText($maxNbChars = 60, $indexSize = 2),
-            'organization_id' => rand(1,10),
+            'organizations_id' => rand(1,10),
+            'instructors_id' => rand(1,10),
+            'students_id' => rand(1,10),
             'validity_period' => $period[array_rand($period)],
             'achieved_gradepoints' => rand(60, 95),
             'total_gradepoints' => 100

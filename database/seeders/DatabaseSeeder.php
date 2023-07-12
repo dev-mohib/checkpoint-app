@@ -11,25 +11,22 @@ use App\Models\OrganizationInstructor;
 use App\Models\OrganizationStudent;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\InstuctorStudent;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        
-
         User::factory()->count(30)->create();
         Organization::factory()->count(10)->create();
         Instructor::factory()->count(10)->create();
         Student::factory()->count(10)->create();
         Checkpoint::factory()->count(20)->create();
-        OrganizationInstructor::factory(10)->create();
-        OrganizationStudent::factory(10)->create();
+        OrganizationInstructor::factory()->count(10)->create();
+        InstuctorStudent::factory()->count(10)->create();
+        OrganizationStudent::factory()->count(10)->create();
         User::factory()->create([
             'id'=>'111',
             'name'=> 'Mohib Ali',

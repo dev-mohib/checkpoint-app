@@ -19,8 +19,9 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->string('status')->default('active');
             $table->bigInteger('created_by')->nullable();
-            $table->bigInteger('organization_id')->nullable();
-            $table->bigInteger('instructor_id')->nullable();
+            $table->bigInteger('organizations_id')->nullable();
+            $table->bigInteger('instructors_id')->nullable();
+            $table->bigInteger('students_id')->nullable();
             $table->string('validity_period')->nullable();
             $table->string('assigned_instructor')->nullable();
             $table->string('assigned_students')->nullable();

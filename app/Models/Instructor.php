@@ -15,6 +15,14 @@ class Instructor extends Model
     {
         return $this->belongsToMany(Organization::class, 'organization_instructor', 'instructor_id', 'organization_id');
     }
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'instructor_student', 'student_id', 'instructor_id');
+    }
+    public function checkpoints()
+    {
+        return $this->hasMany(Checkpoint::class);
+    }
     public function users()
     {
         return $this->belongsTo(User::class);
