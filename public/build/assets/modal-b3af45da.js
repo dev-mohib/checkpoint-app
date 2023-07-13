@@ -1,1 +1,0 @@
-import{j as a,a as l}from"./app-fffb7e5e.js";const d=({id:o,children:s,title:t})=>a("dialog",{id:o,className:"modal",children:l("form",{method:"dialog",className:"modal-box",children:[a("button",{className:"btn btn-sm btn-circle btn-ghost absolute right-2 top-2",children:"✕"}),a("h3",{className:"font-bold text-lg",children:t}),a("div",{children:s})]})});export{d as M};
