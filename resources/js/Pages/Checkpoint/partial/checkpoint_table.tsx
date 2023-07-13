@@ -5,7 +5,8 @@ import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
-  const Table = ({organizations, query} : {organizations : any, query : any}) => {
+  const Table = ({query ,checkpoints} : { query : any, checkpoints:any}) => {
+    console.log({checkpoints})
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
 
@@ -15,17 +16,25 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
         setFilter(f)
         setInput(query.name)
       }
-      else if(f == 'email'){
-        setFilter(f)
-        setInput(query.email)
-      }
-      else if(f == 'address'){
-        setFilter(f)
-        setInput(query.address)
-      }
       else if(f == 'id'){
         setFilter(f)
         setInput(query.id)
+      }
+      else if(f == 'orgName'){
+        setFilter(f)
+        setInput(query.orgName)
+      }
+      else if(f == 'orgID'){
+        setFilter(f)
+        setInput(query.orgID)
+      }
+      else if(f == 'instructorName'){
+        setFilter(f)
+        setInput(query.instructorName)
+      }
+      else if(f == 'studentName'){
+        setFilter(f)
+        setInput(query.studentName)
       }else{
         setFilter('all')
       }
@@ -39,6 +48,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
     return (
       <div className=" p-4">
         <div className='flex-r-b'>
+            {/* <SearchOrganization  /> */}
             <div className="join my-5 border-2 border-primary">
                     <div className='input-group flex-r-c'>
                       <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
@@ -49,23 +59,26 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     </div>
                 <select className="select select-bordered join-item" value={filter} onChange={(e) => setFilter(e.target.value)}>
                     <option disabled selected value="all">Search By</option>
-                    <option value="name">Name</option>
                     <option value="id">ID</option>
-                    <option value="email">Email</option>
-                    <option value="username">Username</option>
+                    <option value="name">Name</option>
+                    <option value="orgName">Organization Name</option>
+                    <option value="orgID">Organization ID</option>
+                    <option value="instructorName">Instructor Name</option>
+                    <option value="studentName">Student Name</option>
                 </select>
                 <div className="indicator ">
-                    <Link href={route('organization.index', {
+                    <Link href={route('checkpoint.index', {
+                      id: filter == 'id'? input : '', 
                       name: filter == 'name' ? input:'', 
-                      email : filter == 'email'?input:'', 
-                      username:filter == 'username'?input:'', 
-                      id: filter == 'id'?input : '', 
+                      orgID: filter == 'orgID' ? input:'', 
+                      instructorName: filter == 'instructorName'?input:'', 
+                      studentName : filter == 'studentName' ? input : '',
                       filter: filter})}  className="btn join-item btn-primary">Search</Link>
                 </div>
             </div>
         {/* End */}
             <div></div>
-            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('student.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
             <table className="table table-sm bg-base-100 shadow-md">
@@ -75,13 +88,13 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                       Name
                   </th>
                   <th className="">
-                      Username
+                    Organizations
                   </th>
                   <th>
-                      Email
+                      Assigned To (Instructor)
                   </th>
                   <th>
-                      Address
+                      Assigned To (Student)
                   </th>
                   <th>
                       ID
@@ -91,28 +104,26 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                 </tr>
             </thead>
             <tbody>
-                {organizations.data.map((row : any, index : number) => (
+                {checkpoints.data.map((row : any, index : number) => (
                 <tr key={index} className='cursor-pointer hover'>
-                  <td>
-                    <div className="flex items-center space-x-3 ml-3 my-3">
-                        <div className="avatar">
-                            <div className="mask mask-squircle w-10 h-10">
-                                <img src={row.logo} alt="Avatar" />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="font-bold">{row.name}</div>
-                            {/* <div className="text-sm opacity-50">{row.status}</div> */}
-                        </div>
-                    </div>
+                  <td className="py-2 px-4 font-bold">{row.name}</td>
+                  <td className="py-2 px-4">{
+                    row.organizations? row.organizations.name : <p className='text-gray-400'>No Organization</p>
+                  }</td>
+                  <td className="py-2 px-4">{
+                    row.students? row.students.users.name : <p className='text-gray-400'>Not Added</p>
+                  }</td>
+                  <td className="py-2 px-4">
+                  {
+                    row.instructors? row.instructors.users.name : <p className='text-gray-400'>Not Added</p>
+                  }
                   </td>
-                  <td className="py-2 px-4">{row.users.username}</td>
-                  <td className="py-2 px-4">{row.users.email}</td>
-                  <td className="py-2 px-4">{row.users.address}</td>
-                  <td className="py-2 px-4">{row.id}</td>
+                  <td className="py-2 px-4">
+                    {row.id}
+                  </td>
                   <td className='py-2 px-4'>
                     <div className='w-full flex-c-c'>
-                      <Link href={route('organization.show', {id : row.id})}>
+                      <Link href={route('checkpoint.show', {id : row.id})}>
                         <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
                       </Link>
                     </div>
@@ -121,7 +132,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                 ))}
                 <tr className=''>
                     <td className='py-4 text-lg font-extrabold bg-primary text-base-100'>
-                        <b className=''>{organizations.from} to {organizations.to}</b> of {organizations.total}
+                        <b className=''>{checkpoints.from} to {checkpoints.to}</b> of {checkpoints.total}
                     </td>
                     <td className='bg-primary'></td>
                     <td className='bg-primary'></td>
@@ -130,13 +141,13 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     <td className='py-4 text-lg font-extrabold bg-primary pr-6'>
                       <div className="join">
                         {
-                          organizations.prev_page_url? <Link href={route('organization.index', {page : organizations.current_page - 1})}>
+                          checkpoints.prev_page_url? <Link href={route('instructor.index', {page : checkpoints.current_page - 1})}>
                           <button className="join-item btn btn-sm">«</button>
                           </Link>:<button className="join-item btn btn-sm">«</button>
                         }
-                        <button className="join-item btn btn-sm">Page {organizations.current_page}</button>
+                        <button className="join-item btn btn-sm">Page {checkpoints.current_page}</button>
                         {
-                          organizations.next_page_url? <Link href={route('organization.index',{page : organizations.current_page + 1})}>
+                          checkpoints.next_page_url? <Link href={route('instructor.index',{page : checkpoints.current_page + 1})}>
                           <button className="join-item btn btn-sm">»</button>
                           </Link>:<button className="join-item btn btn-sm">»</button>
                         }

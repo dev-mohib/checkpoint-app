@@ -8,8 +8,10 @@ use App\Models\Instructor;
 use App\Models\Organization;
 use App\Models\Student;
 use App\Models\User;
+use Faker\Core\Uuid;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
@@ -26,31 +28,56 @@ class StudentController extends Controller
         $id = $request->query('id')??'';
         $address = $request->query('address')??'';
         $username = $request->query('username')??'';
-        $organization = $request->query('username')??'';
+        $orgName = $request->query('orgName')??'';
+        $orgId = $request->query('orgId');
 
-        $students = Student::with(['organizations', 'users'])
-        ->whereHas('users', function ($query) use ($name) {
-            $query->where('name', 'like', '%'.$name.'%');
-        })
-        ->whereHas('users', function ($query) use ($username) {
-            $query->where('username', 'like', '%'.$username.'%');
-        })
-        ->whereHas('users', function ($query) use ($email) {
-            $query->where('email', 'like', '%'.$email.'%');
-        })
-        ->whereHas('users', function ($query) use ($address) {
-            $query->where('address', 'like', '%'.$address.'%');
-        })
-        ->where('id', 'like', '%' . $id . '%')
-        ->paginate(5);
-        return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student', 'students'=>$students]);
-       
+        // if(UserType::is_student($request)){
+        //     return UserType::notAllowed();
+        // }
+        
+        if(UserType::is_admin($request) || UserType::is_instructor($request) || UserType::is_student($request)){
+            $students = Student::with(['organizations', 'users'])
+            ->whereHas('users', function ($query) use ($name) {
+                $query->where('name', 'like', '%'.$name.'%');
+            })
+            ->whereHas('users', function ($query) use ($username) {
+                $query->where('username', 'like', '%'.$username.'%');
+            })
+            ->whereHas('users', function ($query) use ($email) {
+                $query->where('email', 'like', '%'.$email.'%');
+            })
+            ->whereHas('users', function ($query) use ($address) {
+                $query->where('address', 'like', '%'.$address.'%');
+            })
+            ->whereHas('organizations', function ($query) use ($orgName) {
+                $query->where('name', 'like', '%'.$orgName.'%');
+            })
+            ->whereHas('users', function ($query) use ($orgId) {
+                $query->where('id', 'like', '%'.$orgId.'%');
+            })
+            ->where('id', 'like', '%' . $id . '%')
+            ->paginate(5);
+            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student', 'students'=>$students]);
+        }
+     
+
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        //
-        return Inertia::render('Organization/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor']);
+        $searchBy = $request->query('searchBy');
+        $query = $request->query('query');
+        if($searchBy == 'name'){
+            $searchData =DB::table('organizations')->
+            where('name', 'like', '%'.$query.'%')->get();
+            return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student', 'showSearch'=>true, 'searchData'=>$searchData]);
+        }
+        if($searchBy == 'id'){
+            $searchData = DB::table('organizations')->where('id', $query)->get();
+            return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student', 'showSearch'=>true, 'searchData'=>$searchData]);
+        }
+
+        return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student']);
     }
 
     public function store(Request $request)
@@ -63,55 +90,131 @@ class StudentController extends Controller
         //     'username'=> 'required|string|max:30|unique:'.User::class,
         //     'address' => 'required|string|min:20'
         // ]);
-        
+        $selectedOrgs = $request->selectedOrgs;
+        // Log::info(['name'=>$request->name, 'email'=>$request->email, 'selectedOrgs'=>$selectedOrgs]);
+        // return Inertia::render('Instructor/show/index', ['isEmpty'=> true, 'title'=> 'Instructor', 'activeMenu'=>'instructor']);
+        $ids = array_map(function($item) {
+            return $item['id'];
+        }, $selectedOrgs);
         $user = User::create([
-            'name' => $request->name.' - Student',
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address'=> $request->address,
             'contact'=> $request->contact,
             'username'=> $request->username,
-            'type'=> 'organization',
+            'type'=> 'instructor',
         ]);
 
-        event(new Registered($user));
-        $organization = Organization::create([
-            'created_by'=> $request->user()->id,
-            'name'=> $request->name,  
-            'logo'=>'/laptop.jpg'
+        $instructor = Instructor::create([
+            'qualification'=> $request->qualification
         ]);
+        $instructor->users()->associate($user);
+        $instructor->save();
+        $instructor->organizations()->attach($ids);
+
+        return redirect('/instructor/view/'.$instructor->id);
+
+        // event(new Registered($user));
+        // $organization = Organization::create([
+        //     'created_by'=> $request->user()->id,
+        //     'name'=> $request->name,  
+        //     'logo'=>'/laptop.jpg'
+        // ]);
 
 
-        try {
-            Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        return redirect('/organization/view/');
+        // try {
+        //     Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
+        // } catch (\Throwable $th) {
+        //     //throw $th;
+        // }
+        // return redirect('/organization/view/');
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $instructor = Instructor::with([
             'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users'
             ])
         ->find($id);
-        Log::info($instructor);
+        $collection = $request->query('collection');
+        $searchBy = $request->query('searchBy');
+        $q = $request->query('q');
+        $searchData = ($collection && $searchBy) ? $this->getFilterData($searchBy, $q, $collection) : array();
+
         if(!$instructor){
-            return Inertia::render('Instructor/show/index',['isEmpty'=> true, 'title'=> 'Instructor', 'activeMenu'=>'instructor']);
-        }else {
-            return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'isEmpty'=> false, 'title'=>'Instructor','activeMenu'=>'instructor']);
+            return Inertia::render('Instructor/show/index',
+                [
+                    'isEmpty'=> true, 'title'=> 'Instructor', 
+                    'activeMenu'=>'instructor',
+                    'showModal'=>$searchData ? true : false,
+                    'searchData'=>$searchData
+            ]);
+        } else {
+            return Inertia::render('Instructor/show/index',
+                [
+                    'instructor' => $instructor, 'isEmpty'=> false, 
+                    'title'=>'Instructor','activeMenu'=>'instructor',
+                    'showModal'=>$searchData ? true : false,
+                    'searchData'=>$searchData
+                ]);
         }
+    }
+
+    public function getFilterData($searchBy, $q, $collection='organizations'){
+        if($collection == 'organizations'){
+            $data = $searchBy == 'name' ?  
+            DB::table($collection)->where('name', 'like', '%'.$q.'%')->take(10)->get()->toArray()
+            :
+            DB::table($collection)->where('id', $q)->take(10)->get()->toArray();
+            $filteredOrgs = array_map(function($item) {
+                return [
+                    'name' => $item->name,
+                    'id' => $item->id,
+                    'logo' => $item->logo
+                ];
+            },$data);
+            return $filteredOrgs;
+        }else if($collection == 'students'){
+            $data = $searchBy == 'name' ?  
+            Student::with('users')
+            ->whereHas('users', function ($query) use ($q) {
+                $query->where('name', 'like', '%'.$q.'%');
+            })->take(10)->get()->toArray()
+            :Student::with('users')->find($q)->take(10)->get()->toArray();
+            $filteredOrgs = array_map(function($item) {
+                return [
+                    'name' => $item['users']['name'],
+                    'id' => $item['id'],
+                    'logo' => '/laptop.jpg'
+                ];
+            },$data);
+            return $filteredOrgs;
+        }
+        else if($collection == 'checkpoints'){
+            $data = $searchBy == 'name' ?  
+            DB::table($collection)->where('name', 'like', '%'.$q.'%')->take(10)->get()->toArray()
+            :DB::table($collection)->where('id', $q)->take(10)->get()->toArray();
+            $filteredOrgs = array_map(function($item) {
+                return [
+                    'name' => $item->name,
+                    'id' => $item->id,
+                    'logo' => '/laptop.jpg'
+                ];
+            },$data);
+            return $data;
+        }
+        return array();
     }
     public function showEdit(string $id)
     {   
         // $id = $request->query('id');
-        $organization = Organization::with(['users'])
+        $instructor = Instructor::with(['users'])
         ->find($id);
-        if(!$organization){
-            return Inertia::render('Organization/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+        if(!$instructor){
+            return Inertia::render('Instructor/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
         }else {
-            return Inertia::render('Organization/edit/index',['organization' => $organization, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization', 'isFound'=>true]);
+            return Inertia::render('Instructor/edit/index',['instructor' => $instructor, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization', 'isFound'=>true]);
         }
     }
 
@@ -144,6 +247,46 @@ class StudentController extends Controller
         }
     }
 
+    public function attachEntity(Request $request){
+        $attachId = $request->attachId;
+        $instructorId = $request->instructorId;
+
+        Log::info(['instructorId'=>$instructorId, 'attachId'=>$attachId]);
+    }
+
+    public function search(Request $request){
+        $type = $request->query('type');
+        $searchBy = $request->query('searchBy');
+        $input = $request->query('query');
+        $instructorId = $request->query('instructorId');
+        // Log::info(['type'=>$type, 'searchBy'=>$searchBy]);
+        
+        $instructor = DB::table('instructors')
+        ->where('id', $instructorId)
+        ->first();
+        if($type == 'organization'){
+            $searchOrganizations = $searchBy == 'name'?  DB::table('organizations')
+            ->where('name', 'like', '%'.$input.'%')
+            ->get()->toArray() : DB::table('organizations')
+            ->where('id',$input)
+            ->get()->toArray();
+            // if($searchBy == 'name'){
+                
+            // }
+            $filteredOrgs = array_map(function($item) {
+                return ['name'=>$item['name'], 'id'=>$item['id'],'type'=>'organization'];//$item['id'];
+            }, $searchOrganizations);
+            Log::info(['searchBy' => $searchBy, 'attachId'=>$input, 'instructor'=>$instructor]);
+            return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'showOrgModal'=> true, 'title'=>'Instructor','activeMenu'=>'instructor', 'searchData'=>$filteredOrgs]);
+        }else {
+            $instructor = DB::table('instructors')
+            ->join('organizations', 'organizations.name', 'like', '%'.$input.'%')
+            ->select('organizations.* as organizations')
+            ->get();
+            Log::info(['searchBy' => $searchBy, 'attachId'=>$input, 'instructor'=>$instructor]);
+            return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'showOrgModal'=> true, 'title'=>'Instructor','activeMenu'=>'instructor']);
+        }
+    }
     public function destroy(string $id)
     {
         $organization = Organization::find($id);

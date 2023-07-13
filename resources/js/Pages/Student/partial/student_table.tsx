@@ -5,7 +5,7 @@ import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
-  const Table = ({organizations, query} : {organizations : any, query : any}) => {
+  const Table = ({students, query} : {students : any, query : any}) => {
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
 
@@ -26,6 +26,14 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
       else if(f == 'id'){
         setFilter(f)
         setInput(query.id)
+      }
+      else if(f == 'orgId'){
+        setFilter(f)
+        setInput(query.id)
+      }
+      else if(f == 'orgName'){
+        setFilter(f)
+        setInput(query.id)
       }else{
         setFilter('all')
       }
@@ -39,6 +47,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
     return (
       <div className=" p-4">
         <div className='flex-r-b'>
+            {/* <SearchOrganization  /> */}
             <div className="join my-5 border-2 border-primary">
                     <div className='input-group flex-r-c'>
                       <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
@@ -53,19 +62,23 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     <option value="id">ID</option>
                     <option value="email">Email</option>
                     <option value="username">Username</option>
+                    <option value="orgId">Organization ID</option>
+                    <option value="orgName">Organization Name</option>
                 </select>
                 <div className="indicator ">
-                    <Link href={route('organization.index', {
+                    <Link href={route('student.index', {
                       name: filter == 'name' ? input:'', 
                       email : filter == 'email'?input:'', 
                       username:filter == 'username'?input:'', 
                       id: filter == 'id'?input : '', 
+                      orgName : filter == 'orgName' ? input : '',
+                      orgId : filter == 'orgId' ? input : '',
                       filter: filter})}  className="btn join-item btn-primary">Search</Link>
                 </div>
             </div>
         {/* End */}
             <div></div>
-            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('student.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
             <table className="table table-sm bg-base-100 shadow-md">
@@ -81,7 +94,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                       Email
                   </th>
                   <th>
-                      Address
+                      Organizations
                   </th>
                   <th>
                       ID
@@ -91,28 +104,22 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                 </tr>
             </thead>
             <tbody>
-                {organizations.data.map((row : any, index : number) => (
+                {students.data.map((row : any, index : number) => (
                 <tr key={index} className='cursor-pointer hover'>
-                  <td>
-                    <div className="flex items-center space-x-3 ml-3 my-3">
-                        <div className="avatar">
-                            <div className="mask mask-squircle w-10 h-10">
-                                <img src={row.logo} alt="Avatar" />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="font-bold">{row.name}</div>
-                            {/* <div className="text-sm opacity-50">{row.status}</div> */}
-                        </div>
-                    </div>
-                  </td>
+                  <td className="py-2 px-4 font-bold">{row.users.name}</td>
                   <td className="py-2 px-4">{row.users.username}</td>
                   <td className="py-2 px-4">{row.users.email}</td>
-                  <td className="py-2 px-4">{row.users.address}</td>
+                  <td className="py-2 px-4">
+                  {
+                    row.organizations.length>0 ? <div>
+                      {row.organizations.map((org:any, i:number) => <tr key={i}>{org.name}<br /></tr>)}
+                    </div>: <span className='text-base-300'>No Organization</span>
+                  }  
+                  </td>
                   <td className="py-2 px-4">{row.id}</td>
                   <td className='py-2 px-4'>
                     <div className='w-full flex-c-c'>
-                      <Link href={route('organization.show', {id : row.id})}>
+                      <Link href={route('student.show', {id : row.id})}>
                         <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
                       </Link>
                     </div>
@@ -121,7 +128,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                 ))}
                 <tr className=''>
                     <td className='py-4 text-lg font-extrabold bg-primary text-base-100'>
-                        <b className=''>{organizations.from} to {organizations.to}</b> of {organizations.total}
+                        <b className=''>{students.from} to {students.to}</b> of {students.total}
                     </td>
                     <td className='bg-primary'></td>
                     <td className='bg-primary'></td>
@@ -130,13 +137,13 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     <td className='py-4 text-lg font-extrabold bg-primary pr-6'>
                       <div className="join">
                         {
-                          organizations.prev_page_url? <Link href={route('organization.index', {page : organizations.current_page - 1})}>
+                          students.prev_page_url? <Link href={route('instructor.index', {page : students.current_page - 1})}>
                           <button className="join-item btn btn-sm">«</button>
                           </Link>:<button className="join-item btn btn-sm">«</button>
                         }
-                        <button className="join-item btn btn-sm">Page {organizations.current_page}</button>
+                        <button className="join-item btn btn-sm">Page {students.current_page}</button>
                         {
-                          organizations.next_page_url? <Link href={route('organization.index',{page : organizations.current_page + 1})}>
+                          students.next_page_url? <Link href={route('instructor.index',{page : students.current_page + 1})}>
                           <button className="join-item btn btn-sm">»</button>
                           </Link>:<button className="join-item btn btn-sm">»</button>
                         }

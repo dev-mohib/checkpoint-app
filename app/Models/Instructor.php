@@ -11,6 +11,11 @@ class Instructor extends Model
     // protected $keyType = 'string';
     protected $table = 'instructors';
 
+    protected $fillable = [
+        'qualification',
+        'status'
+    ];
+
     public function organizations()
     {
         return $this->belongsToMany(Organization::class, 'organization_instructor', 'instructor_id', 'organization_id');
@@ -21,10 +26,10 @@ class Instructor extends Model
     }
     public function checkpoints()
     {
-        return $this->hasMany(Checkpoint::class);
+        return $this->hasMany(Checkpoint::class, 'instructor_id');
     }
     public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

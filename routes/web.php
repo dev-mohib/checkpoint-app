@@ -53,17 +53,27 @@ Route::middleware('auth')->group(function(){
 
 Route::middleware('auth')->group(function(){
     Route::get('/instructor', [InstructorController::class, 'index'])->name('instructor.index');
+    Route::get('/instructor/search', [InstructorController::class, 'search'])->name('instructor.search');
     Route::delete('/instructor/{id}', [InstructorController::class, 'destroy'])->name('instructor.destroy');
     Route::get('/instructor/new', [InstructorController::class, 'create'])->name('instructor.create');
     Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
-    Route::put('/instructor/edit', [OrganizationController::class, 'update'])->name('instructor.edit');
+    Route::put('/instructor/edit', [InstructorController::class, 'update'])->name('instructor.edit');
+    Route::put('/instructor/attachEntity', [InstructorController::class, 'attachEntity'])->name('instructor.attachEntity');
     Route::get('/instructor/view/{id}', [InstructorController::class, 'show'])->name('instructor.show');
     Route::get('/instructor/edit/{id}', [InstructorController::class, 'showEdit'])->name('instructor.showEdit');
 });
+// searchEntity
 
 Route::middleware('auth')->group(function(){
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
-    Route::get('/student/:id  ', [StudentController::class, 'show'])->name('student.show');
+    Route::get('/student/search', [StudentController::class, 'search'])->name('student.search');
+    Route::delete('/student/{id}', [StudentController::class, 'destroy'])->name('student.destroy');
+    Route::get('/student/new', [StudentController::class, 'create'])->name('student.create');
+    Route::post('/student/store', [InstructorController::class, 'store'])->name('student.store');
+    Route::put('/student/edit', [StudentController::class, 'update'])->name('student.edit');
+    Route::put('/student/attachEntity', [StudentController::class, 'attachEntity'])->name('student.attachEntity');
+    Route::get('/student/view/{id}', [StudentController::class, 'show'])->name('student.show');
+    Route::get('/student/edit/{id}', [StudentController::class, 'showEdit'])->name('student.showEdit');
 });
 
 Route::middleware('auth')->group(function(){

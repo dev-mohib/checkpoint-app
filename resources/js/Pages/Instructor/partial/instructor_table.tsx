@@ -9,8 +9,6 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
 
-    console.log({instructors})
-
     useEffect(() => {
       const f = `${query.filter}`
       if(f == 'name'){
@@ -68,17 +66,19 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     <option value="orgName">Organization Name</option>
                 </select>
                 <div className="indicator ">
-                    <Link href={route('organization.index', {
+                    <Link href={route('instructor.index', {
                       name: filter == 'name' ? input:'', 
                       email : filter == 'email'?input:'', 
                       username:filter == 'username'?input:'', 
                       id: filter == 'id'?input : '', 
+                      orgName : filter == 'orgName' ? input : '',
+                      orgId : filter == 'orgId' ? input : '',
                       filter: filter})}  className="btn join-item btn-primary">Search</Link>
                 </div>
             </div>
         {/* End */}
             <div></div>
-            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('instructor.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
             <table className="table table-sm bg-base-100 shadow-md">
@@ -106,7 +106,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
             <tbody>
                 {instructors.data.map((row : any, index : number) => (
                 <tr key={index} className='cursor-pointer hover'>
-                  <td className="py-2 px-4">{row.users.name}</td>
+                  <td className="py-2 px-4 font-bold">{row.users.name}</td>
                   <td className="py-2 px-4">{row.users.username}</td>
                   <td className="py-2 px-4">{row.users.email}</td>
                   <td className="py-2 px-4">
@@ -137,13 +137,13 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
                     <td className='py-4 text-lg font-extrabold bg-primary pr-6'>
                       <div className="join">
                         {
-                          instructors.prev_page_url? <Link href={route('organization.index', {page : instructors.current_page - 1})}>
+                          instructors.prev_page_url? <Link href={route('instructor.index', {page : instructors.current_page - 1})}>
                           <button className="join-item btn btn-sm">«</button>
                           </Link>:<button className="join-item btn btn-sm">«</button>
                         }
                         <button className="join-item btn btn-sm">Page {instructors.current_page}</button>
                         {
-                          instructors.next_page_url? <Link href={route('organization.index',{page : instructors.current_page + 1})}>
+                          instructors.next_page_url? <Link href={route('instructor.index',{page : instructors.current_page + 1})}>
                           <button className="join-item btn btn-sm">»</button>
                           </Link>:<button className="join-item btn btn-sm">»</button>
                         }

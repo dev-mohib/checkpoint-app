@@ -18,7 +18,7 @@ class OrganizationFactory extends Factory
             //
             'name'=> fake()->company(),
             'logo'=>'/laptop.jpg',
-            'users_id'=>$this->id++
+            'user_id'=>$this->id++
         ];
     }
 }

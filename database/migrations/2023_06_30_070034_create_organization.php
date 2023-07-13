@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
             // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
-            $table->bigInteger('users_id')->nullable();
+            $table->bigInteger('user_id')->nullable();
             $table->bigInteger('created_by')->nullable();
             $table->string('name')->nullable();
             $table->string('logo')->nullable();

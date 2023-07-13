@@ -1,13 +1,25 @@
-import React, { useEffect } from 'react'
+import React, { FormEventHandler, useEffect, useState } from 'react'
 import { useForm } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
 import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth} : any) => {
-  console.log({instructor})
-  const {data, errors, processing, delete : deleteOrg} = useForm()
+import { XmarkIcon } from '@/Components/icons'
+
+const _local = {
+  q : '',
+  searchBy : 'name',
+  collection : 'organization'
+}
+const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchData=[], showModal} : any) => {
+  console.log({searchData})
+
+  const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
+  const [filter, setFilter ] = useState(local)
+  const [showConfirm, setConfirm] = useState('')
+  const [entityType, setEntityType] = useState('Organization')
+  const {data, get, processing, delete : deleteOrg} = useForm()
   const handleDeleteOrg = () => {
     // organization.destroy
     deleteOrg('/instructor/'+instructor.id, {
@@ -18,6 +30,25 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth} : any) 
     })
   }
 
+  useEffect(() => {
+    if(showModal){
+      // @ts-ignore
+      document.getElementById('AttachEntityModal').showModal()
+    }
+  },[])
+  const submitSearch = ( collection='',isLocalSave = true) => {
+    if(isLocalSave)
+      localStorage.setItem('rememberInstructorAttach', JSON.stringify(filter))
+    get(route('instructor.show', {
+      id:instructor.id,
+      searchBy : filter.searchBy,
+      collection : collection ? collection : filter.collection + 's',
+      q: filter.q
+    }))
+  }
+  const addOrganization = () => {
+
+  }
   if(isEmpty)
   return (
     <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
@@ -28,24 +59,103 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth} : any) 
   return (
     <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
       <Head title={instructor.users.name}/>
-      <Modal id="deleteOrgModal" title="Delete Organization">
+      <Modal id="deleteInstrucrorModal" title="Delete Organization">
         <h1>Do you really want to delete this Instructors?</h1>
         <div className='w-full flex justify-end'>
           <div onClick={handleDeleteOrg}  className='btn btn-error m-2'>YES!</div>
           <button className='btn btn-ghost my-2'>CANCEL</button>
         </div>
       </Modal>
+      <Modal id={"AttachEntityModal"} title={`Select ${filter.collection}`} className='w-11/12 max-w-5xl'>
+      {showConfirm?
+      <div className='flex flex-col w-full py-10 px-10'>
+        <h1>Do you want to Add this {entityType}?</h1>
+        <div className='w-full flex justify-end'>
+          <div onClick={addOrganization}  className='btn btn-success m-2 cursor-pointer'>YES!</div>
+          <div onClick={() => setConfirm('')}  className='btn btn-ghost my-2 cursor-pointer'>CANCEL</div>
+        </div>
+      </div>
+      :
+      <>
+        <div className="join my-5 border-2 border-primary">
+          <div className='input-group flex-r-c'>
+            <input value={filter.q} onChange={(e) => setFilter({...filter, q : e.target.value})}  className="input input-bordered join-item" placeholder="Search..."/>
+            <div onClick={() => setFilter({...filter, q : ''})}  className='btn bg-base-100 hover:bg-base-100 join-item'>
+                {/* <ClearIcon className="w-4 h-4"/> */}
+                <XmarkIcon/>
+              </div>
+          </div>
+          <select className="select select-bordered join-item capitalize" value={filter.searchBy} onChange={(e) => setFilter({...filter, searchBy : e.target.value})}>
+              <option disabled selected value="all">Search By</option>
+              <option value="name" className='capitalize'>{filter.collection} name</option>
+              <option value="id" className='capitalize'> {filter.collection} ID</option>
+          </select>
+          <div className="indicator ">
+              <div
+                onClick={() => submitSearch()}
+                className="btn join-item btn-primary">Search</div>
+          </div>
+        </div>
+        <div className='w-full bg-base-200 my-5' >
+          {
+            searchData.length > 0 ? <div className='overflow-y-auto' style={{maxHeight : 350}}>
+              {searchData.map((org : any) => <div 
+                  className='flex items-center space-x-3 py-6 px-5 hover:bg-base-300 cursor-pointer'  key={org.id}
+                  onClick={() => setConfirm(org.id)}
+                  >
+                  <div className="avatar">
+                      <div className="mask mask-squircle w-10 h-10">
+                          <img src={org.logo} alt="Avatar" />
+                      </div>
+                  </div>
+                  <div className='font-bold'>{org.name}</div>
+              </div>
+              )}
+            </div>:<div className='h-full flex-c-c'>
+            </div>
+          }
+        </div>
+      </>}
+      </Modal>
+
       <div className='w-full flex justify-between'>
         <Breadcrumb list={[{title : 'Home', href : '/dashboard'},{title : 'Instructor', href:'/instructor'}, {title : instructor.users.name, href: null}]}/>
-        <Options id={instructor.id} />
+        <details className="dropdown z-30">
+          <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
+          <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+            <li><a onClick={() => {
+              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+                collection : 'organization',
+                q : '',
+                searchBy : 'name'
+              }))
+              submitSearch('organizations', false)
+            }}>Add Organization</a></li>
+            <li><a onClick={() => {
+              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+                collection : 'student',
+                q : '',
+                searchBy : 'name'
+              }))
+              submitSearch('students', false)
+            }}>Add Student</a></li>
+            <li><a onClick={() => {
+              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+                collection : 'checkpoint',
+                q : '',
+                searchBy : 'name'
+              }))
+              submitSearch('checkpoints', false)
+            }}>Add Checkpoint</a></li>
+            <li><Link href={route('instructor.showEdit',{id : instructor.id})}>Edit Instructor</Link></li>
+            <li onClick={_ => {
+              // @ts-ignore
+              document.getElementById('deleteInstrucrorModal').showModal()
+            }}><a className='text-red-600 hover:text-red-600'>Delete Instructor</a></li>
+          </ul>
+        </details>
       </div>
-      <div className='flex-c-c'>
-        <div className="avatar">
-          {/* <div className="w-24 rounded-full">
-            <img src={organization.logo?organization.logo: '/laptop.jpg'} />
-          </div> */}
-        </div>
-        <h1 className='py-2 text-secondary font-extrabold'>{instructor.users.name}</h1>
+      <div className='flex-c-c mt-16'>
         <table className='table table-sm  bg-base-100 shadow-md'>
           <thead>
             <tr className='bg-primary'>
@@ -81,22 +191,21 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth} : any) 
           </tbody>
         </table>
       </div>
-      
-      {/* {
-        organization.instructors.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Instructos</h1>
-          <Instructors instructors={organization.instructors}/>
-        </>
-      } */}
+      {
+        instructor.organizations.length>0 ?<>
+          <h1 className='py-4 text-secondary font-extrabold'>Belongs to (Organization's)</h1>
+          <Organizations organizations={instructor.organizations}/>
+        </>:<></>
+      }
       {
         instructor.students.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Students</h1>
+          <h1 className='py-4 text-secondary font-extrabold'>Students (Assigned)</h1>
           <Students students={instructor.students} />
         </>
       }
       {
         instructor.checkpoints.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Checkpoints</h1>
+          <h1 className='py-4 text-secondary font-extrabold'>Checkpoints (Assigned)</h1>
           <Checkpoints checkpoints={instructor.checkpoints} />
         </>
       }
@@ -105,24 +214,7 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth} : any) 
 }
 
 
-const Options = ({id}:any) => {
-  return(
-  <details className="dropdown z-30">
-    <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
-    <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-      <li><a>Create Instructor</a></li>
-      <li><a>Create Student</a></li>
-      <li><a>Create Checkpoint</a></li>
-      <li><Link href={route('organization.showEdit',{id})}>Edit Organization</Link></li>
-      <li onClick={_ => {
-        // @ts-ignore
-        document.getElementById('deleteOrgModal').showModal()
-      }}  className='text-red-600'><a>Delete Organization</a></li>
-    </ul>
-  </details>
-  )
-}
-const Instructors = ({instructors} : {instructors : any[]}) => {
+const Organizations = ({organizations} : {organizations : any[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
@@ -135,12 +227,21 @@ const Instructors = ({instructors} : {instructors : any[]}) => {
           </thead>
           <tbody>
             {
-              instructors.map((instructor : any, index) => <tr key={instructor.id}  className='hover'>
-                <td>{instructor.users.name}</td>
-                <td>{instructor.users.email}</td>
-                <td>{instructor.users.address}</td>
+              organizations.map((organization : any, index) => <tr key={organization.id}  className='hover'>
+                <td><div className="flex items-center space-x-3 ml-3 my-3">
+                        <div className="avatar">
+                            <div className="mask mask-squircle w-10 h-10">
+                                <img src={organization.logo} alt="Avatar" />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="font-bold">{organization.name}</div>
+                        </div>
+                    </div></td>
+                <td>{organization.users.email}</td>
+                <td>{organization.users.address}</td>
                 <td>
-                  <Link href={route('instructor.index')}>
+                  <Link href={route('organization.show', {id : organization.id})}>
                     <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
                   </Link>
                 </td>

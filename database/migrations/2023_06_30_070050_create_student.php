@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
-            $table->bigInteger('users_id')->nullable();
+            $table->bigInteger('user_id')->nullable();
             $table->bigInteger('created_by')->nullable();
             $table->bigInteger('organization_id')->nullable();
             $table->string('parent_name')->nullable();

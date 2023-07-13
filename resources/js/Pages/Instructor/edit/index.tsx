@@ -3,11 +3,11 @@ import AppLayout from '@/Layouts/AppLayout'
 import { Head, useForm, usePage } from '@inertiajs/react'
 import React, { FormEventHandler, useEffect } from 'react'
 
-const Index = ({activeMenu, title, organization, isFound}:any) => {
-  const { props: pageData } = usePage();
-  if(!pageData.organization)
+const Index = ({activeMenu, title, instructor, isFound, auth}:any) => {
+
+  if(!instructor)
   return(
-    <AppLayout activeMenu={activeMenu} title={title} auth={{}}>
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       <div className='h-screen flex-c-c'>
@@ -17,36 +17,36 @@ const Index = ({activeMenu, title, organization, isFound}:any) => {
   )
   
   const { data, setData,put, errors, processing, recentlySuccessful } = useForm({
-    id: organization.id,
-    name: organization.name,
-    email: organization.users.email,
-    address : organization.users.address,
-    contact_number : organization.users.contact_number,
-    username: organization.users.username,
+    id: instructor.id,
+    name: instructor.users.name,
+    email: instructor.users.email,
+    address : instructor.users.address,
+    contact_number : instructor.users.contact_number,
+    username: instructor.users.username,
     password : ''
 });
 
   // useEffect(() => {
-  //   console.log({data})
+  //   console.log({auth})
   // },[data])
 
-console.log({organization, isFound})
+console.log({instructor, isFound})
 const submit: FormEventHandler = (e) => {
   // e.preventDefault();
   console.log("sending patch request")
-  put(route('organization.edit', data));
+  put(route('instructor.edit', data));
 };
 
 
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={{}}> 
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       
       
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-6">Organization Form</h2>
+        <h2 className="text-2xl font-semibold mb-6">Instructor Edit</h2>
 
         {/* <form> */}
           <div className="mb-6">

@@ -18,7 +18,7 @@ class StudentFactory extends Factory
             //
             'parent_name'=>fake()->name(),
             'parent_relationship'=> 'Son',
-            'users_id'=>$this->id++,
+            'user_id'=>$this->id++,
         ];
     }
 }

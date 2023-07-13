@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Organization\OrganizationController;
 use App\Http\Controllers\UploadController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/', function(Request $request){
     return ['name'=> 'Mohib Ali', 'age'=> 20, 'email'=> "dev.mohib@gmail.com"];
+});
+
+Route::middleware('auth')->group(function(){
+    Route::get('/organization/search', [OrganizationController::class, 'search'])->name('organization.index');
 });
 
 Route::post('/upload/organization-document', [UploadController::class, 'storeOrganizationDoc']);

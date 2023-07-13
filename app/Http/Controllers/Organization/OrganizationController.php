@@ -53,9 +53,9 @@ class OrganizationController extends Controller
      
 
     }
-    public function create()
+    public function create(Request $request)
     {
-        //
+        
         return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization']);
     }
 
@@ -197,5 +197,10 @@ class OrganizationController extends Controller
             $organization->delete();
         }
         return Redirect::route('organization.index');
+    }
+
+    public function search(Request $request){
+        $res = ['name'=>'Some Name', 'age'=> 20];
+        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization', 'showSearch'=>true, 'searchData'=>'some searchData']);
     }
 }

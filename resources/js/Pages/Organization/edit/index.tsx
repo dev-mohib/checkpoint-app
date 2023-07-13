@@ -3,11 +3,11 @@ import AppLayout from '@/Layouts/AppLayout'
 import { Head, useForm, usePage } from '@inertiajs/react'
 import React, { FormEventHandler, useEffect } from 'react'
 
-const Index = ({activeMenu, title, organization, isFound}:any) => {
+const Index = ({activeMenu, title, organization, isFound, auth}:any) => {
   const { props: pageData } = usePage();
   if(!pageData.organization)
   return(
-    <AppLayout activeMenu={activeMenu} title={title} auth={{}}>
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       <div className='h-screen flex-c-c'>
@@ -39,7 +39,7 @@ const submit: FormEventHandler = (e) => {
 
 
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={{}}> 
+    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       

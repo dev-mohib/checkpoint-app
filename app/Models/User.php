@@ -36,16 +36,16 @@ class User extends Authenticatable
 
     public function organizations()
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Organization::class, 'user_id');
     }
 
     public function instructors()
     {
-        return $this->belongsTo(Instructor::class);
+        return $this->belongsTo(Instructor::class, 'user_id');
     }
 
     public function students()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class,'user_id');
     }
 }

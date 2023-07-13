@@ -31,7 +31,7 @@ class InstructorFactory extends Factory
         $v = $qualifications[$k];
         return [
             'qualification'=> $v,
-            'users_id'=> $this->id++,
+            'user_id'=> $this->id++,
         ];
     }
 }

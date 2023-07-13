@@ -30,11 +30,11 @@ class Organization extends Model
 
     public function checkpoints()
     {
-        return $this->hasMany(Checkpoint::class);
+        return $this->hasMany(Checkpoint::class,'organization_id');
     }
 
     public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

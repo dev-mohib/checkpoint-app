@@ -109,14 +109,14 @@ const Options = ({id}:any) => {
   <details className="dropdown z-30">
     <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
     <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-      <li><a>Create Instructor</a></li>
-      <li><a>Create Student</a></li>
-      <li><a>Create Checkpoint</a></li>
+      <li><a>Add Instructor</a></li>
+      <li><a>Add Student</a></li>
+      <li><a>Add Checkpoint</a></li>
       <li><Link href={route('organization.showEdit',{id})}>Edit Organization</Link></li>
       <li onClick={_ => {
         // @ts-ignore
         document.getElementById('deleteOrgModal').showModal()
-      }}  className='text-red-600'><a>Delete Organization</a></li>
+      }}><a className='text-red-600 hover:text-red-600'>Delete Organization</a></li>
     </ul>
   </details>
   )
@@ -139,7 +139,7 @@ const Instructors = ({instructors} : {instructors : any[]}) => {
                 <td>{instructor.users.email}</td>
                 <td>{instructor.users.address}</td>
                 <td>
-                  <Link href={route('instructor.index')}>
+                  <Link href={route('instructor.show', {id : instructor.id})}>
                     <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
                   </Link>
                 </td>
