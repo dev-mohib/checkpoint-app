@@ -1,1 +1,0 @@
-import{a as s,j as a,b as e}from"./app-39d91d90.js";import{A as i}from"./AppLayout-ffa5fd90.js";import p from"./cards-cb8294e2.js";import"./icons-94bc5c1b.js";function b({auth:r,page:m,activeMenu:o,title:t}){return s(i,{activeMenu:o,title:t,auth:r,children:[a(e,{title:"Dashboard"}),a(p,{})]})}export{b as default};

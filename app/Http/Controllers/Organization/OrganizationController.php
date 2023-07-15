@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
-use App\Http\Utils\UserType;
+use App\Http\Utils\UserRole;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -30,11 +30,13 @@ class OrganizationController extends Controller
         $address = $request->query('address')??'';
         $username = $request->query('username')??'';
 
-        if(UserType::is_instructor($request) || UserType::is_student($request)){
-            return UserType::notAllowed();
-        }
+        // if(UserType::is_instructor($request) || UserType::is_student($request)){
+        //     return UserType::notAllowed();
+        // }
         
-        if(UserType::is_admin($request)){
+        if(UserRole::is_instructor($request) || UserRole::is_student($request) || UserRole::is_organization($request)){
+            return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization']);
+        }
             $organizations = Organization::with(['users'])
             ->where('organizations.name', 'like', '%' . $name . '%')
             ->whereHas('users', function ($query) use ($username) {
@@ -48,15 +50,16 @@ class OrganizationController extends Controller
             })
             ->where('id', 'like', '%' . $id . '%')
             ->paginate(5);
-            return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization', 'organizations'=>$organizations]);
-        }
-     
-
+            return Inertia::render('Organization/index', [
+                'title' => 'Organizations', 
+                'activeMenu'=> 'organization', 
+                'organizations'=>$organizations,
+                'canAccess'=> true
+            ]);
     }
     public function create(Request $request)
     {
-        
-        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization']);
+        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization', 'canAccess'=>UserRole::is_admin($request)?true:false]);
     }
 
     public function store(Request $request)
@@ -82,7 +85,7 @@ class OrganizationController extends Controller
             'address'=> $request->address,
             'contact'=> $request->contact,
             'username'=> $request->username,
-            'type'=> 'organization',
+            'role'=> 'organization',
         ]);
 
         event(new Registered($user));
@@ -103,28 +106,33 @@ class OrganizationController extends Controller
         return redirect('/organization/view/'.$orgUid);
     }
 
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
+        if(!UserRole::is_admin($request)){
+            return Inertia::render('Organization/show/index',['isFound'=> false, 'title'=> 'Organization', 'activeMenu'=>'organization', 'canAccess'=>false]);
+        }
         $organization = Organization::with([
             'students','instructors', 'checkpoints','users', 'instructors.users', 'students.users'
             ])
         ->find($id);
-        Log::info($organization);
         if(!$organization){
-            return Inertia::render('Organization/show/index',['isEmpty'=> true, 'title'=> 'Organization', 'activeMenu'=>'organization']);
+            return Inertia::render('Organization/show/index',['isFound'=> false, 'title'=> 'Organizatiom', 'activeMenu'=>'organization', 'canAccess'=>true]);
         }else {
-            return Inertia::render('Organization/show/index',['organization' => $organization, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization']);
+            return Inertia::render('Organization/show/index',['organization' => $organization, 'isFound'=> true, 'title'=>$organization['name'],'activeMenu'=>'organization', 'canAccess'=>true]);
         }
     }
-    public function showEdit(string $id)
+    public function showEdit(Request $request, string $id)
     {   
         // $id = $request->query('id');
+        if(!UserRole::is_admin($request)){
+            return Inertia::render('Organization/edit/index',['isFound'=> false, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+        }
         $organization = Organization::with(['users'])
         ->find($id);
         if(!$organization){
-            return Inertia::render('Organization/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+            return Inertia::render('Organization/edit/index',['isFound'=> false, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false, 'canAccess'=>true]);
         }else {
-            return Inertia::render('Organization/edit/index',['organization' => $organization, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization', 'isFound'=>true]);
+            return Inertia::render('Organization/edit/index',['organization' => $organization, 'isFound'=> true, 'title'=>$organization['name'],'activeMenu'=>'organization', 'isFound'=>true, 'canAccess' => true]);
         }
     }
 

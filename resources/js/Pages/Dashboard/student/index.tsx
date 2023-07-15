@@ -1,9 +1,17 @@
 import React from 'react'
+import { Card } from '../partials/cards'
 
-const Index = () => {
+const StudentDashboard = () => {
+  const cards = [{name : "Checkpoints"}]
   return (
-    <div>Index</div>
+    <div>
+      <div className='flex justify-around'>
+        {
+          cards.map((card, i) => <Card key={i}  name={card.name}/>)
+        }      
+      </div>
+    </div>
   )
 }
 
-export default Index
+export default StudentDashboard

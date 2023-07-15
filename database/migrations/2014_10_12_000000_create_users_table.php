@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('date_of_birth')->nullable();
             $table->string('address')->default('ABC');
             $table->string('gender')->nullable();
-            $table->string('type')->nullable();
+            $table->string('role')->nullable()->default('student');
             $table->string('status')->default('active');
             $table->string('password');
             $table->rememberToken();

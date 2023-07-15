@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Checkpoint;
 
 use App\Http\Controllers\Controller;
+use App\Http\Utils\UserRole;
 use App\Http\Utils\UserType;
 use App\Models\Checkpoint;
 use App\Models\Instructor;
@@ -34,8 +35,7 @@ class CheckpointController extends Controller
         // if(UserType::is_student($request)){
         //     return UserType::notAllowed();
         // }
-        
-        if(UserType::is_admin($request) || UserType::is_instructor($request) || UserType::is_student($request)){
+        $userId = $request->user()->id;
             $checkpoints = Checkpoint::with(['organizations', 'students.users', 'instructors.users'])
             ->where('name', 'like', '%'.$name.'%')
             ->whereHas('organizations', function ($query) use ($orgName) {
@@ -50,14 +50,32 @@ class CheckpointController extends Controller
             ->whereHas('students.users', function ($query) use ($studentName) {
                 $query->where('name', 'like', '%'.$studentName.'%');
             })
-            ->where('id', 'like', '%' . $id . '%')
-            ->paginate(5);
+            ->where('id', 'like', '%' . $id . '%');
+            // ->paginate(5);
 
-            Log::info($checkpoints);
-            return Inertia::render('Checkpoint/index', ['title' => 'Checkpoints', 'activeMenu'=> 'checkpoint', 'checkpoints'=>$checkpoints]);
-        }
-     
+            if(UserRole::is_admin($request)){
+                $checkpoints = $checkpoints
+                ->whereHas('organizations', function ($query) use ($orgName) {
+                    $query->where('name', 'like', '%'.$orgName.'%');
+                })->paginate(5);
+            } else if(UserRole::is_organization($request)){
+                $checkpoints = $checkpoints
+                ->whereHas('organizations', function ($query) use ($userId) {
+                    $query->where('organizations.id', $userId);
+                })->paginate(5);
+            }else if(UserRole::is_instructor($request)){
+                $checkpoints = $checkpoints
+                ->whereHas('instructors', function ($query) use ($userId) {
+                    $query->where('instructors.id', $userId);
+                })->paginate(5);
+            }else if(UserRole::is_student($request)){
+                $checkpoints = $checkpoints
+                ->whereHas('students', function ($query) use ($userId) {
+                    $query->where('students.id', $userId);
+                })->paginate(5);
+            }
 
+            return Inertia::render('Checkpoint/index', ['title' => 'Checkpoints', 'activeMenu'=> 'checkpoint', 'checkpoints'=>$checkpoints, 'canAccess'=>true]);
     }
 
     public function create(Request $request)
@@ -100,7 +118,7 @@ class CheckpointController extends Controller
             'address'=> $request->address,
             'contact'=> $request->contact,
             'username'=> $request->username,
-            'type'=> 'instructor',
+            'role'=> 'instructor',
         ]);
 
         $instructor = Instructor::create([
@@ -130,8 +148,8 @@ class CheckpointController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $instructor = Instructor::with([
-            'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users'
+        $checkpoint = Checkpoint::with([
+            'students','organizations', 'instructors', 'students.users', 'instructors.users', 'organizations.users'
             ])
         ->find($id);
         $collection = $request->query('collection');
@@ -139,21 +157,21 @@ class CheckpointController extends Controller
         $q = $request->query('q');
         $searchData = ($collection && $searchBy) ? $this->getFilterData($searchBy, $q, $collection) : array();
 
-        if(!$instructor){
-            return Inertia::render('Instructor/show/index',
+        if(!$checkpoint){
+            return Inertia::render('Checkpoint/show/index',
                 [
-                    'isEmpty'=> true, 'title'=> 'Instructor', 
-                    'activeMenu'=>'instructor',
+                    'isEmpty'=> true, 'title'=> 'Checkpoint', 
+                    'activeMenu'=>'checkpoint',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData, 'canAccess'=>true
             ]);
         } else {
-            return Inertia::render('Instructor/show/index',
+            return Inertia::render('Checkpoint/show/index',
                 [
-                    'instructor' => $instructor, 'isEmpty'=> false, 
-                    'title'=>'Instructor','activeMenu'=>'instructor',
+                    'checkpoint' => $checkpoint, 'isEmpty'=> false, 
+                    'title'=>'Checkpoint','activeMenu'=>'checkpoint',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData, 'canAccess'=>true
                 ]);
         }
     }

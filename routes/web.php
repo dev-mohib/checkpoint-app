@@ -31,7 +31,7 @@ Route::get('/app', function () {
 
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard/index', ['activeMenu' => 'dashboard', 'title'=>'Dashboard']);
+    return Inertia::render('Dashboard/index', ['activeMenu' => 'dashboard', 'title'=>'Dashboard', 'canAccess'=>true]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -69,7 +69,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/student/search', [StudentController::class, 'search'])->name('student.search');
     Route::delete('/student/{id}', [StudentController::class, 'destroy'])->name('student.destroy');
     Route::get('/student/new', [StudentController::class, 'create'])->name('student.create');
-    Route::post('/student/store', [InstructorController::class, 'store'])->name('student.store');
+    Route::post('/student/store', [StudentController::class, 'store'])->name('student.store');
     Route::put('/student/edit', [StudentController::class, 'update'])->name('student.edit');
     Route::put('/student/attachEntity', [StudentController::class, 'attachEntity'])->name('student.attachEntity');
     Route::get('/student/view/{id}', [StudentController::class, 'show'])->name('student.show');
@@ -81,5 +81,16 @@ Route::middleware('auth')->group(function(){
     Route::get('/checkpoint/:id  ', [CheckpointController::class, 'show'])->name('checkpoint.show');
 });
 
+Route::middleware('auth')->group(function(){
+    Route::get('/checkpoint', [CheckpointController::class, 'index'])->name('checkpoint.index');
+    Route::get('/checkpoint/search', [CheckpointController::class, 'search'])->name('checkpoint.search');
+    Route::get('/checkpoint/view/{id}', [CheckpointController::class, 'show'])->name('checkpoint.show');
+    Route::delete('/checkpoint/{id}', [CheckpointController::class, 'destroy'])->name('checkpoint.destroy');
+    Route::get('/checkpoint/new', [CheckpointController::class, 'create'])->name('checkpoint.create');
+    Route::post('/checkpoint/store', [CheckpointController::class, 'store'])->name('checkpoint.store');
+    Route::put('/checkpoint/edit', [CheckpointController::class, 'update'])->name('checkpoint.edit');
+    Route::put('/checkpoint/attachEntity', [CheckpointController::class, 'attachEntity'])->name('checkpoint.attachEntity');
+    Route::get('/checkpoint/edit/{id}', [CheckpointController::class, 'showEdit'])->name('checkpoint.showEdit');
+});
 
 require __DIR__.'/auth.php';

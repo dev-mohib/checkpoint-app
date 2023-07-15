@@ -7,7 +7,7 @@ const Index = ({activeMenu, title, instructor, isFound, auth}:any) => {
 
   if(!instructor)
   return(
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
+    <AppLayout>
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       <div className='h-screen flex-c-c'>
@@ -39,7 +39,7 @@ const submit: FormEventHandler = (e) => {
 
 
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
+    <AppLayout> 
       <Head title='Edit'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
       

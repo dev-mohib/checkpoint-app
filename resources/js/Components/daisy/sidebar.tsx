@@ -1,9 +1,11 @@
 import React from 'react'
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import { CheckpointLogoIcon } from '@/Components/icons/icons'
 import { AcademicCapIcon, GridIcon, ReportCardIcon, MindMapIcon, InstructorIcon } from '@/Components/icons'
+import { PageProps } from '@/types'
 
-const Sidebar = ({page, auth} : {page : any, auth : any}) => {
+const Sidebar = () => {
+  const { auth, activeMenu} = usePage<PageProps>().props
   return (
     <div className='fixed max-h-screen z-50'>
     <div className="drawer lg:drawer-open">
@@ -17,12 +19,15 @@ const Sidebar = ({page, auth} : {page : any, auth : any}) => {
           </Link>
           <div className='shadow-md h-full'>
             {
-              auth.user.type == 'admin'?
-              <AdminSideBar page={page} />
-              :auth.user.type == 'instructor'?
-              <InstructorSideBar page={page} />
-              :
-              <StudentSideBar page={page} />
+              auth.role == 'admin'?
+              <AdminSideBar page={activeMenu} />
+              :auth.role == 'instructor'?
+              <InstructorSideBar page={activeMenu} />
+              :auth.role == 'organization'?
+              <OrganizationSideBar page={activeMenu} />
+              :auth.role == 'student'?
+              <StudentSideBar page={activeMenu} />
+              :null
             }
           </div>
         </div>
@@ -71,12 +76,12 @@ const AdminSideBar = ({page} : any) => {
   )
 }
 
-const InstructorSideBar = ({page} : any) => {
+const OrganizationSideBar = ({page} : any) => {
   return (
     <ul className="menu w-full rounded-none px-0 text-xl pt-14">
       <li className={`${page == 'dashboard' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
         <Link href={route('dashboard')}>
-          <GridIcon className={`w-6 h-6`}/>
+          <GridIcon className={`w-6 h-6`} />
         Dashboard
         </Link>
       </li>
@@ -84,6 +89,31 @@ const InstructorSideBar = ({page} : any) => {
         <Link href={route('instructor.index')}>
           <InstructorIcon className={`w-6 h-6`} />
           Instructors
+        </Link>
+      </li>
+      <li className={`${page == 'student' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
+        <Link href={route('student.index')}>
+          <AcademicCapIcon className={`w-6 h-6`} />
+          Students
+        </Link>
+      </li>
+      <li className={`${page == 'checkpoint' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
+        <Link href={route('checkpoint.index')}>
+          <ReportCardIcon className={`w-6 h-6`}/>
+          Checkpoints
+        </Link>
+      </li>
+    </ul>
+  )
+}
+
+const InstructorSideBar = ({page} : any) => {
+  return (
+    <ul className="menu w-full rounded-none px-0 text-xl pt-14">
+      <li className={`${page == 'dashboard' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
+        <Link href={route('dashboard')}>
+          <GridIcon className={`w-6 h-6`}/>
+        Dashboard
         </Link>
       </li>
       <li className={`${page == 'student' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>

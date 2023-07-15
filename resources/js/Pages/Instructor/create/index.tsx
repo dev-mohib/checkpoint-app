@@ -1,17 +1,20 @@
 import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, Link, useForm, usePage } from '@inertiajs/react'
 import React, { FormEventHandler, useEffect, useState } from 'react'
 import { FilePond } from 'react-filepond'
 import { PlusIcon } from '@/Components/icons';
 import Modal from '@/Components/daisy/modal';
 import { XmarkIcon } from '@/Components/icons'
+import { PageProps } from '@/types';
 
 type org = {name:string, id: string}[]
 
-const Index = ({activeMenu, title, auth, showSearch=false, searchData = [], ziggy}:any) => {
+const AdminCreate = () => {
+  const { showSearch, searchData, ziggy} = usePage<PageProps<{searchData : any[], showSearch : boolean}>>().props
   const [input, setInput] = useState('')
   const [searchBy, setSearchBy] = useState('name')
+
 const [files, setFiles] = React.useState<any[]>([])
 
   const d: org = []
@@ -44,7 +47,7 @@ const submitSearch: FormEventHandler = (e) => {
   // }
 };
 useEffect(() => {
-  setInput(ziggy.query?.query??'')
+  setInput(ziggy?.query?.query??'')
   if(showSearch){
     try {
       // @ts-ignore
@@ -81,7 +84,7 @@ const removeOrg = (id: string) => {
   setData("selectedOrgs", data.selectedOrgs.filter((i : any) => i.id !== id))
 }
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
+    <div> 
       <Head title='Create Instructor'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Instructor', href: '/instructor'}, {title : 'Create New', href : null}]}/>
       <Modal id="selectOrgModal" title="Select Organization" className='w-11/12 max-w-5xl'>
@@ -228,7 +231,7 @@ const removeOrg = (id: string) => {
       </div>
     </div>
 
-    </AppLayout>
+    </div>
   )
 }
 
@@ -289,4 +292,15 @@ const OrganizationForm = () => {
   );
 };
 
-export default Index
+
+const IndexView = () => {
+  return(
+    <AppLayout
+      AdminComponent={<AdminCreate />}
+      OrganizationComponent={<AdminCreate />}
+    >
+
+    </AppLayout>
+  )
+}
+export default IndexView

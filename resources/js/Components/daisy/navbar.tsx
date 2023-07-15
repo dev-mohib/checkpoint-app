@@ -1,9 +1,19 @@
 import React, { useState } from 'react'
-import { DarkThemeIcon, LightThemeIcon, NotificationIcon } from '@/Components/icons/icons'
 import { MoonIcon, SunIcon, UserIcon, BellIcon, MenuIcon} from '@/Components/icons'
-import { Link } from '@inertiajs/react'
-const Navbar = ({page = "Checkpoint", title} : {page : string, title : string}) => {
-    const [isDark, setDark] = useState(false)
+import { Link, usePage } from '@inertiajs/react'
+import { PageProps } from '@/types'
+const Navbar = () => {
+    const [theme, setTheme] = useState(localStorage.getItem('data-theme')??'light')
+    const {title} = usePage<PageProps>().props
+
+    const handleTheme = () => {
+        document.getElementById('data-theme-div')
+        ?.setAttribute('data-theme', switchTheme(theme))
+        setTheme(switchTheme(theme))
+        localStorage.setItem('data-theme', switchTheme(theme))
+
+    }
+    const switchTheme = (v : string) => v === 'dark'? 'light' : 'dark'
   return (
     <div className='fixed Navbar z-40'>
     <div className="navbar bg-base-100 shadow-md">
@@ -16,20 +26,20 @@ const Navbar = ({page = "Checkpoint", title} : {page : string, title : string}) 
             <a className="normal-case text-xl font-extrabold">{title}</a>
         </div>
         <div className="flex-grow justify-end">
-            <label onClick={() => setDark(d => !d)}  className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
+            <label onClick={handleTheme}  className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
                 {
-                isDark ?<SunIcon className="w-6 rounded-full h-6"/>
+                theme === 'dark' ?<SunIcon className="w-6 rounded-full h-6"/>
                 :
                 <MoonIcon className="w-6 rounded-full h-6"/>
                 }                
             </label>
             <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle">
+            {/* <label tabIndex={0} className="btn btn-ghost btn-circle">
                 <div className="indicator">
                     <BellIcon className="w-6 h-6" />
                     <span className="badge badge-sm indicator-item">8</span>
                 </div>
-            </label>
+            </label> */}
             <div tabIndex={0} className="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
                 <div className="card-body">
                 <span className="font-bold text-lg">8 Items</span>

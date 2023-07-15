@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Utils\UserType;
+use App\Http\Utils\UserRole;
 use App\Models\Instructor;
 use App\Models\Organization;
 use App\Models\Student;
@@ -31,11 +31,10 @@ class StudentController extends Controller
         $orgName = $request->query('orgName')??'';
         $orgId = $request->query('orgId');
 
-        // if(UserType::is_student($request)){
-        //     return UserType::notAllowed();
-        // }
-        
-        if(UserType::is_admin($request) || UserType::is_instructor($request) || UserType::is_student($request)){
+        if(UserRole::is_student($request)){
+            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student']); 
+        }
+
             $students = Student::with(['organizations', 'users'])
             ->whereHas('users', function ($query) use ($name) {
                 $query->where('name', 'like', '%'.$name.'%');
@@ -57,9 +56,7 @@ class StudentController extends Controller
             })
             ->where('id', 'like', '%' . $id . '%')
             ->paginate(5);
-            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student', 'students'=>$students]);
-        }
-     
+            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student', 'students'=>$students, 'canAccess'=>true]);
 
     }
 
@@ -67,6 +64,10 @@ class StudentController extends Controller
     {
         $searchBy = $request->query('searchBy');
         $query = $request->query('query');
+
+        if(UserRole::is_student($request)){
+            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student']); 
+        }
         if($searchBy == 'name'){
             $searchData =DB::table('organizations')->
             where('name', 'like', '%'.$query.'%')->get();
@@ -90,6 +91,10 @@ class StudentController extends Controller
         //     'username'=> 'required|string|max:30|unique:'.User::class,
         //     'address' => 'required|string|min:20'
         // ]);
+
+        if(UserRole::is_student($request)){
+            return Inertia::render('Student/index', ['title' => 'Students', 'activeMenu'=> 'student']); 
+        }
         $selectedOrgs = $request->selectedOrgs;
         // Log::info(['name'=>$request->name, 'email'=>$request->email, 'selectedOrgs'=>$selectedOrgs]);
         // return Inertia::render('Instructor/show/index', ['isEmpty'=> true, 'title'=> 'Instructor', 'activeMenu'=>'instructor']);
@@ -103,7 +108,7 @@ class StudentController extends Controller
             'address'=> $request->address,
             'contact'=> $request->contact,
             'username'=> $request->username,
-            'type'=> 'instructor',
+            'role'=> 'instructor',
         ]);
 
         $instructor = Instructor::create([
@@ -133,8 +138,11 @@ class StudentController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $instructor = Instructor::with([
-            'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users'
+        if(UserRole::is_student($request)){
+            return Inertia::render('Student/show/index', ['title' => 'Students', 'activeMenu'=> 'student']); 
+        }
+        $student = Student::with([
+            'organizations', 'checkpoints','users', 'organizations.users', 'instructors', 'instructors.users'
             ])
         ->find($id);
         $collection = $request->query('collection');
@@ -142,21 +150,23 @@ class StudentController extends Controller
         $q = $request->query('q');
         $searchData = ($collection && $searchBy) ? $this->getFilterData($searchBy, $q, $collection) : array();
 
-        if(!$instructor){
-            return Inertia::render('Instructor/show/index',
+        if(!$student){
+            return Inertia::render('Student/show/index',
                 [
-                    'isEmpty'=> true, 'title'=> 'Instructor', 
-                    'activeMenu'=>'instructor',
+                    'isEmpty'=> true, 'title'=> 'Student', 
+                    'activeMenu'=>'student',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData,
+                    'canAccess'=>true
             ]);
         } else {
-            return Inertia::render('Instructor/show/index',
+            return Inertia::render('Student/show/index',
                 [
-                    'instructor' => $instructor, 'isEmpty'=> false, 
-                    'title'=>'Instructor','activeMenu'=>'instructor',
+                    'student' => $student, 'isEmpty'=> false, 
+                    'title'=>'Student','activeMenu'=>'student',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData,
+                    'canAccess'=>true
                 ]);
         }
     }
@@ -264,7 +274,7 @@ class StudentController extends Controller
         $instructor = DB::table('instructors')
         ->where('id', $instructorId)
         ->first();
-        if($type == 'organization'){
+        if($type == 'role'){
             $searchOrganizations = $searchBy == 'name'?  DB::table('organizations')
             ->where('name', 'like', '%'.$input.'%')
             ->get()->toArray() : DB::table('organizations')

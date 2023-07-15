@@ -9,7 +9,7 @@ import { XmarkIcon } from '@/Components/icons'
 
 type org = {name:string, id: string}[]
 
-const Index = ({activeMenu, title, auth, showSearch=false, searchData = [], ziggy}:any) => {
+const Index = ({ showSearch=false, searchData = [], ziggy}:any) => {
   const [input, setInput] = useState('')
   const [searchBy, setSearchBy] = useState('name')
 const [files, setFiles] = React.useState<any[]>([])
@@ -81,7 +81,7 @@ const removeOrg = (id: string) => {
   setData("selectedOrgs", data.selectedOrgs.filter((i : any) => i.id !== id))
 }
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
+    <AppLayout> 
       <Head title='Create Student'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Student', href: '/student'}, {title : 'Create New', href : null}]}/>
       <Modal id="selectOrgModal" title="Select Organization" className='w-11/12 max-w-5xl'>

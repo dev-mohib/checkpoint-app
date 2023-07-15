@@ -1,0 +1,1 @@
+import{j as r,F as t}from"./app-f63682cd.js";import{A as o}from"./AppLayout-b8073d9f.js";import n from"./organization_index-34aaf4dc.js";import"./icons-d1e7d4e3.js";import"./index-62154410.js";const d=()=>r(o,{AdminComponent:r(a,{}),breadcrumb:[{title:"Home",href:"/dashboard"},{title:"Organizations",href:null}]}),a=()=>r(t,{children:r(n,{})});export{d as default};

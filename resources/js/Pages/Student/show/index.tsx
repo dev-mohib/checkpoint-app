@@ -1,28 +1,30 @@
 import React, { FormEventHandler, useEffect, useState } from 'react'
-import { useForm } from '@inertiajs/react'
+import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
 import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
 import { XmarkIcon } from '@/Components/icons'
+import { Checkpoint, Organization, PageProps, Student } from '@/types'
 
 const _local = {
   q : '',
   searchBy : 'name',
   collection : 'organization'
 }
-const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchData=[], showModal} : any) => {
+const ViewOrganization = () => {
+  const {student, searchData, showModal, isEmpty} = usePage<PageProps<{student : any, isEmpty : boolean, searchData:any[], showModal : boolean}>>().props
   console.log({searchData})
 
-  const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
+  const local : typeof _local  = JSON.parse(localStorage.getItem('rememberStudentAttach')?? JSON.stringify(_local))
   const [filter, setFilter ] = useState(local)
   const [showConfirm, setConfirm] = useState('')
   const [entityType, setEntityType] = useState('Organization')
   const {data, get, processing, delete : deleteOrg} = useForm()
   const handleDeleteOrg = () => {
     // organization.destroy
-    deleteOrg('/instructor/'+instructor.id, {
+    deleteOrg('/Student/'+student.id, {
       onSuccess : () => {
         console.log("organization deleted")
       },
@@ -38,9 +40,9 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
   },[])
   const submitSearch = ( collection='',isLocalSave = true) => {
     if(isLocalSave)
-      localStorage.setItem('rememberInstructorAttach', JSON.stringify(filter))
-    get(route('instructor.show', {
-      id:instructor.id,
+      localStorage.setItem('rememberStudentAttach', JSON.stringify(filter))
+    get(route('Student.show', {
+      id:student.id,
       searchBy : filter.searchBy,
       collection : collection ? collection : filter.collection + 's',
       q: filter.q
@@ -51,16 +53,16 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
   }
   if(isEmpty)
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
-      <Head title="Instructors"/>
-      <div className='min-h-screen flex-c-c text-3xl font-extrabold'>Instructor not found</div>
-    </AppLayout>
+    <div>
+      <Head title="Students"/>
+      <div className='min-h-screen flex-c-c text-3xl font-extrabold'>Student not found</div>
+    </div>
   )
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
-      <Head title={instructor.users.name}/>
+    <div>
+      <Head title={student.users.name}/>
       <Modal id="deleteInstrucrorModal" title="Delete Organization">
-        <h1>Do you really want to delete this Instructors?</h1>
+        <h1>Do you really want to delete this Students?</h1>
         <div className='w-full flex justify-end'>
           <div onClick={handleDeleteOrg}  className='btn btn-error m-2'>YES!</div>
           <button className='btn btn-ghost my-2'>CANCEL</button>
@@ -119,12 +121,12 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
       </Modal>
 
       <div className='w-full flex justify-between'>
-        <Breadcrumb list={[{title : 'Home', href : '/dashboard'},{title : 'Instructor', href:'/instructor'}, {title : instructor.users.name, href: null}]}/>
+        <Breadcrumb list={[{title : 'Home', href : '/dashboard'},{title : 'Student', href:'/student'}, {title : student.users.name, href: null}]}/>
         <details className="dropdown z-30">
           <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
           <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
             <li><a onClick={() => {
-              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+              localStorage.setItem('rememberStudentAttach', JSON.stringify({
                 collection : 'organization',
                 q : '',
                 searchBy : 'name'
@@ -132,7 +134,7 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
               submitSearch('organizations', false)
             }}>Add Organization</a></li>
             <li><a onClick={() => {
-              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+              localStorage.setItem('rememberStudentAttach', JSON.stringify({
                 collection : 'student',
                 q : '',
                 searchBy : 'name'
@@ -140,18 +142,18 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
               submitSearch('students', false)
             }}>Add Student</a></li>
             <li><a onClick={() => {
-              localStorage.setItem('rememberInstructorAttach', JSON.stringify({
+              localStorage.setItem('rememberStudentAttach', JSON.stringify({
                 collection : 'checkpoint',
                 q : '',
                 searchBy : 'name'
               }))
               submitSearch('checkpoints', false)
             }}>Add Checkpoint</a></li>
-            <li><Link href={route('instructor.showEdit',{id : instructor.id})}>Edit Instructor</Link></li>
+            <li><Link href={route('student.showEdit',{id : student.id})}>Edit Student</Link></li>
             <li onClick={_ => {
               // @ts-ignore
               document.getElementById('deleteInstrucrorModal').showModal()
-            }}><a className='text-red-600 hover:text-red-600'>Delete Instructor</a></li>
+            }}><a className='text-red-600 hover:text-red-600'>Delete Student</a></li>
           </ul>
         </details>
       </div>
@@ -166,55 +168,49 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
           <tbody>
             <tr className=''>
               <td>Name</td>
-              <td>{instructor.users.name}</td>
+              <td>{student.users.name}</td>
             </tr>
             <tr>
               <td>Username</td>
-              <td>{instructor.users.username}</td>
+              <td>{student.users.username}</td>
             </tr>
             <tr>
               <td>Email</td>
-              <td>{instructor.users.email}</td>
+              <td>{student.users.email}</td>
             </tr>
             <tr>
               <td>Address</td>
-              <td>{instructor.users.address}</td>
+              <td>{student.users.address}</td>
             </tr>
             <tr>
               <td>Contact</td>
-              <td>{instructor.users.contact_number}</td>
+              <td>{student.users.contact_number}</td>
             </tr>
             <tr>
               <td>Qualification</td>
-              <td>{instructor.qualification}</td>
+              <td>{student.qualification}</td>
             </tr>
           </tbody>
         </table>
       </div>
       {
-        instructor.organizations.length>0 ?<>
+        student.organizations.length>0 ?<>
           <h1 className='py-4 text-secondary font-extrabold'>Belongs to (Organization's)</h1>
-          <Organizations organizations={instructor.organizations}/>
+          <Organizations organizations={student.organizations}/>
         </>:<></>
       }
       {
-        instructor.students.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Students (Assigned)</h1>
-          <Students students={instructor.students} />
-        </>
-      }
-      {
-        instructor.checkpoints.length > 0 && <>
+        student.checkpoints.length > 0 && <>
           <h1 className='py-4 text-secondary font-extrabold'>Checkpoints (Assigned)</h1>
-          <Checkpoints checkpoints={instructor.checkpoints} />
+          <Checkpoints checkpoints={student.checkpoints} />
         </>
       }
-    </AppLayout>
+    </div>
   )
 }
 
 
-const Organizations = ({organizations} : {organizations : any[]}) => {
+const Organizations = ({organizations} : {organizations : Organization[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
@@ -252,7 +248,7 @@ const Organizations = ({organizations} : {organizations : any[]}) => {
   )
 }
 
-const Students = ({students} : {students : any[]}) => {
+const Students = ({students} : {students : Student[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
@@ -281,7 +277,7 @@ const Students = ({students} : {students : any[]}) => {
   )
 }
 
-const Checkpoints = ({checkpoints} : {checkpoints : any[]}) => {
+const Checkpoints = ({checkpoints} : {checkpoints : Checkpoint[]}) => {
   return(
     <table className='table bg-base-100 shadow-md'>
           <thead>
@@ -309,5 +305,15 @@ const Checkpoints = ({checkpoints} : {checkpoints : any[]}) => {
         </table>
   )
 }
+const Index = () => {
 
-export default ViewOrganization
+  return(
+  <AppLayout
+    AdminComponent={<ViewOrganization />}
+    OrganizationComponent={<ViewOrganization />}
+    InstructorComponent={<ViewOrganization />}
+  >
+
+  </AppLayout>)
+}
+export default Index

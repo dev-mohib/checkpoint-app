@@ -1,27 +1,25 @@
+import React from 'react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head } from '@inertiajs/react'
-import React from 'react'
-import OragnizationTable from './partial/org_table'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
-const Index = ({activeMenu, title, organizations, ziggy, auth}:any) => {
+import OrganizationsTable from './partial/organization_index'
+const Index = () => {
 
-  if(!organizations || organizations.length ==0 )
-  return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
-      <Head title='Organization'/>
-      <Breadcrumb list={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]} />
-      {/* <OragnizationTable /> */}
-      <div className='flex-c-c' style={{height : '70vh'}}>
-        <h1 className='text-3xl font-extrabold text-center'>No Organizations</h1>
-      </div>
+  return(
+    <AppLayout 
+      AdminComponent={<AdminOrganization />}
+      breadcrumb={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]}
+    >
     </AppLayout>
   )
+
+}
+
+const AdminOrganization = () => {
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
-      <Head title='Organization'/>
-      <Breadcrumb list={[{title :'Home', href: '/dashboard'}, {title : 'Organizations', href : null}]} />
-      <OragnizationTable organizations={organizations} query={ziggy.query}/>
-    </AppLayout>
+    <>
+      <OrganizationsTable />
+    </>
   )
 }
 

@@ -1,11 +1,10 @@
-import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
-import { Head, useForm } from '@inertiajs/react'
+import { useForm } from '@inertiajs/react'
 import React, { FormEventHandler } from 'react'
 import { FilePond } from 'react-filepond'
 import { PlusIcon } from '@/Components/icons';
-const Index = ({activeMenu, title, auth}:any) => {
-  const { data, setData,post, errors, processing, recentlySuccessful } = useForm({
+const CreateOrganization = ({activeMenu, title, auth}:any) => {
+  const { data, setData,post } = useForm({
     name: '',
     email: '',
     address : '',
@@ -21,12 +20,8 @@ const submit: FormEventHandler = (e) => {
   post(route('organization.store'));
 };
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
-      <Head title='Create Organization'/>
-      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Create New', href : null}]}/>
-      
-      
-      <div className="w-full mx-auto mt-8">
+    <div> 
+     <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Organization</h2>
 
@@ -125,10 +120,22 @@ const submit: FormEventHandler = (e) => {
       </div>
     </div>
 
-    </AppLayout>
+    </div>
   )
 }
 
+
+const Index = () => {
+
+  return (
+    <AppLayout
+      AdminComponent={<CreateOrganization />}
+      breadcrumb={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Create New', href : null}]}
+    >
+
+    </AppLayout>
+  )
+}
 const OrganizationForm = () => {
   return (
     <div className="w-full mx-auto mt-8">

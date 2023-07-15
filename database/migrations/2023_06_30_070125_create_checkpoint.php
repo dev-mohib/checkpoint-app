@@ -23,8 +23,6 @@ return new class extends Migration
             $table->bigInteger('instructor_id')->nullable();
             $table->bigInteger('student_id')->nullable();
             $table->string('validity_period')->nullable();
-            $table->string('assigned_instructor')->nullable();
-            $table->string('assigned_students')->nullable();
             $table->string('badge')->nullable();
             $table->string('instructor_input')->nullable();
             $table->integer('achieved_gradepoints')->nullable();

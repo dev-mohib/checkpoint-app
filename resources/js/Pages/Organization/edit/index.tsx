@@ -1,18 +1,20 @@
 import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
+import { Organization, PageProps } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react'
 import React, { FormEventHandler, useEffect } from 'react'
 
-const Index = ({activeMenu, title, organization, isFound, auth}:any) => {
-  const { props: pageData } = usePage();
-  if(!pageData.organization)
+const EditOrganization = () => {
+  const { organization, isFound  } = usePage<PageProps<{organization : Organization, isFound : boolean}>>().props;
+  if(!organization || !isFound)
   return(
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
-      <Head title='Edit'/>
-      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
-      <div className='h-screen flex-c-c'>
-        <h1 className='text-3xl font-extrabold'>Not Found</h1>
-      </div>
+    <AppLayout
+    AdminComponent={
+        <div className='h-screen flex-c-c'>
+          <h1 className='text-3xl font-extrabold'>Not Found</h1>
+        </div>}
+        breadcrumb={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}
+    >
     </AppLayout>
   )
   
@@ -39,11 +41,7 @@ const submit: FormEventHandler = (e) => {
 
 
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}> 
-      <Head title='Edit'/>
-      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
-      
-      
+    <div> 
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Organization Form</h2>
@@ -121,7 +119,7 @@ const submit: FormEventHandler = (e) => {
       </div>
     </div>
 
-    </AppLayout>
+    </div>
   )
 }
 
@@ -181,5 +179,15 @@ const OrganizationForm = () => {
     </div>
   );
 };
+
+const Index = () => {
+  return(
+    <AppLayout
+      breadcrumb={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}
+      AdminComponent={<EditOrganization />}
+    >
+    </AppLayout>
+  )
+}
 
 export default Index

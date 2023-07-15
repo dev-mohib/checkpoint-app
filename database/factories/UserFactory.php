@@ -24,6 +24,7 @@ class UserFactory extends Factory
             'address' => fake()->secondaryAddress().', '. fake()->city(),
             'contact_number' => fake()->e164PhoneNumber(),
             'remember_token' => Str::random(10),
+            'role'=> 'organization'
         ];
     }
 

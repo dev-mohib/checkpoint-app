@@ -1,14 +1,17 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
-import { Link, useForm  } from '@inertiajs/react';
+import { Link, useForm, usePage  } from '@inertiajs/react';
 import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { CheckpointPagination, PageProps } from '@/types';
 
-  const Table = ({query ,checkpoints} : { query : any, checkpoints:any}) => {
+  const Table = () => {
+    const { checkpoints, ziggy } = usePage<PageProps<{checkpoints : CheckpointPagination}>>().props
     console.log({checkpoints})
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
+    const query = ziggy?.query
 
     useEffect(() => {
       const f = `${query.filter}`

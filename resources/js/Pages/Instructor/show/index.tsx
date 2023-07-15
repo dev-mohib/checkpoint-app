@@ -1,19 +1,26 @@
 import React, { FormEventHandler, useEffect, useState } from 'react'
-import { useForm } from '@inertiajs/react'
+import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
 import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
 import { XmarkIcon } from '@/Components/icons'
+import { Instructor, PageProps } from '@/types'
 
 const _local = {
   q : '',
   searchBy : 'name',
   collection : 'organization'
 }
-const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchData=[], showModal} : any) => {
-  console.log({searchData})
+const ViewOrganization = () => {
+
+  const {activeMenu, auth, title, instructor,searchData, showModal, isEmpty } = usePage<PageProps<
+                { 
+                  isEmpty : boolean, instructor : Instructor,
+                   showModal : boolean, searchData : any[]
+                }
+              >>().props 
 
   const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
   const [filter, setFilter ] = useState(local)
@@ -51,13 +58,13 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
   }
   if(isEmpty)
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
+    <>
       <Head title="Instructors"/>
       <div className='min-h-screen flex-c-c text-3xl font-extrabold'>Instructor not found</div>
-    </AppLayout>
+    </>
   )
   return (
-    <AppLayout activeMenu={activeMenu} title={title} auth={auth}>
+    <>
       <Head title={instructor.users.name}/>
       <Modal id="deleteInstrucrorModal" title="Delete Organization">
         <h1>Do you really want to delete this Instructors?</h1>
@@ -192,122 +199,131 @@ const ViewOrganization = ({instructor, isEmpty, activeMenu, title, auth, searchD
         </table>
       </div>
       {
-        instructor.organizations.length>0 ?<>
-          <h1 className='py-4 text-secondary font-extrabold'>Belongs to (Organization's)</h1>
-          <Organizations organizations={instructor.organizations}/>
-        </>:<></>
+        instructor.students && <Students students={instructor.students}/>
       }
       {
-        instructor.students.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Students (Assigned)</h1>
-          <Students students={instructor.students} />
-        </>
+        instructor.organization && <Organizations organizations={instructor.organization}/>
       }
       {
-        instructor.checkpoints.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Checkpoints (Assigned)</h1>
-          <Checkpoints checkpoints={instructor.checkpoints} />
-        </>
+        instructor.checkpoints && <Checkpoints checkpoints={instructor.checkpoints}/>
       }
-    </AppLayout>
+    </>
   )
 }
 
 
 const Organizations = ({organizations} : {organizations : any[]}) => {
   return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-            <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Email</td>
-              <td className='font-extrabold text-lg '>Address</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              organizations.map((organization : any, index) => <tr key={organization.id}  className='hover'>
-                <td><div className="flex items-center space-x-3 ml-3 my-3">
-                        <div className="avatar">
-                            <div className="mask mask-squircle w-10 h-10">
-                                <img src={organization.logo} alt="Avatar" />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="font-bold">{organization.name}</div>
-                        </div>
-                    </div></td>
-                <td>{organization.users.email}</td>
-                <td>{organization.users.address}</td>
-                <td>
-                  <Link href={route('organization.show', {id : organization.id})}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
+    <>
+      <h1 className='py-4 text-secondary font-extrabold'>Organizations</h1>
+      <table className='table bg-base-100 shadow-md'>
+            <thead>
+              <tr className='text-base-100 bg-primary'>
+                <td className='font-extrabold text-lg '>Name</td>
+                <td className='font-extrabold text-lg '>Email</td>
+                <td className='font-extrabold text-lg '>Address</td>
+                <td className='font-extrabold text-lg '></td>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                organizations.map((organization : any, index) => <tr key={organization.id}  className='hover'>
+                  <td><div className="flex items-center space-x-3 ml-3 my-3">
+                          <div className="avatar">
+                              <div className="mask mask-squircle w-10 h-10">
+                                  <img src={organization.logo} alt="Avatar" />
+                              </div>
+                          </div>
+                          <div>
+                              <div className="font-bold">{organization.name}</div>
+                          </div>
+                      </div></td>
+                  <td>{organization.users.email}</td>
+                  <td>{organization.users.address}</td>
+                  <td>
+                    <Link href={route('organization.show', {id : organization.id})}>
+                      <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
+                    </Link>
+                  </td>
+                </tr>)
+              }
+            </tbody>
+      </table>
+    </>
   )
 }
 
 const Students = ({students} : {students : any[]}) => {
   return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-          <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Email</td>
-              <td className='font-extrabold text-lg '>Address</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              students.map((student : any, index) => <tr key={student.id}  className='hover'>
-                  <td>{student.users.name}</td>
-                  <td>{student.users.email}</td>
-                  <td>{student.users.address}</td>
-                <td>
-                  <Link href={route('student.index')}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
+    <>
+      <h1 className='py-4 text-secondary font-extrabold'>Students</h1>
+      <table className='table bg-base-100 shadow-md'>
+            <thead>
+            <tr className='text-base-100 bg-primary'>
+                <td className='font-extrabold text-lg '>Name</td>
+                <td className='font-extrabold text-lg '>Email</td>
+                <td className='font-extrabold text-lg '>Address</td>
+                <td className='font-extrabold text-lg '></td>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                students.map((student : any, index) => <tr key={student.id}  className='hover'>
+                    <td>{student.users.name}</td>
+                    <td>{student.users.email}</td>
+                    <td>{student.users.address}</td>
+                  <td>
+                    <Link href={route('student.index')}>
+                      <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
+                    </Link>
+                  </td>
+                </tr>)
+              }
+            </tbody>
+      </table>
+    </>
   )
 }
 
 const Checkpoints = ({checkpoints} : {checkpoints : any[]}) => {
   return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-          <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Validity</td>
-              <td className='font-extrabold text-lg '>Grades</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              checkpoints.map((checkpoint : any, index) => <tr key={checkpoint.id}  className='hover'>
-                  <td>{checkpoint.name}</td>
-                  <td>{checkpoint.validity_period}</td>
-                  <td>{checkpoint.achieved_gradepoints}/{checkpoint.total_gradepoints}</td>
-                <td>
-                  <Link href={route('checkpoint.index')}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
+    <>
+      <h1 className='py-4 text-secondary font-extrabold'>Checkpoints</h1>
+      <table className='table bg-base-100 shadow-md'>
+            <thead>
+            <tr className='text-base-100 bg-primary'>
+                <td className='font-extrabold text-lg '>Name</td>
+                <td className='font-extrabold text-lg '>Validity</td>
+                <td className='font-extrabold text-lg '>Grades</td>
+                <td className='font-extrabold text-lg '></td>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                checkpoints.map((checkpoint : any, index) => <tr key={checkpoint.id}  className='hover'>
+                    <td>{checkpoint.name}</td>
+                    <td>{checkpoint.validity_period}</td>
+                    <td>{checkpoint.achieved_gradepoints}/{checkpoint.total_gradepoints}</td>
+                  <td>
+                    <Link href={route('checkpoint.index')}>
+                      <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
+                    </Link>
+                  </td>
+                </tr>)
+              }
+            </tbody>
+      </table>
+    </>
   )
 }
 
-export default ViewOrganization
+
+const Index = () => {
+  return <AppLayout
+    AdminComponent={<ViewOrganization />}
+    OrganizationComponent={<ViewOrganization />}
+    >
+
+  </AppLayout>
+}
+export default Index

@@ -28,11 +28,11 @@ class DatabaseSeeder extends Seeder
         InstuctorStudent::factory()->count(10)->create();
         OrganizationStudent::factory()->count(10)->create();
         User::factory()->create([
-            'id'=>'111',
+            'id'=>'100',
             'name'=> 'Mohib Ali',
             'username'=> 'dev.mohib',
             'email'=> 'dev.mohib@gmail.com',
-            'type'=> 'admin',
+            'role'=> 'admin',
             'address'=> 'Lahore, Pakistan',
             'password'=> '$2y$10$KlLiaPQcPkSCFY4tBdSIaOIts5awS0l2XQBhyywqmWKlfFyAqQWPe'
         ]);

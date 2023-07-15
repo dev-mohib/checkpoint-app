@@ -1,6 +1,6 @@
 import React from 'react'
 
-const CardSection = () => {
+const CardSection = ({}) => {
   const cards = [{name : "Students"}, {name : "Instructors"}, {name : "Organizations"}, {name : "Checkpoints"}]
   return (
     <div className='flex justify-around'>
@@ -12,7 +12,7 @@ const CardSection = () => {
 }
 
 
-const Card = ({name=""} : any) => {
+export const Card = ({name=""} : {name : string}) => {
 
   return (
     <div className="card w-1/5 h-40 bg-base-100 shadow-xl image-full">

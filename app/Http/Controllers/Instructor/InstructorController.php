@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
-use App\Http\Utils\UserType;
+use App\Http\Utils\UserRole;
 use App\Models\Instructor;
 use App\Models\Organization;
 use App\Models\Student;
@@ -31,11 +31,11 @@ class InstructorController extends Controller
         $orgName = $request->query('orgName')??'';
         $orgId = $request->query('orgId');
 
-        if(UserType::is_student($request)){
-            return UserType::notAllowed();
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'canAccess'=>false]);
+            // return UserRole::notAllowed();
         }
         
-        if(UserType::is_admin($request) || UserType::is_instructor($request)){
             $instructors = Instructor::with(['organizations', 'users'])
             ->whereHas('users', function ($query) use ($name) {
                 $query->where('name', 'like', '%'.$name.'%');
@@ -49,35 +49,46 @@ class InstructorController extends Controller
             ->whereHas('users', function ($query) use ($address) {
                 $query->where('address', 'like', '%'.$address.'%');
             })
-            ->whereHas('organizations', function ($query) use ($orgName) {
-                $query->where('name', 'like', '%'.$orgName.'%');
-            })
             ->whereHas('users', function ($query) use ($orgId) {
                 $query->where('id', 'like', '%'.$orgId.'%');
             })
-            ->where('id', 'like', '%' . $id . '%')
-            ->paginate(5);
-            return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'instructors'=>$instructors]);
-        }
+            ->where('id', 'like', '%' . $id . '%');
+            $userId = $request->user()->id;
+            if(UserRole::is_admin($request)){
+                $instructors = $instructors
+                ->whereHas('organizations', function ($query) use ($orgName) {
+                    $query->where('name', 'like', '%'.$orgName.'%');
+                })->paginate(5);
+            } else if(UserRole::is_organization($request)){
+                $instructors = $instructors
+                ->whereHas('organizations', function ($query) use ($userId) {
+                    $query->where('organizations.id', $userId);
+                })->paginate(5);
+            }
+
+            return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'instructors'=>$instructors, 'canAccess'=>true]);
      
 
     }
 
     public function create(Request $request)
     {
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor']);
+        }
         $searchBy = $request->query('searchBy');
         $query = $request->query('query');
         if($searchBy == 'name'){
             $searchData =DB::table('organizations')->
             where('name', 'like', '%'.$query.'%')->get();
-            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData]);
+            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData, 'canAccess' => true]);
         }
         if($searchBy == 'id'){
             $searchData = DB::table('organizations')->where('id', $query)->get();
-            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData]);
+            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData, 'canAccess' => true]);
         }
 
-        return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor']);
+        return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor','searchData'=>[],  'canAccess' => true]);
     }
 
     public function store(Request $request)
@@ -103,7 +114,7 @@ class InstructorController extends Controller
             'address'=> $request->address,
             'contact'=> $request->contact,
             'username'=> $request->username,
-            'type'=> 'instructor',
+            'role'=> 'instructor',
         ]);
 
         $instructor = Instructor::create([
@@ -133,6 +144,13 @@ class InstructorController extends Controller
 
     public function show(Request $request, string $id)
     {
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return Inertia::render('Instructor/show/index',
+            [
+                'canAccess' => false, 
+                'title'=>'Instructor','activeMenu'=>'instructor'
+            ]);
+        }
         $instructor = Instructor::with([
             'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users'
             ])
@@ -148,7 +166,8 @@ class InstructorController extends Controller
                     'isEmpty'=> true, 'title'=> 'Instructor', 
                     'activeMenu'=>'instructor',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData,
+                    'canAccess'=>true
             ]);
         } else {
             return Inertia::render('Instructor/show/index',
@@ -156,7 +175,8 @@ class InstructorController extends Controller
                     'instructor' => $instructor, 'isEmpty'=> false, 
                     'title'=>'Instructor','activeMenu'=>'instructor',
                     'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData
+                    'searchData'=>$searchData,
+                    'canAccess'=>true
                 ]);
         }
     }
@@ -274,7 +294,7 @@ class InstructorController extends Controller
                 
             // }
             $filteredOrgs = array_map(function($item) {
-                return ['name'=>$item['name'], 'id'=>$item['id'],'type'=>'organization'];//$item['id'];
+                return ['name'=>$item['name'], 'id'=>$item['id'],'role'=>'organization'];//$item['id'];
             }, $searchOrganizations);
             Log::info(['searchBy' => $searchBy, 'attachId'=>$input, 'instructor'=>$instructor]);
             return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'showOrgModal'=> true, 'title'=>'Instructor','activeMenu'=>'instructor', 'searchData'=>$filteredOrgs]);

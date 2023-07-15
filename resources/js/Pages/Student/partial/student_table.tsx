@@ -1,14 +1,16 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
-import { Link, useForm  } from '@inertiajs/react';
+import { Link, useForm, usePage  } from '@inertiajs/react';
 import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { PageProps, Student, StudentPagination } from '@/types';
 
-  const Table = ({students, query} : {students : any, query : any}) => {
+  const Table = () => {
+    const { students, ziggy } = usePage<PageProps<{students : StudentPagination}>>().props
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
-
+    const query = ziggy?.query
     useEffect(() => {
       const f = `${query.filter}`
       if(f == 'name'){
