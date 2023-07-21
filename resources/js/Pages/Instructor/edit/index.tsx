@@ -41,7 +41,7 @@ const submit: FormEventHandler = (e) => {
   return (
     <AppLayout> 
       <Head title='Edit'/>
-      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Organization', href: '/organization'}, {title : 'Edit', href : null}]}/>
+      <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Instructor', href: '/instructor'}, {title : 'Edit', href : null}]}/>
       
       
       <div className="w-full mx-auto mt-8">

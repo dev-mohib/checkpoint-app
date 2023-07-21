@@ -3,10 +3,10 @@ import { NavigateIcon } from '@/Components/icons/icons';
 import { Link, useForm, usePage  } from '@inertiajs/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { PageProps } from '@/types';
+import { Organization, OrganizationPagination, PageProps } from '@/types';
 
   const Table = () => {
-    const { organizations, ziggy } = usePage<PageProps<{organizations : any}>>().props
+    const { organizations, ziggy } = usePage<PageProps<{organizations : OrganizationPagination}>>().props
     const [input, setInput] = useState('')
     const [filter, setFilter] = useState('name')
 
@@ -67,7 +67,7 @@ import { PageProps } from '@/types';
             <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
-            <table className="table table-sm bg-base-100 shadow-md">
+           {organizations.data.length > 0 ? <table className="table table-sm bg-base-100 shadow-md">
             <thead>
                 <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
                   <th>
@@ -144,6 +144,14 @@ import { PageProps } from '@/types';
                 </tr>
             </tbody>
             </table>
+            :
+            <div className='w-full border-2 shadow-sm'>
+              <div className='bg-primary h-16 w-full'></div>
+              <div className='w-full flex-c-c h-96 font-bold text-2xl'>
+                No Organizations
+              </div>
+            </div>
+            }
         </div>
       </div>
     );

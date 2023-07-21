@@ -33,23 +33,25 @@ const Navbar = () => {
                 <MoonIcon className="w-6 rounded-full h-6"/>
                 }                
             </label>
-            <div className="dropdown dropdown-end">
-            {/* <label tabIndex={0} className="btn btn-ghost btn-circle">
-                <div className="indicator">
-                    <BellIcon className="w-6 h-6" />
-                    <span className="badge badge-sm indicator-item">8</span>
+           
+            {/* Notification Dropdown */}
+            {/* <div className="dropdown dropdown-end">
+                <label tabIndex={0} className="btn btn-ghost btn-circle">
+                    <div className="indicator">
+                        <BellIcon className="w-6 h-6" />
+                        <span className="badge badge-sm indicator-item">8</span>
+                    </div>
+                </label>
+                <div tabIndex={0} className="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
+                    <div className="card-body">
+                        <span className="font-bold text-lg">8 Items</span>
+                        <span className="text-info">Subtotal: $999</span>
+                        <div className="card-actions">
+                            <button className="btn btn-primary btn-block">View cart</button>
+                        </div>
+                    </div>
                 </div>
-            </label> */}
-            <div tabIndex={0} className="mt-3 z-[1] card card-compact dropdown-content w-52 bg-base-100 shadow">
-                <div className="card-body">
-                <span className="font-bold text-lg">8 Items</span>
-                <span className="text-info">Subtotal: $999</span>
-                <div className="card-actions">
-                    <button className="btn btn-primary btn-block">View cart</button>
-                </div>
-                </div>
-            </div>
-            </div>
+            </div> */}
             <div className="dropdown dropdown-end">
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar flex flex-row justify-center items-center">
                 <UserIcon className="w-5 rounded-full h-5"/>
@@ -61,7 +63,7 @@ const Navbar = () => {
                     {/* <span className="badge">New</span> */}
                 </Link>
                 </li>
-                <li><a>Settings</a></li>
+                {/* <li><a>Settings</a></li> */}
                 <li><Link href={route('logout')} method="post">Logout</Link></li>
             </ul>
             </div>

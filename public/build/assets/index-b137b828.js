@@ -1,1 +1,0 @@
-import{j as t}from"./app-f63682cd.js";import{A as r}from"./AppLayout-b8073d9f.js";import o from"./student_table-831f53bd.js";import"./icons-d1e7d4e3.js";import"./index-62154410.js";const n=()=>t(r,{AdminComponent:t(o,{}),breadcrumb:[{title:"Home",href:"/dashboard"},{title:"Students",href:null}]});export{n as default};

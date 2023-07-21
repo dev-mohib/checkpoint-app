@@ -83,7 +83,7 @@ import { InstructorPagination, PageProps } from '@/types';
             <Link  href={route('instructor.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
-            <table className="table table-sm bg-base-100 shadow-md">
+            {instructors.data.length > 0 ?<table className="table table-sm bg-base-100 shadow-md">
             <thead>
                 <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
                   <th>
@@ -154,6 +154,14 @@ import { InstructorPagination, PageProps } from '@/types';
                 </tr>
             </tbody>
             </table>
+            :
+            <div className='w-full border-2 shadow-sm'>
+              <div className='bg-primary h-16 w-full'></div>
+              <div className='w-full flex-c-c h-96 font-bold text-2xl'>
+                No Instructors
+              </div>
+            </div>
+            }
         </div>
       </div>
     );

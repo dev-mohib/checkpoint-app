@@ -1,27 +1,19 @@
-import { Head, usePage } from '@inertiajs/react';
-import { PageProps } from '@/types';
+import { Head } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import CardSection from './partials/cards';
 import AdminDashboard from './admin';
 import InstructorDashboard from './instructor';
 import OrganizationDashboard from './organization';
 import StudentDashboard from './student';
 export default function Dashboard() {
-  const { auth }   = usePage<PageProps>().props;
+
     return (
-        <AppLayout>
+        <AppLayout
+          AdminComponent={<AdminDashboard />}
+          OrganizationComponent={<OrganizationDashboard />}
+          InstructorComponent={<InstructorDashboard />}
+          StudentComponent={ <StudentDashboard />}
+        >
           <Head title='Dashboard'/>
-          {
-            auth.role === 'admin' ?
-            <AdminDashboard />
-            :auth.role === 'instructor'?
-            <InstructorDashboard />
-            :auth.role === 'organization'?
-            <OrganizationDashboard />
-            :auth.role === 'student'?
-            <StudentDashboard />
-            :null
-          }
         </AppLayout>
     );
 }

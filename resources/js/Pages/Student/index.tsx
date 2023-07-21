@@ -9,6 +9,8 @@ const Index = () => {
   return (
     <AppLayout
       AdminComponent={<StudentTable />}
+      OrganizationComponent={<StudentTable />}
+      InstructorComponent={<StudentTable />}
       breadcrumb={[{title :'Home', href: '/dashboard'}, {title : 'Students', href : null}]}
     > 
     </AppLayout>

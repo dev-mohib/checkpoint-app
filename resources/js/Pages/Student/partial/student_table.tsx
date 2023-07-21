@@ -83,8 +83,8 @@ import { PageProps, Student, StudentPagination } from '@/types';
             <Link  href={route('student.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
-            <table className="table table-sm bg-base-100 shadow-md">
-            <thead>
+            {students.data.length > 0 ? <table className="table table-sm bg-base-100 shadow-md">
+              <thead>
                 <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
                   <th>
                       Name
@@ -104,7 +104,7 @@ import { PageProps, Student, StudentPagination } from '@/types';
                   <th>
                   </th>
                 </tr>
-            </thead>
+              </thead>
             <tbody>
                 {students.data.map((row : any, index : number) => (
                 <tr key={index} className='cursor-pointer hover'>
@@ -128,7 +128,7 @@ import { PageProps, Student, StudentPagination } from '@/types';
                   </td>
                 </tr>
                 ))}
-                <tr className=''>
+                {<tr className=''>
                     <td className='py-4 text-lg font-extrabold bg-primary text-base-100'>
                         <b className=''>{students.from} to {students.to}</b> of {students.total}
                     </td>
@@ -151,9 +151,17 @@ import { PageProps, Student, StudentPagination } from '@/types';
                         }
                       </div>
                     </td>
-                </tr>
+                </tr>}
             </tbody>
             </table>
+            :
+            <div className='w-full border-2 shadow-sm'>
+              <div className='bg-primary h-16 w-full'></div>
+              <div className='w-full flex-c-c h-96 font-bold text-2xl'>
+                No Students
+              </div>
+            </div>
+            }
         </div>
       </div>
     );

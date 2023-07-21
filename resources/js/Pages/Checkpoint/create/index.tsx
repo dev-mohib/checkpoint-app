@@ -3,18 +3,9 @@ import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link, useForm } from '@inertiajs/react'
 import React, { FormEventHandler, useEffect, useState } from 'react'
 import { FilePond } from 'react-filepond'
-import { PlusIcon } from '@/Components/icons';
-import Modal from '@/Components/daisy/modal';
-import { XmarkIcon } from '@/Components/icons'
 
-type org = {name:string, id: string}[]
-
-const Index = ({activeMenu, title, auth, showSearch=false, searchData = [], ziggy}:any) => {
-  const [input, setInput] = useState('')
-  const [searchBy, setSearchBy] = useState('name')
-const [files, setFiles] = React.useState<any[]>([])
-
-  const d: org = []
+const Index = () => {
+  const [files, setFiles] = React.useState<any[]>([])
 
   const formData = {
     name: '',
@@ -24,7 +15,6 @@ const [files, setFiles] = React.useState<any[]>([])
     username: '',
     password : '',
     qualification : '',
-    selectedOrgs : d
 }
 const local = localStorage.getItem('rememberStudent')
 const { data, setData, post, get } = useForm<typeof formData>(local ? JSON.parse(local) : formData);
@@ -36,93 +26,11 @@ const submit: FormEventHandler = (e) => {
   localStorage.removeItem('rememberStudent')
 };
 
-const submitSearch: FormEventHandler = (e) => {
-  // if(input.length >= 2){
-    e.preventDefault();
-    localStorage.setItem('rememberStudent', JSON.stringify(data))
-    get(route('student.create', {query : input, searchBy}));
-  // }
-};
-useEffect(() => {
-  setInput(ziggy.query?.query??'')
-  if(showSearch){
-    try {
-      // @ts-ignore
-      document.getElementById('selectOrgModal')?.showModal()
-    } catch (error) {
-      
-    }
-  }
-  localStorage.removeItem('rememberStudent')
-},[])
 
-
-const addOrg = (name : string, id : string) => {
-  const found = data.selectedOrgs.find((o : any) => o.id == id)
-  if(found){
-    try {
-      // @ts-ignore
-      document.getElementById('selectOrgModal')?.close()
-    } catch (error) {
-      
-    }
-  }else {
-    setData('selectedOrgs', [...data.selectedOrgs, {id, name}])
-    try {
-      // @ts-ignore
-      document.getElementById('selectOrgModal')?.close()
-    } catch (error) {
-      
-    }
-  }
-}
-
-const removeOrg = (id: string) => { 
-  setData("selectedOrgs", data.selectedOrgs.filter((i : any) => i.id !== id))
-}
   return (
     <AppLayout> 
       <Head title='Create Student'/>
       <Breadcrumb list={[{title : 'Home', href: "/dashboard"},{title : 'Student', href: '/student'}, {title : 'Create New', href : null}]}/>
-      <Modal id="selectOrgModal" title="Select Organization" className='w-11/12 max-w-5xl'>
-        <div className="join my-5 border-2 border-primary">
-          <div className='input-group flex-r-c'>
-            <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
-            <div onClick={() => setInput('')}  className='btn bg-base-100 hover:bg-base-100 join-item'>
-                {/* <ClearIcon className="w-4 h-4"/> */}
-                <XmarkIcon/>
-              </div>
-          </div>
-          <select className="select select-bordered join-item" value={searchBy} onChange={(e) => setSearchBy(e.target.value)}>
-              <option disabled selected value="all">Search By</option>
-              <option value="name">Organization Name</option>
-              <option value="id">Organization ID</option>
-          </select>
-          <div className="indicator ">
-              <div onClick={submitSearch} className="btn join-item btn-primary">Search</div>
-          </div>
-        </div>
-        <div className='w-full bg-base-200 my-5' >
-          {
-            searchData.length > 0 ? <div className='overflow-y-auto' style={{maxHeight : 350}}>
-              {searchData.map((org : any) => <div 
-                  className='flex items-center space-x-3 py-6 px-5 hover:bg-base-300 cursor-pointer'  key={org.id}
-                  onClick={() => addOrg(org.name, org.id)}
-                  >
-                  <div className="avatar">
-                      <div className="mask mask-squircle w-10 h-10">
-                          <img src={org.logo} alt="Avatar" />
-                      </div>
-                  </div>
-                  <div className='font-bold'>{org.name}</div>
-              </div>
-              )}
-            </div>:<div className='h-full flex-c-c'>
-            </div>
-          }
-        </div>
-      </Modal>
-      
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Student</h2>
@@ -164,25 +72,6 @@ const removeOrg = (id: string) => {
             <div className="ml-2">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Logo</label>
               <input type="file" id="logo" name="logo" accept="image/*" className="file-input  w-full  file-input-primary" />
-            </div>
-          </div>
-          <div>
-            <h1 className='block text-gray-700 font-semibold mb-2'>Belongs to ( Organizations )</h1>
-            <div className='p-3 w-full border-2 rounded-lg bg-base-200 flex items-center flex-wrap'>
-              {
-                data.selectedOrgs.map((org : any) => <div key={org.id} className="m-1 badge badge-primary  gap-1 rounded py-4 pl-3 pr-1">
-                <p className='font-bold text-md'>
-                  {org.name}
-                </p>
-                <svg onClick={_ => removeOrg(org.id)}  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block w-4 h-4 stroke-current cursor-pointer"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </div>)
-              }
-              <div className='m-2 my-1' onClick={() => {
-                // @ts-ignore
-                document.getElementById('selectOrgModal')?.showModal()
-              }}>
-                <PlusIcon className='w-6 h-6 cursor-pointer hover:opacity-70' />
-              </div>
             </div>
           </div>
           <div className="mb-6">

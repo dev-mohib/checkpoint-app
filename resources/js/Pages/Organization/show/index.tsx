@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
@@ -6,11 +6,12 @@ import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
 import { Checkpoint, Instructor, Organization, PageProps, Student } from '@/types'
+import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
 const ViewOrganization = () => {
-  const { isFound, organization} = usePage<PageProps<{organization : Organization, isFound : boolean}>>().props
-  const {data, errors, processing, delete : deleteOrg} = useForm()
+  const { isFound, organization, logoUrl} = usePage<PageProps<{organization : Organization, isFound : boolean, logoUrl : string, searchInstructor: any[]}>>().props
+  console.log({logoUrl})
+  const { delete : deleteOrg} = useForm()
   const handleDeleteOrg = () => {
-    // organization.destroy
     deleteOrg('/organization/'+organization.id, {
       onSuccess : () => {
         console.log("organization deleted")
@@ -19,9 +20,7 @@ const ViewOrganization = () => {
     })
   }
 
-  useEffect(() => {
-    console.log({deleteOrgData : data})
-  },[processing, errors])
+
   if(!isFound)
   return (
     <div>
@@ -38,6 +37,7 @@ const ViewOrganization = () => {
           <button className='btn btn-ghost my-2'>CANCEL</button>
         </div>
       </Modal>
+      <AttachEntityModal id={organization.id}  routeName='organization'/>
       <div className='w-full flex justify-between'>
         <Breadcrumb list={[{title : 'Home', href : '/dashboard'},{title : 'Organizations', href:'/organization'}, {title : organization.name, href: null}]}/>
         <Options id={organization.id} />
@@ -45,7 +45,8 @@ const ViewOrganization = () => {
       <div className='flex-c-c'>
         <div className="avatar">
           <div className="w-24 rounded-full">
-            <img src={organization.logo?organization.logo: '/laptop.jpg'} />
+            {/* <img src={organization.logo?organization.logo: '/laptop.jpg'} /> */}
+            <img src={logoUrl??'/organization.png'} />
           </div>
         </div>
         <h1 className='py-2 text-secondary font-extrabold'>{organization.name}</h1>
@@ -93,15 +94,23 @@ const ViewOrganization = () => {
   )
 }
 
-
-const Options = ({id}:any) => {
+const Options = ({id}:{id : any}) => {
+  const attachEntity = (collection:string)=>{
+    get(route('organization.show', {
+      id,
+      collection,
+      searchBy : 'name',
+      q : ''
+    }))
+  }
+  const { get } = useForm()
   return(
   <details className="dropdown z-30">
     <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
     <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-      <li><a>Add Instructor</a></li>
-      <li><a>Add Student</a></li>
-      <li><a>Add Checkpoint</a></li>
+      <li><a onClick={() => attachEntity('instructor')}>Attach Instructor</a></li>
+      <li><a onClick={() => attachEntity('student')}>Attach Student</a></li>
+      <li><a onClick={() => attachEntity('checkpoint')}>Attach Checkpoint</a></li>
       <li><Link href={route('organization.showEdit',{id})}>Edit Organization</Link></li>
       <li onClick={_ => {
         // @ts-ignore

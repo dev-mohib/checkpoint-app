@@ -1,8 +1,8 @@
 import React from 'react'
 
-export const MindMapIcon = ({className="w-6 h-6", stroke="black", fill="black"}) => {
+export const MindMapIcon = ({className="w-6 h-6 fill-base", stroke="black", fill="black"}) => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" className={className} version="1.1"
+    <svg  xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" className={className} version="1.1"
       viewBox="0 0 7111 7111"
       xmlnsXlink="http://www.w3.org/1999/xlink">
     <g>

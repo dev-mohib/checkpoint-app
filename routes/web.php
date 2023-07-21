@@ -20,7 +20,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/not-alowed', function(){
+Route::get('/not-allowed', function(){
     return Inertia::render('NotAllowed/index');
 })->name('not-allowed');
 
@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function(){
     Route::get('/organization/new', [OrganizationController::class, 'create'])->name('organization.create');
     Route::post('/organization/store', [OrganizationController::class, 'store'])->name('organization.store');
     Route::put('/organization/edit', [OrganizationController::class, 'update'])->name('organization.edit');
+    Route::put('/organization/attach', [OrganizationController::class, 'attach'])->name('organization.attach');
     Route::get('/organization/view/{id}', [OrganizationController::class, 'show'])->name('organization.show');
     Route::get('/organization/edit/{id}', [OrganizationController::class, 'showEdit'])->name('organization.showEdit');
 });

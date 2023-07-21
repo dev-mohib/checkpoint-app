@@ -31,7 +31,8 @@ Route::middleware('auth')->group(function(){
 
 Route::post('/upload/organization-document', [UploadController::class, 'storeOrganizationDoc']);
 Route::post('/upload/organization-logo', [UploadController::class, 'storeOrganizationLogo']);
-Route::post('/upload/instructor-photo-id', [UploadController::class, 'storeInstructorPhotoId']);
+Route::post('/upload/instructor-photo-front', [UploadController::class, 'storeInstructorPhotoFront']);
+Route::post('/upload/instructor-photo-back', [UploadController::class, 'storeInstructorPhotoBack']);
 Route::post('/upload/checkpoint-doc', [UploadController::class, 'storeCheckpointDoc']);
 
 Route::delete('/upload/organization-document', [UploadController::class, 'deleteOrganizationDoc']);

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
+use App\Http\Utils\AppMedia;
+use App\Http\Utils\DBUtils;
 use App\Http\Utils\UserRole;
+use App\Models\Checkpoint;
 use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Organization;
+use App\Models\Student;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -29,41 +33,42 @@ class OrganizationController extends Controller
         $id = $request->query('id')??'';
         $address = $request->query('address')??'';
         $username = $request->query('username')??'';
-
-        // if(UserType::is_instructor($request) || UserType::is_student($request)){
-        //     return UserType::notAllowed();
-        // }
-        
-        if(UserRole::is_instructor($request) || UserRole::is_student($request) || UserRole::is_organization($request)){
-            return Inertia::render('Organization/index', ['title' => 'Organizations', 'activeMenu'=> 'organization']);
+        $paginate = $request->query('paginate')??5;
+        if(!UserRole::is_admin($request)){
+            return redirect('/not-allowed');
         }
-            $organizations = Organization::with(['users'])
-            ->where('organizations.name', 'like', '%' . $name . '%')
-            ->whereHas('users', function ($query) use ($username) {
-                $query->where('username', 'like', '%'.$username.'%');
-            })
-            ->whereHas('users', function ($query) use ($email) {
-                $query->where('email', 'like', '%'.$email.'%');
-            })
-            ->whereHas('users', function ($query) use ($address) {
-                $query->where('address', 'like', '%'.$address.'%');
-            })
-            ->where('id', 'like', '%' . $id . '%')
-            ->paginate(5);
-            return Inertia::render('Organization/index', [
-                'title' => 'Organizations', 
-                'activeMenu'=> 'organization', 
-                'organizations'=>$organizations,
-                'canAccess'=> true
-            ]);
+        $organizations = Organization::with(['users'])
+        ->where('organizations.name', 'like', '%' . $name . '%')
+        ->whereHas('users', function ($query) use ($username) {
+            $query->where('username', 'like', '%'.$username.'%');
+        })
+        ->whereHas('users', function ($query) use ($email) {
+            $query->where('email', 'like', '%'.$email.'%');
+        })
+        ->whereHas('users', function ($query) use ($address) {
+            $query->where('address', 'like', '%'.$address.'%');
+        })
+        ->where('id', 'like', '%' . $id . '%')
+        ->paginate($paginate);
+        return Inertia::render('Organization/index', [
+            'title' => 'Organizations', 
+            'activeMenu'=> 'organization', 
+            'organizations'=>$organizations,
+            'canAccess'=> true
+        ]);
     }
     public function create(Request $request)
     {
-        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization', 'canAccess'=>UserRole::is_admin($request)?true:false]);
+        if(!UserRole::is_admin($request)){
+            return redirect('/dashboard');
+        }
+        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization', 'canAccess'=>true]);
     }
-
     public function store(Request $request)
     {
+        if(!UserRole::is_admin($request)){
+            return redirect('/dashboard');
+        }
         // $request->validate([
         //     'name' => 'required|string|max:255',
         //     'email' => 'required|string|email|max:255|unique:'.User::class,
@@ -73,13 +78,8 @@ class OrganizationController extends Controller
         //     'address' => 'required|string|min:20'
         // ]);
         
-        $userUid = Uuid::uuid4()->toString();
-        $orgUid = Uuid::uuid4()->toString();
-
-        Log::info(['user'=>$request->username, 'message'=>'This is create organization message']);
         $user = User::create([
-            'id'=> $userUid,
-            'name' => $request->name.' - Admin',
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address'=> $request->address,
@@ -87,45 +87,53 @@ class OrganizationController extends Controller
             'username'=> $request->username,
             'role'=> 'organization',
         ]);
-
         event(new Registered($user));
+        $regDocRef = $request->regDocRef;
+        $logoRef = $request->logoRef;
+        Log::info($regDocRef);
+        if($regDocRef){
+            Storage::move('temp/organization-document/'.$regDocRef, 'public/organization-document/'.$regDocRef);
+        }
+        if($logoRef){
+            Storage::move('temp/organization-logo/'.$logoRef, 'public/organization-logo/'.$logoRef);
+        }
         $organization = Organization::create([
-            'id'=> $orgUid,
-            'created_by'=> $request->user()->id,
-            'user_id'=> $userUid,
             'name'=> $request->name,  
-            'logo'=>'/laptop.jpg'
+            'logo'=>'/laptop.jpg',
+            'registration_document' => $regDocRef??'/laptop.jpg',
+            'logo' => $logoRef ?? '/laptop.jpg'
         ]);
 
+        $organization->users()->associate($user);
+        $organization->save();
 
-        try {
-            Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        return redirect('/organization/view/'.$orgUid);
+        return redirect('/organization/view/'.$organization->id);
     }
-
     public function show(Request $request, string $id)
     {
         if(!UserRole::is_admin($request)){
-            return Inertia::render('Organization/show/index',['isFound'=> false, 'title'=> 'Organization', 'activeMenu'=>'organization', 'canAccess'=>false]);
+            return redirect('/dashboard');
         }
         $organization = Organization::with([
             'students','instructors', 'checkpoints','users', 'instructors.users', 'students.users'
             ])
         ->find($id);
+        
+        $collection = $request->query('collection')??'';
+        $searchBy = $request->query('searchBy')??'';
+        $q = $request->query('q')??'';
+        $searchData = ($collection && $searchBy) ? DBUtils::get_search_data($collection, $searchBy, $q)??array() : array();
         if(!$organization){
             return Inertia::render('Organization/show/index',['isFound'=> false, 'title'=> 'Organizatiom', 'activeMenu'=>'organization', 'canAccess'=>true]);
         }else {
-            return Inertia::render('Organization/show/index',['organization' => $organization, 'isFound'=> true, 'title'=>$organization['name'],'activeMenu'=>'organization', 'canAccess'=>true]);
+            return Inertia::render('Organization/show/index',['organization' => $organization, 'isFound'=> true, 'title'=>$organization['name'],'activeMenu'=>'organization', 'canAccess'=>true, 'logoUrl'=>null, 'searchData'=>$searchData]);
         }
     }
     public function showEdit(Request $request, string $id)
     {   
         // $id = $request->query('id');
         if(!UserRole::is_admin($request)){
-            return Inertia::render('Organization/edit/index',['isFound'=> false, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+            return redirect('/dashboard');
         }
         $organization = Organization::with(['users'])
         ->find($id);
@@ -135,9 +143,50 @@ class OrganizationController extends Controller
             return Inertia::render('Organization/edit/index',['organization' => $organization, 'isFound'=> true, 'title'=>$organization['name'],'activeMenu'=>'organization', 'isFound'=>true, 'canAccess' => true]);
         }
     }
-
+    public function attach(Request $request){
+        if(!UserRole::is_admin($request)){
+            return redirect('/dashboard');
+        }
+        $form = $request->all();
+        $organization_id = $form['id']??'1';
+        $entity_type = $form['entityType'];
+        $entity_id = $form['entityId'];
+        if($organization_id && $entity_type && $entity_id){
+            $organization = Organization::with(['students', 'instructors', 'checkpoints'])
+            ->find($organization_id);
+            if($organization){
+                if($entity_type == 'instructor'){
+                    $instructor = $organization->instructors()->find($entity_id);
+                    if(!$instructor){
+                        $organization->instructors()->attach($entity_id);
+                    }else{
+                        Log::info('Instructor is already attached');
+                    }
+                }else if($entity_type == 'student'){
+                    $student = $organization->students()->find($entity_id);
+                    if(!$student){
+                        $organization->students()->attach($entity_id);
+                    }else {
+                        Log::info('Student is already attached');
+                    }
+                }
+                else {
+                   $checkpoint = $organization->checkpoints()->find($entity_id);
+                    if(!$checkpoint){
+                        $organization->checkpoints()->attach($entity_id);
+                    }else {
+                            Log::info('Checkpoint is already attached');
+                    }
+                }
+            }
+        }
+        return redirect('/organization/view/'.$organization_id);
+    }
     public function update(Request $request)
     {
+        if(!UserRole::is_admin($request)){
+            return redirect('/dashboard');
+        }
         $form = $request->all();
         $org = Organization::with('users')
         ->find($form['id']);
@@ -164,9 +213,11 @@ class OrganizationController extends Controller
             return Redirect::route('organization.show',['id'=>$form['id']]);
         }
     }
-
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        if(!UserRole::is_admin($request)){
+            return redirect('/dashboard');
+        }
         $organization = Organization::find($id);
         if($organization){
             $instructors = $organization->instructors;
@@ -205,10 +256,5 @@ class OrganizationController extends Controller
             $organization->delete();
         }
         return Redirect::route('organization.index');
-    }
-
-    public function search(Request $request){
-        $res = ['name'=>'Some Name', 'age'=> 20];
-        return Inertia::render('Organization/create/index', ['title' => 'Create organization', 'activeMenu'=> 'organization', 'showSearch'=>true, 'searchData'=>'some searchData']);
     }
 }

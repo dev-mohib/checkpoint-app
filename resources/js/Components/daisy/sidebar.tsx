@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, usePage } from '@inertiajs/react'
 import { CheckpointLogoIcon } from '@/Components/icons/icons'
 import { AcademicCapIcon, GridIcon, ReportCardIcon, MindMapIcon, InstructorIcon } from '@/Components/icons'
 import { PageProps } from '@/types'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShareNodes } from '@fortawesome/free-solid-svg-icons'
 
 const Sidebar = () => {
   const { auth, activeMenu} = usePage<PageProps>().props
@@ -39,6 +41,7 @@ const Sidebar = () => {
 
 
 const AdminSideBar = ({page} : any) => {
+
   return (
     <ul className="menu w-full rounded-none px-0 text-xl pt-14">
       <li className={`${page == 'dashboard' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
@@ -50,8 +53,9 @@ const AdminSideBar = ({page} : any) => {
       <li className={`${page == 'organization' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>
         <Link href={route('organization.index')}>
           {/* <GoOrganization className="h-5 w-5"/> */}
-          <MindMapIcon className={`w-6 h-6`} />
-          Oraganizations
+          <MindMapIcon  className={`w-6 h-6`} />
+          {/* <FontAwesomeIcon icon={faShareNodes}  /> */}
+            Oraganizations
         </Link>
       </li>
       <li className={`${page == 'instructor' ? 'border-l-4 border-l-primary bg-base-200' : ''}`}>

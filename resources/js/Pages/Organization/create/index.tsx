@@ -1,19 +1,26 @@
 import AppLayout from '@/Layouts/AppLayout'
-import { useForm } from '@inertiajs/react'
-import React, { FormEventHandler } from 'react'
+import { useForm, usePage } from '@inertiajs/react'
+import React, { FormEventHandler, useState } from 'react'
 import { FilePond } from 'react-filepond'
-import { PlusIcon } from '@/Components/icons';
-const CreateOrganization = ({activeMenu, title, auth}:any) => {
+
+const CreateOrganization = () => {
+  const [timestamp] = useState(Date.now())
+  const [isDocUploaded, setDocUploaded] = useState(false)
+  const [isLogoUploaded, setLogoUploaded] = useState(false)
+  const {errorMessage, hasError } = usePage<{hasError : boolean, errorMessage : string}>().props
   const { data, setData,post } = useForm({
     name: '',
     email: '',
     address : '',
     contact_number : '',
     username: '',
-    password : ''
+    password : '',
+    regDocRef : '',
+    logoRef : ''
 });
 
-const [files, setFiles] = React.useState<any[]>([])
+const [docFiles, setDocFiles] = React.useState<any[]>([])
+const [logoFiles, setLogoFiles] = React.useState<any[]>([])
 
 const submit: FormEventHandler = (e) => {
   // e.preventDefault();
@@ -21,6 +28,11 @@ const submit: FormEventHandler = (e) => {
 };
   return (
     <div> 
+     {hasError && <div className="alert alert-error my-5">
+        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>Error! {errorMessage}.</span>
+      </div>
+     }
      <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Organization</h2>
@@ -53,12 +65,25 @@ const submit: FormEventHandler = (e) => {
                 onChange={(e) => setData('contact_number', e.target.value)}
                 />
             </div>
-            <div className="ml-2">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Logo</label>
-              <input type="file" id="logo" name="logo" accept="image/*" className="file-input  w-full  file-input-primary" />
-            </div>
           </div>
-          <div>
+          <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Logo</label>
+            <FilePond
+              files={logoFiles}
+              onupdatefiles={setLogoFiles}
+              // allowMultiple={true}
+              acceptedFileTypes={["image/jpg", "jpg", '.jpg']}
+              maxFiles={1}
+              server={`/api/upload/organization-logo?key=IMG-${timestamp}`}
+              name="organization-logo" /* sets the file input name, it's filepond by default */
+              labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+              onprocessfile={(err, file) => {
+                if(!err){
+                  setLogoUploaded(true)
+                  setData("logoRef", 'IMG-' + timestamp + '.' + file.fileExtension)
+                }
+              }}
+            />
+          {/* <div>
             <h1 className='block text-gray-700 font-semibold mb-2'>Belongs to</h1>
             <div className='p-3 w-full border-2 rounded-lg bg-base-200 flex items-center'>
               <div className="badge badge-primary  gap-1 rounded py-4 pl-3 pr-1">
@@ -71,7 +96,7 @@ const submit: FormEventHandler = (e) => {
                 <PlusIcon className='w-6 h-6 cursor-pointer hover:opacity-70' />
               </div>
             </div>
-          </div>
+          </div> */}
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">Email</label>
             <input type="email" id="email" name="email" 
@@ -103,15 +128,22 @@ const submit: FormEventHandler = (e) => {
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
               <input type="file" id="org_image" name="org_image" accept="image/*" className="file-input  w-full  " />
             </div> */}
-      <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
+      <label className="block text-gray-700 font-semibold mb-2" htmlFor="organization-document">Registration Document</label>
       <FilePond
-        files={files}
-        onupdatefiles={setFiles}
-        allowMultiple={true}
-        maxFiles={3}
-        server="/api/upload/organization-document"
+        files={docFiles}
+        onupdatefiles={setDocFiles}
+        // allowMultiple={true}
+        acceptedFileTypes={["image/jpg", "jpg", '.jpg']}
+        maxFiles={1}
+        server={`/api/upload/organization-document?key=doc-${timestamp}`}
         name="organization-document" /* sets the file input name, it's filepond by default */
         labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+        onprocessfile={(err, file) => {
+          if(!err){
+            setDocUploaded(true)
+            setData("regDocRef",'doc-' + timestamp + '.' + file.fileExtension)
+          }
+        }}
       />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={submit}>Submit</button>
@@ -119,7 +151,6 @@ const submit: FormEventHandler = (e) => {
         {/* </form> */}
       </div>
     </div>
-
     </div>
   )
 }

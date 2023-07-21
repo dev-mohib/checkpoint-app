@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Instructor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Utils\DBUtils;
 use App\Http\Utils\UserRole;
 use App\Models\Instructor;
 use App\Models\Organization;
@@ -30,13 +31,12 @@ class InstructorController extends Controller
         $username = $request->query('username')??'';
         $orgName = $request->query('orgName')??'';
         $orgId = $request->query('orgId');
+        $paginate = $request->query('paginate')??5;
 
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
-            return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'canAccess'=>false]);
-            // return UserRole::notAllowed();
+            return redirect('/not-allowed');
         }
-        
-            $instructors = Instructor::with(['organizations', 'users'])
+        $instructors = Instructor::with(['organizations', 'users'])
             ->whereHas('users', function ($query) use ($name) {
                 $query->where('name', 'like', '%'.$name.'%');
             })
@@ -52,45 +52,33 @@ class InstructorController extends Controller
             ->whereHas('users', function ($query) use ($orgId) {
                 $query->where('id', 'like', '%'.$orgId.'%');
             })
-            ->where('id', 'like', '%' . $id . '%');
-            $userId = $request->user()->id;
-            if(UserRole::is_admin($request)){
-                $instructors = $instructors
-                ->whereHas('organizations', function ($query) use ($orgName) {
-                    $query->where('name', 'like', '%'.$orgName.'%');
-                })->paginate(5);
-            } else if(UserRole::is_organization($request)){
-                $instructors = $instructors
-                ->whereHas('organizations', function ($query) use ($userId) {
-                    $query->where('organizations.id', $userId);
-                })->paginate(5);
-            }
-
-            return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'instructors'=>$instructors, 'canAccess'=>true]);
-     
-
+            ->where('id', 'like', '%' . $id . '%')
+            ->whereHas('organizations', function ($query) use ($orgName) {
+                $query->where('name', 'like', '%'.$orgName.'%');
+            });
+        if(UserRole::is_admin($request)){
+            $instructors = $instructors->paginate($paginate);
+        } else {
+            $organization = DB::table('organizations')
+            ->where('user_id', '=',$request->user()->id)
+            ->select(['id'])
+            ->first();
+            $id = $organization->id;
+            $instructors = $instructors
+            ->whereHas('organizations', function ($query) use ($id) {
+                $query->where('organizations.id', $id);
+            })
+            ->paginate($paginate);
+        }
+        return Inertia::render('Instructor/index', ['title' => 'Instructors', 'activeMenu'=> 'instructor', 'instructors'=>$instructors, 'canAccess'=>true]);
     }
-
     public function create(Request $request)
     {
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
-            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor']);
+            return redirect('/not-allowed');
         }
-        $searchBy = $request->query('searchBy');
-        $query = $request->query('query');
-        if($searchBy == 'name'){
-            $searchData =DB::table('organizations')->
-            where('name', 'like', '%'.$query.'%')->get();
-            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData, 'canAccess' => true]);
-        }
-        if($searchBy == 'id'){
-            $searchData = DB::table('organizations')->where('id', $query)->get();
-            return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>true, 'searchData'=>$searchData, 'canAccess' => true]);
-        }
-
-        return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor','searchData'=>[],  'canAccess' => true]);
+        return Inertia::render('Instructor/create/index', ['title' => 'Create instructor', 'activeMenu'=> 'instructor', 'showSearch'=>false, 'canAccess' => true]);
     }
-
     public function store(Request $request)
     {
         // $request->validate([
@@ -101,12 +89,11 @@ class InstructorController extends Controller
         //     'username'=> 'required|string|max:30|unique:'.User::class,
         //     'address' => 'required|string|min:20'
         // ]);
-        $selectedOrgs = $request->selectedOrgs;
-        // Log::info(['name'=>$request->name, 'email'=>$request->email, 'selectedOrgs'=>$selectedOrgs]);
-        // return Inertia::render('Instructor/show/index', ['isEmpty'=> true, 'title'=> 'Instructor', 'activeMenu'=>'instructor']);
-        $ids = array_map(function($item) {
-            return $item['id'];
-        }, $selectedOrgs);
+
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return redirect('/not-allowed');
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -116,13 +103,12 @@ class InstructorController extends Controller
             'username'=> $request->username,
             'role'=> 'instructor',
         ]);
-
+        
         $instructor = Instructor::create([
             'qualification'=> $request->qualification
         ]);
         $instructor->users()->associate($user);
         $instructor->save();
-        $instructor->organizations()->attach($ids);
 
         return redirect('/instructor/view/'.$instructor->id);
 
@@ -141,32 +127,25 @@ class InstructorController extends Controller
         // }
         // return redirect('/organization/view/');
     }
-
     public function show(Request $request, string $id)
     {
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
-            return Inertia::render('Instructor/show/index',
-            [
-                'canAccess' => false, 
-                'title'=>'Instructor','activeMenu'=>'instructor'
-            ]);
+            return redirect('/not-allowed');
         }
         $instructor = Instructor::with([
-            'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users'
-            ])
-        ->find($id);
-        $collection = $request->query('collection');
-        $searchBy = $request->query('searchBy');
-        $q = $request->query('q');
-        $searchData = ($collection && $searchBy) ? $this->getFilterData($searchBy, $q, $collection) : array();
-
+            'students','organizations', 'checkpoints','users', 'organizations.users', 'students.users',
+            'students.organizations'
+        ])->find($id);
+        
+        $collection = $request->query('collection')??'';
+        $searchBy = $request->query('searchBy')??'';
+        $q = $request->query('q')??'';
+        $searchData = ($collection && $searchBy) ? DBUtils::get_search_data($collection, $searchBy, $q)??array() : array();
         if(!$instructor){
             return Inertia::render('Instructor/show/index',
                 [
                     'isEmpty'=> true, 'title'=> 'Instructor', 
                     'activeMenu'=>'instructor',
-                    'showModal'=>$searchData ? true : false,
-                    'searchData'=>$searchData,
                     'canAccess'=>true
             ]);
         } else {
@@ -174,72 +153,29 @@ class InstructorController extends Controller
                 [
                     'instructor' => $instructor, 'isEmpty'=> false, 
                     'title'=>'Instructor','activeMenu'=>'instructor',
-                    'showModal'=>$searchData ? true : false,
                     'searchData'=>$searchData,
                     'canAccess'=>true
                 ]);
         }
     }
-
-    public function getFilterData($searchBy, $q, $collection='organizations'){
-        if($collection == 'organizations'){
-            $data = $searchBy == 'name' ?  
-            DB::table($collection)->where('name', 'like', '%'.$q.'%')->take(10)->get()->toArray()
-            :
-            DB::table($collection)->where('id', $q)->take(10)->get()->toArray();
-            $filteredOrgs = array_map(function($item) {
-                return [
-                    'name' => $item->name,
-                    'id' => $item->id,
-                    'logo' => $item->logo
-                ];
-            },$data);
-            return $filteredOrgs;
-        }else if($collection == 'students'){
-            $data = $searchBy == 'name' ?  
-            Student::with('users')
-            ->whereHas('users', function ($query) use ($q) {
-                $query->where('name', 'like', '%'.$q.'%');
-            })->take(10)->get()->toArray()
-            :Student::with('users')->find($q)->take(10)->get()->toArray();
-            $filteredOrgs = array_map(function($item) {
-                return [
-                    'name' => $item['users']['name'],
-                    'id' => $item['id'],
-                    'logo' => '/laptop.jpg'
-                ];
-            },$data);
-            return $filteredOrgs;
-        }
-        else if($collection == 'checkpoints'){
-            $data = $searchBy == 'name' ?  
-            DB::table($collection)->where('name', 'like', '%'.$q.'%')->take(10)->get()->toArray()
-            :DB::table($collection)->where('id', $q)->take(10)->get()->toArray();
-            $filteredOrgs = array_map(function($item) {
-                return [
-                    'name' => $item->name,
-                    'id' => $item->id,
-                    'logo' => '/laptop.jpg'
-                ];
-            },$data);
-            return $data;
-        }
-        return array();
-    }
-    public function showEdit(string $id)
+    public function showEdit(Request $request, string $id)
     {   
-        // $id = $request->query('id');
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return redirect('/not-allowed');
+        }
         $instructor = Instructor::with(['users'])
         ->find($id);
         if(!$instructor){
-            return Inertia::render('Instructor/edit/index',['isEmpty'=> true, 'title'=> 'Edit Organization', 'activeMenu'=>'organization', 'isFound'=>false]);
+            return Inertia::render('Instructor/edit/index',['isEmpty'=> true, 'title'=> 'Edit', 'activeMenu'=>'instructor', 'isFound'=>false, 'canAccess'=>true]);
         }else {
-            return Inertia::render('Instructor/edit/index',['instructor' => $instructor, 'isEmpty'=> false, 'title'=>'Organization','activeMenu'=>'organization', 'isFound'=>true]);
+            return Inertia::render('Instructor/edit/index',['instructor' => $instructor, 'isEmpty'=> false, 'title'=>'Edit','activeMenu'=>'instructor', 'isFound'=>true, 'canAccess'=>true]);
         }
     }
-
     public function update(Request $request)
     {
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return redirect('/not-allowed');
+        }
         $form = $request->all();
         $org = Organization::with('users')
         ->find($form['id']);
@@ -266,15 +202,47 @@ class InstructorController extends Controller
             return Redirect::route('organization.show',['id'=>$form['id']]);
         }
     }
-
-    public function attachEntity(Request $request){
-        $attachId = $request->attachId;
-        $instructorId = $request->instructorId;
-
-        Log::info(['instructorId'=>$instructorId, 'attachId'=>$attachId]);
+    public function attach(Request $request){
+        if(!UserRole::is_admin($request) || !UserRole::is_organization($request)){
+            return redirect('/dashboard');
+        }
+        $form = $request->all();
+        $instructor_id = $form['id']??'1';
+        $entity_type = $form['entityType'];
+        $entity_id = $form['entityId'];
+        if($instructor_id && $entity_type && $entity_id){
+            $instructor = Instructor::with(['students', 'organizations', 'checkpoints'])
+            ->find($instructor_id);
+            if($instructor){
+                if($entity_type == 'organization'){
+                    $organizations = $instructor->organizations()->find($entity_id);
+                    if(!$organizations){
+                        $instructor->organizations()->attach($entity_id);
+                    }
+                    // else{
+                    //     Log::info('Instructor is already attached');
+                    // }
+                }else if($entity_type == 'student'){
+                    $student = $instructor->students()->find($entity_id);
+                    if(!$student){
+                        $instructor->students()->attach($entity_id);
+                    }
+                }
+                else {
+                   $checkpoint = $instructor->checkpoints()->find($entity_id);
+                    if(!$checkpoint){
+                        $instructor->checkpoints()->attach($entity_id);
+                    }
+                }
+            }
+        }
+        return redirect('/instructor/view/'.$instructor_id);
     }
-
     public function search(Request $request){
+
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return redirect('/not-allowed');
+        }
         $type = $request->query('type');
         $searchBy = $request->query('searchBy');
         $input = $request->query('query');
@@ -290,25 +258,24 @@ class InstructorController extends Controller
             ->get()->toArray() : DB::table('organizations')
             ->where('id',$input)
             ->get()->toArray();
-            // if($searchBy == 'name'){
-                
-            // }
+
             $filteredOrgs = array_map(function($item) {
                 return ['name'=>$item['name'], 'id'=>$item['id'],'role'=>'organization'];//$item['id'];
             }, $searchOrganizations);
-            Log::info(['searchBy' => $searchBy, 'attachId'=>$input, 'instructor'=>$instructor]);
             return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'showOrgModal'=> true, 'title'=>'Instructor','activeMenu'=>'instructor', 'searchData'=>$filteredOrgs]);
         }else {
             $instructor = DB::table('instructors')
             ->join('organizations', 'organizations.name', 'like', '%'.$input.'%')
             ->select('organizations.* as organizations')
             ->get();
-            Log::info(['searchBy' => $searchBy, 'attachId'=>$input, 'instructor'=>$instructor]);
             return Inertia::render('Instructor/show/index',['instructor' => $instructor, 'showOrgModal'=> true, 'title'=>'Instructor','activeMenu'=>'instructor']);
         }
     }
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
+        if(UserRole::is_student($request) || UserRole::is_instructor($request)){
+            return redirect('/not-allowed');
+        }
         $organization = Organization::find($id);
         if($organization){
             $instructors = $organization->instructors;
