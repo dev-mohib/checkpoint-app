@@ -5,6 +5,7 @@ import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { CheckpointPagination, PageProps } from '@/types';
+import { EmptyTableBox } from '@/Components/daisy/EmptyTableBox';
 
   const Table = () => {
     const { checkpoints, ziggy } = usePage<PageProps<{checkpoints : CheckpointPagination}>>().props
@@ -81,109 +82,101 @@ import { CheckpointPagination, PageProps } from '@/types';
             </div>
         {/* End */}
             <div></div>
-            <Link  href={route('student.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('checkpoint.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
         </div>
         <div>
-            <table className="table table-sm bg-base-100 shadow-md">
-            <thead>
-                <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
-                  <th>
-                      Name
-                  </th>
-                  <th className="">
-                    Organizations
-                  </th>
-                  <th>
-                      Assigned To (Instructor)
-                  </th>
-                  <th>
-                      Assigned To (Student)
-                  </th>
-                  <th>
-                      ID
-                  </th>
-                  <th>
-                  </th>
-                </tr>
-            </thead>
-            <tbody>
-                {checkpoints.data.map((row : any, index : number) => (
-                <tr key={index} className='cursor-pointer hover'>
-                  <td className="py-2 px-4 font-bold">{row.name}</td>
-                  <td className="py-2 px-4">{
-                    row.organizations? row.organizations.name : <p className='text-gray-400'>No Organization</p>
-                  }</td>
-                  <td className="py-2 px-4">{
-                    row.students? row.students.users.name : <p className='text-gray-400'>Not Added</p>
-                  }</td>
-                  <td className="py-2 px-4">
-                  {
-                    row.instructors? row.instructors.users.name : <p className='text-gray-400'>Not Added</p>
-                  }
-                  </td>
-                  <td className="py-2 px-4">
-                    {row.id}
-                  </td>
-                  <td className='py-2 px-4'>
-                    <div className='w-full flex-c-c'>
-                      <Link href={route('checkpoint.show', {id : row.id})}>
-                        <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-                ))}
-                <tr className=''>
-                    <td className='py-4 text-lg font-extrabold bg-primary text-base-100'>
-                        <b className=''>{checkpoints.from} to {checkpoints.to}</b> of {checkpoints.total}
-                    </td>
-                    <td className='bg-primary'></td>
-                    <td className='bg-primary'></td>
-                    <td className="bg-primary"></td>
-                    <td className='bg-primary'></td>
-                    <td className='py-4 text-lg font-extrabold bg-primary pr-6'>
-                      <div className="join">
-                        {
-                          checkpoints.prev_page_url? <Link href={route('instructor.index', {page : checkpoints.current_page - 1})}>
-                          <button className="join-item btn btn-sm">«</button>
-                          </Link>:<button className="join-item btn btn-sm">«</button>
-                        }
-                        <button className="join-item btn btn-sm">Page {checkpoints.current_page}</button>
-                        {
-                          checkpoints.next_page_url? <Link href={route('instructor.index',{page : checkpoints.current_page + 1})}>
-                          <button className="join-item btn btn-sm">»</button>
-                          </Link>:<button className="join-item btn btn-sm">»</button>
-                        }
-                      </div>
-                    </td>
-                </tr>
+          {checkpoints.data.length > 0 ?
+          <table className="table table-sm bg-base-100 shadow-md">
+          <tbody>
+            <tr className='py-3 px-4 bg-primary text-sm font-extrabold m-1 text-base-200 break-words'>
+            <th>
+                  Name
+              </th>
+              <th className='break-words'>
+                Belongs To (Organization)
+              </th>
+              <th className=''>
+                  Assigned To (Instructor)
+              </th>
+              <th className=''>
+                  Assigned To (Student)
+              </th>
+              <th>
+                Type
+              </th>
+              <th>
+                  ID
+              </th>
+              <th>
+              </th>
+            </tr>
+            {checkpoints.data.map((row , index : number) => (
+            <tr key={index} className='cursor-pointer hover'>
+              <td className="py-2 px-4 font-bold ">{row.name}</td>
+              <td className="py-2 px-4 ">{
+                row.organizations? row.organizations.name : <p className='text-gray-400'>No Organization</p>
+              }</td>
+              <td className="py-2 px-4 ">
+              {
+                row.instructors? row.instructors.users.name : <p className='text-gray-400'>Not Added</p>
+              }
+              </td>
+              <td className="py-2 px-4 ">{
+                row.students? row.students.users.name : <p className='text-gray-400'>Not Added</p>
+              }</td>
+              <td>
+                <p className={`${row.type == 'Completion' ? 'text-blue-500' :row.type ==  'General' ? 'text-green-500' : 'text-purple-600'} font-bold`}>  
+                  {row.type}
+                </p>
+              </td>
+              <td className="py-2 px-4 ">
+                {row.id}
+              </td>
+              <td className='py-2 px-4'>
+                <div className='w-full flex-c-c'>
+                  <Link href={route('checkpoint.show', {id : row.id})}>
+                    <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
+                  </Link>
+                </div>
+              </td>
+            </tr>
+            ))}
+              <tr className=''>
+                <td className='py-4 text-lg font-extrabold bg-primary text-base-100'>
+                    <b className=''>{checkpoints.from} to {checkpoints.to}</b> of {checkpoints.total}
+                </td>
+                <td className='bg-primary'></td>
+                <td className='bg-primary'></td>
+                <td className="bg-primary"></td>
+                <td className='bg-primary'></td>
+                <td className='bg-primary'></td>
+                <td className='py-4 text-lg font-extrabold bg-primary pr-6'>
+                  <div className="join">
+                    {
+                      checkpoints.prev_page_url? <Link href={route('checkpoint.index', {page : checkpoints.current_page - 1})}>
+                      <button className="join-item btn btn-sm">«</button>
+                      </Link>:<button className="join-item btn btn-sm">«</button>
+                    }
+                    <button className="join-item btn btn-sm">Page {checkpoints.current_page}</button>
+                    {
+                      checkpoints.next_page_url? <Link href={route('checkpoint.index',{page : checkpoints.current_page + 1})}>
+                      <button className="join-item btn btn-sm">»</button>
+                      </Link>:<button className="join-item btn btn-sm">»</button>
+                    }
+                  </div>
+                </td>
+              </tr>
             </tbody>
-            </table>
+          </table>  :
+          <div className='w-full border-2 shadow-sm'>
+            <div className='bg-primary h-16 w-full'></div>
+            <div className='w-full flex-c-c h-96 font-bold text-2xl'>
+              No Checkpoints
+            </div>
+          </div>}
         </div>
       </div>
     );
   };
 
-
-  const SearchFilter = ({input, setInput, onClick} : {input : string, setInput: any, onClick:MouseEventHandler<HTMLButtonElement>}) => {
-    return(
-        <div className="join my-5 border-2 border-primary">
-            <div>
-                <div>
-                  <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
-                </div>
-            </div>
-            <select className="select select-bordered join-item">
-                <option disabled selected>Search By</option>
-                <option>Name</option>
-                <option>ID</option>
-                <option>Email</option>
-                <option>Username</option>
-            </select>
-            <div className="indicator">
-                <button onClick={onClick}  className="btn join-item btn-primary">Search</button>
-            </div>
-        </div>
-    )
-}
 export default Table;

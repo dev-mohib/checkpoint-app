@@ -14,10 +14,19 @@ class StudentFactory extends Factory
     protected $id = 21;
     public function definition(): array
     {
+        $relationships = [
+           'Parents',
+           'Grandfather',
+           'Brother',
+           'Sister',
+           'Uncle',
+           'Grandmother',
+           'Other'
+        ];
         return [
             //
-            'parent_name'=>fake()->name(),
-            'parent_relationship'=> 'Son',
+            'guardian_name'=>fake()->name(),
+            'guardian_relationship'=> $relationships[array_rand($relationships)],
             'user_id'=>$this->id++,
         ];
     }

@@ -7,11 +7,10 @@ const Navbar = () => {
     const {title} = usePage<PageProps>().props
 
     const handleTheme = () => {
-        document.getElementById('data-theme-div')
-        ?.setAttribute('data-theme', switchTheme(theme))
+        const htmlTag = document.querySelector('html');
+        htmlTag?.setAttribute('data-theme', switchTheme(theme));
         setTheme(switchTheme(theme))
         localStorage.setItem('data-theme', switchTheme(theme))
-
     }
     const switchTheme = (v : string) => v === 'dark'? 'light' : 'dark'
   return (

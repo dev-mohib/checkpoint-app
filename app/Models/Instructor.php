@@ -12,8 +12,13 @@ class Instructor extends Model
     protected $table = 'instructors';
 
     protected $fillable = [
+        'status',
         'qualification',
-        'status'
+        'access_validity_start',
+        'access_validity_end',
+        'photo_id_front',
+        'photo_id_back',
+        'organization_id'
     ];
 
     public function organizations()

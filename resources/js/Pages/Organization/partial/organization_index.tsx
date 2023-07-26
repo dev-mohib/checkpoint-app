@@ -32,10 +32,6 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
       }
 
     },[])
-    const createOrganization = () =>{ 
-        // @ts-ignore
-        document.getElementById("CreateNewOrgModel")?.showModal()
-    }
 
     return (
       <div className=" p-4">
@@ -64,10 +60,11 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
                       filter: filter})}  className="btn join-item btn-primary">Search</Link>
                 </div>
             </div>
-            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('organization.create')} className='btn btn-primary m-4 cursor-pointer'>Add New</Link>
         </div>
         <div>
-           {organizations.data.length > 0 ? <table className="table table-sm bg-base-100 shadow-md">
+           {organizations.data.length > 0 ? 
+           <table className="table table-sm bg-base-100 shadow-md">
             <thead>
                 <tr className='py-2 px-4 bg-primary text-sm font-extrabold m-1 text-base-200'>
                   <th>
@@ -96,7 +93,7 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
                     <div className="flex items-center space-x-3 ml-3 my-3">
                         <div className="avatar">
                             <div className="mask mask-squircle w-10 h-10">
-                                <img src={row.logo} alt="Avatar" />
+                                <img src={`/storage/organization-logo/${row.logo}`} alt="Avatar" />
                             </div>
                         </div>
                         <div>

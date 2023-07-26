@@ -86,27 +86,27 @@ export interface Organization{
 
 export interface Instructor {
     id : number
-    access_start_date: string
-    access_end_date: string
+    access_validity_start: string
+    access_validity_end: string
     qualification: string
     photo_id_front: string
     photo_id_back : string
     students?: Student[]
     checkpoints?: Checkpoint[]
     users: User
-    organization?: Organization[]
+    organizations?: Organization[]
+    [key: string]: any
 }
 
 export interface Student{
     id: number
     user_id: number
-    organization_id: number;
-    parent_name: string
-    parent_relationship: string
-    photo_id_front: string
-    photo_id_back: string
+    guardian_name: string
+    guardian_relationship: string
     users: User
     checkpoints?: Checkpoint[]
+    instructors? : Instructor[]
+    organizations?: Organization[]
     [key: string]: any
 }
 
@@ -114,21 +114,25 @@ export interface Checkpoint {
     id: number
     name: string
     description: string
+    status : 'active' | 'expired' | 'disabled' | 'draft'
+    images : any
+    type: 'General' | 'Completion' | 'Grade Based'
     organization_id: number;
     instructor_id: string
     student_id: string
     validity_period?: string
     instructor_input?: string
+    instructor_recommendation?: string
     badge?: string
+    certificate?: string
     achieved_gradpoints: string
     total_gradepoints: string
     is_approved?: boolean
     has_submitted?: boolean
-    instructor_recommendation?: string
     organizations? : Organization
     students? : Student
     instructors?: Instructor
-    certificate?: string
+    timestamps: any
     [key: string]: any
 }
 

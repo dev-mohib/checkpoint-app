@@ -10,20 +10,34 @@ class Checkpoint extends Model
     use HasFactory;
     // protected $keyType = 'string';
     protected $table = 'checkpoints';
-
+    protected $fillable = [
+        'id',
+        'name',
+        'description',
+        'instructor_input',
+        'instructor_recommendation',
+        'organization_id',
+        'instructor_id',
+        'student_id',
+        'validity_period',
+        'type',
+        'achieved_gradepoints',
+        'total_gradepoints',
+        'images'
+    ];
     public function organizations()
     {
-        return $this->belongsTo(Organization::class, 'organization_id');
+        return $this->belongsTo(Organization::class, 'organization_id', 'id');
     }
 
     public function instructors()
     {
-        return $this->belongsTo(Organization::class, 'instructor_id');
+        return $this->belongsTo(Instructor::class, 'instructor_id', 'id');
     }
 
 
     public function students()
     {
-        return $this->belongsTo(Organization::class, 'student_id');
+        return $this->belongsTo(Student::class, 'student_id', 'id');
     }
 }

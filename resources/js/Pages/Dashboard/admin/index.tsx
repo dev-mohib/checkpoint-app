@@ -2,7 +2,7 @@ import React from 'react'
 import CardSection, { Card } from '../partials/cards'
 
 const AdminDashboard = () => {
-  const cards = [{name : "Students"}, {name : "Instructors"}, {name : "Organizations"}, {name : "Checkpoints"}]
+  const cards = [{name : "organization"},{name : "instructor"}, {name : "student"}, {name : "checkpoint"}]
   return (
     <div>
       <div className='flex justify-around'>

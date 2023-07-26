@@ -24,6 +24,9 @@ Route::get('/not-allowed', function(){
     return Inertia::render('NotAllowed/index');
 })->name('not-allowed');
 
+Route::get('/deactivated', function(){
+    return Inertia::render('UserNotActive/index');
+})->name('user-not-active');
 
 Route::get('/app', function () {
     return Inertia::render('App/index');
@@ -47,7 +50,8 @@ Route::middleware('auth')->group(function(){
     Route::get('/organization/new', [OrganizationController::class, 'create'])->name('organization.create');
     Route::post('/organization/store', [OrganizationController::class, 'store'])->name('organization.store');
     Route::put('/organization/edit', [OrganizationController::class, 'update'])->name('organization.edit');
-    Route::put('/organization/attach', [OrganizationController::class, 'attach'])->name('organization.attach');
+    Route::put('/organization/attachEntity', [OrganizationController::class, 'attachEntity'])->name('organization.attachEntity');
+    Route::put('/organization/detachEntity', [OrganizationController::class, 'detachEntity'])->name('organization.detachEntity');
     Route::get('/organization/view/{id}', [OrganizationController::class, 'show'])->name('organization.show');
     Route::get('/organization/edit/{id}', [OrganizationController::class, 'showEdit'])->name('organization.showEdit');
 });
@@ -60,10 +64,10 @@ Route::middleware('auth')->group(function(){
     Route::post('/instructor/store', [InstructorController::class, 'store'])->name('instructor.store');
     Route::put('/instructor/edit', [InstructorController::class, 'update'])->name('instructor.edit');
     Route::put('/instructor/attachEntity', [InstructorController::class, 'attachEntity'])->name('instructor.attachEntity');
+    Route::put('/instructor/detachEntity', [InstructorController::class, 'detachEntity'])->name('instructor.detachEntity');
     Route::get('/instructor/view/{id}', [InstructorController::class, 'show'])->name('instructor.show');
     Route::get('/instructor/edit/{id}', [InstructorController::class, 'showEdit'])->name('instructor.showEdit');
 });
-// searchEntity
 
 Route::middleware('auth')->group(function(){
     Route::get('/student', [StudentController::class, 'index'])->name('student.index');
@@ -73,13 +77,9 @@ Route::middleware('auth')->group(function(){
     Route::post('/student/store', [StudentController::class, 'store'])->name('student.store');
     Route::put('/student/edit', [StudentController::class, 'update'])->name('student.edit');
     Route::put('/student/attachEntity', [StudentController::class, 'attachEntity'])->name('student.attachEntity');
+    Route::put('/student/detachEntity', [StudentController::class, 'detachEntity'])->name('student.detachEntity');
     Route::get('/student/view/{id}', [StudentController::class, 'show'])->name('student.show');
     Route::get('/student/edit/{id}', [StudentController::class, 'showEdit'])->name('student.showEdit');
-});
-
-Route::middleware('auth')->group(function(){
-    Route::get('/checkpoint', [CheckpointController::class, 'index'])->name('checkpoint.index');
-    Route::get('/checkpoint/:id  ', [CheckpointController::class, 'show'])->name('checkpoint.show');
 });
 
 Route::middleware('auth')->group(function(){
@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function(){
     Route::post('/checkpoint/store', [CheckpointController::class, 'store'])->name('checkpoint.store');
     Route::put('/checkpoint/edit', [CheckpointController::class, 'update'])->name('checkpoint.edit');
     Route::put('/checkpoint/attachEntity', [CheckpointController::class, 'attachEntity'])->name('checkpoint.attachEntity');
+    Route::put('/checkpoint/detachEntity', [CheckpointController::class, 'detachEntity'])->name('checkpoint.detachEntity');
     Route::get('/checkpoint/edit/{id}', [CheckpointController::class, 'showEdit'])->name('checkpoint.showEdit');
 });
 

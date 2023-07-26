@@ -9,6 +9,16 @@ class Student extends Model
 {
     use HasFactory;
     // protected $keyType = 'string';
+
+    protected $fillable = [
+        'id',
+        'user_id',
+        'created_by',
+        'organization_id',
+        'guardian_name',
+        'guardian_relationship'
+    ];
+
     protected $table = 'students';
 
     public function organizations()

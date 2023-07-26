@@ -8,6 +8,9 @@ import Modal from '@/Components/daisy/modal'
 import { XmarkIcon } from '@/Components/icons'
 import { Checkpoint, Organization, PageProps, Student } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
+import { OrganizationsTableView } from '@/Components/daisy/OrganizationTableView'
+import { CheckpointsTableView } from '@/Components/daisy/CheckpointTableView'
+import { InstructorsTableView } from '@/Components/daisy/InstructorTableView'
 
 const _local = {
   q : '',
@@ -15,13 +18,12 @@ const _local = {
   collection : 'organization'
 }
 const ViewOrganization = () => {
-  const {student, searchData, showModal, isEmpty} = usePage<PageProps<{student : any, isEmpty : boolean, searchData:any[], showModal : boolean}>>().props
-  console.log({searchData})
+  const {student, searchData, showModal, isEmpty, auth} = usePage<PageProps<{student : Student, isEmpty : boolean, searchData:any[], showModal : boolean}>>().props
+  console.log({student})
 
   const local : typeof _local  = JSON.parse(localStorage.getItem('rememberStudentAttach')?? JSON.stringify(_local))
   const [filter, setFilter ] = useState(local)
-  const [showConfirm, setConfirm] = useState('')
-  const [entityType, setEntityType] = useState('Organization')
+
   const {data, get, processing, delete : deleteOrg} = useForm()
   const handleDeleteOrg = () => {
     // organization.destroy
@@ -49,9 +51,7 @@ const ViewOrganization = () => {
       q: filter.q
     }))
   }
-  const addOrganization = () => {
 
-  }
   if(isEmpty)
   return (
     <div>
@@ -105,29 +105,39 @@ const ViewOrganization = () => {
               <td>{student.users.contact_number}</td>
             </tr>
             <tr>
-              <td>Qualification</td>
-              <td>{student.qualification}</td>
+              <td>Gender</td>
+              <td>{student.users.gender}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      {
-        student.organizations.length>0 ?<>
-          <h1 className='py-4 text-secondary font-extrabold'>Belongs to (Organization's)</h1>
-          <Organizations organizations={student.organizations}/>
-        </>:<></>
-      }
-      {
-        student.checkpoints.length > 0 && <>
-          <h1 className='py-4 text-secondary font-extrabold'>Checkpoints (Assigned)</h1>
-          <Checkpoints checkpoints={student.checkpoints} />
-        </>
-      }
+      <OrganizationsTableView organizations={student.organizations} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization' || auth.role == 'instructor') ? true : false}
+        collection={{
+          name : 'student',
+          id : student.id
+        }}
+      />
+      <CheckpointsTableView checkpoints={student.checkpoints} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization' || auth.role == 'instructor') ? true : false}
+        collection={{
+          name : 'student',
+          id : student.id
+        }}
+      /> 
+      <InstructorsTableView instructors={student.instructors} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization' || auth.role == 'instructor') ? true : false}
+        collection={{
+          name : 'student',
+          id : student.id
+        }}
+      />
     </div>
   )
 }
 
 const Options = ({id}:{id : any}) => {
+  const { role } = usePage<PageProps>().props.auth
   const attachEntity = (collection:string)=>{
     get(route('student.show', {
       id,
@@ -141,9 +151,14 @@ const Options = ({id}:{id : any}) => {
   <details className="dropdown z-30">
     <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
     <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-      <li><a onClick={() => attachEntity('organization')}>Attach Organization</a></li>
-      <li><a onClick={() => attachEntity('student')}>Attach Instructor</a></li>
-      <li><a onClick={() => attachEntity('checkpoint')}>Attach Checkpoint</a></li>
+      {role == 'admin' && 
+        <li><a onClick={() => attachEntity('organization')}>Attach Organization</a></li>
+      }
+      {(role == 'admin' || role =='organization') &&
+        <li><a onClick={() => attachEntity('instructor')}>Attach Instructor</a></li>
+      }
+      {(role == 'admin' || role =='organization' || role =='instructor') &&
+        <li><a onClick={() => attachEntity('checkpoint')}>Attach Checkpoint</a></li>}
       <li><Link href={route('student.showEdit',{id})}>Edit Student</Link></li>
       <li onClick={_ => {
         // @ts-ignore
@@ -153,101 +168,7 @@ const Options = ({id}:{id : any}) => {
   </details>
   )
 }
-const Organizations = ({organizations} : {organizations : Organization[]}) => {
-  return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-            <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Email</td>
-              <td className='font-extrabold text-lg '>Address</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              organizations.map((organization : any, index) => <tr key={organization.id}  className='hover'>
-                <td><div className="flex items-center space-x-3 ml-3 my-3">
-                        <div className="avatar">
-                            <div className="mask mask-squircle w-10 h-10">
-                                <img src={organization.logo} alt="Avatar" />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="font-bold">{organization.name}</div>
-                        </div>
-                    </div></td>
-                <td>{organization.users.email}</td>
-                <td>{organization.users.address}</td>
-                <td>
-                  <Link href={route('organization.show', {id : organization.id})}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
-  )
-}
 
-const Students = ({students} : {students : Student[]}) => {
-  return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-          <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Email</td>
-              <td className='font-extrabold text-lg '>Address</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              students.map((student : any, index) => <tr key={student.id}  className='hover'>
-                  <td>{student.users.name}</td>
-                  <td>{student.users.email}</td>
-                  <td>{student.users.address}</td>
-                <td>
-                  <Link href={route('student.index')}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
-  )
-}
-
-const Checkpoints = ({checkpoints} : {checkpoints : Checkpoint[]}) => {
-  return(
-    <table className='table bg-base-100 shadow-md'>
-          <thead>
-          <tr className='text-base-100 bg-primary'>
-              <td className='font-extrabold text-lg '>Name</td>
-              <td className='font-extrabold text-lg '>Validity</td>
-              <td className='font-extrabold text-lg '>Grades</td>
-              <td className='font-extrabold text-lg '></td>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              checkpoints.map((checkpoint : any, index) => <tr key={checkpoint.id}  className='hover'>
-                  <td>{checkpoint.name}</td>
-                  <td>{checkpoint.validity_period}</td>
-                  <td>{checkpoint.achieved_gradepoints}/{checkpoint.total_gradepoints}</td>
-                <td>
-                  <Link href={route('checkpoint.index')}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                  </Link>
-                </td>
-              </tr>)
-            }
-          </tbody>
-        </table>
-  )
-}
 const Index = () => {
 
   return(

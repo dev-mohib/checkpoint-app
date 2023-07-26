@@ -16,7 +16,9 @@ class Organization extends Model
         'id',
         'created_by',
         'user_id',
-        'name'
+        'name',
+        'registration_doc',
+        'logo'
     ];
     public function instructors()
     {

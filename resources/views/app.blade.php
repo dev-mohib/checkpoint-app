@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,4 +19,9 @@
     <body class="font-sans antialiased">
         @inertia
     </body>
+    <script>
+        const theme = localStorage.getItem('data-theme')??'light';
+        const htmlTag = document.querySelector('html');
+        htmlTag.setAttribute('data-theme', theme);
+    </script>
 </html>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Card } from '../partials/cards'
 
 const InstructorDashboard = () => {
-  const cards = [{name : "Students"},{name : "Checkpoints"}]
+  const cards = [{name : "student"},{name : "checkpoint"}]
   return (
     <div>
       <div className='flex justify-around'>

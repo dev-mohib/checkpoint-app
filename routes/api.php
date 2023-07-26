@@ -31,11 +31,14 @@ Route::middleware('auth')->group(function(){
 
 Route::post('/upload/organization-document', [UploadController::class, 'storeOrganizationDoc']);
 Route::post('/upload/organization-logo', [UploadController::class, 'storeOrganizationLogo']);
-Route::post('/upload/instructor-photo-front', [UploadController::class, 'storeInstructorPhotoFront']);
-Route::post('/upload/instructor-photo-back', [UploadController::class, 'storeInstructorPhotoBack']);
-Route::post('/upload/checkpoint-doc', [UploadController::class, 'storeCheckpointDoc']);
+Route::post('/upload/photo-id-front', [UploadController::class, 'storeInstructorPhotoFront']);
+Route::post('/upload/photo-id-back', [UploadController::class, 'storeInstructorPhotoBack']);
+Route::post('/upload/checkpoint-badge', [UploadController::class, 'storeCheckpointBadge']);
+Route::post('/upload/checkpoint-certificate', [UploadController::class, 'storeCheckpointCertificate']);
 
 Route::delete('/upload/organization-document', [UploadController::class, 'deleteOrganizationDoc']);
 Route::delete('/upload/organization-logo', [UploadController::class, 'deleteOrganizationLogo']);
-Route::delete('/upload/instructor-photo-id', [UploadController::class, 'deleteInstructorPhotoId']);
-Route::delete('/upload/checkpoint-doc', [UploadController::class, 'deleteCheckpointDoc']);
+Route::delete('/upload/photo-id-front', [UploadController::class, 'deleteInstructorPhotoFront']);
+Route::delete('/upload/photo-id-back', [UploadController::class, 'deleteInstructorPhotoBack']);
+Route::delete('/upload/checkpoint-badge', [UploadController::class, 'deleteCheckpointBadge']);
+Route::delete('/upload/checkpoint-certificate', [UploadController::class, 'deleteCheckpointCertificate']);

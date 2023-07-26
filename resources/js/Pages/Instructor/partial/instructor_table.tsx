@@ -1,7 +1,6 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
 import { Link, useForm, usePage  } from '@inertiajs/react';
-import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { InstructorPagination, PageProps } from '@/types';
@@ -41,10 +40,6 @@ import { InstructorPagination, PageProps } from '@/types';
       }
 
     },[])
-    const createOrganization = () =>{ 
-        // @ts-ignore
-        document.getElementById("CreateNewOrgModel")?.showModal()
-    }
 
     return (
       <div className=" p-4">
@@ -80,7 +75,7 @@ import { InstructorPagination, PageProps } from '@/types';
             </div>
         {/* End */}
             <div></div>
-            <Link  href={route('instructor.create')} className='btn btn-primary m-4 cursor-pointer' onClick={createOrganization}>Add New</Link>
+            <Link  href={route('instructor.create')} className='btn btn-primary m-4 cursor-pointer'>Add New</Link>
         </div>
         <div>
             {instructors.data.length > 0 ?<table className="table table-sm bg-base-100 shadow-md">

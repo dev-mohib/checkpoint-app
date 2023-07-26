@@ -17,11 +17,8 @@ return new class extends Migration
             // $table->string('id', 36)->primary()->default(Uuid::uuid4()->toString());
             $table->bigInteger('user_id')->nullable();
             $table->bigInteger('created_by')->nullable();
-            $table->bigInteger('organization_id')->nullable();
-            $table->string('parent_name')->nullable();
-            $table->string('parent_relationship')->nullable();
-            $table->string('photo_id_front')->nullable();
-            $table->string('photo_id_back')->nullable();
+            $table->string('guardian_name')->nullable();
+            $table->string('guardian_relationship')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
         });

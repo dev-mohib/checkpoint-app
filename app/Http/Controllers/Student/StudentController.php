@@ -11,11 +11,13 @@ use App\Models\Student;
 use App\Models\User;
 use Faker\Core\Uuid;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -28,7 +30,6 @@ class StudentController extends Controller
         $paginate = $request->query('paginate')??5;
         $email = $request->query('email')??'';
         $id = $request->query('id')??'';
-        // $address = $request->query('address')??'';
         $username = $request->query('username')??'';
         $orgName = $request->query('orgName')??'';
         $orgId = $request->query('orgId');
@@ -54,11 +55,14 @@ class StudentController extends Controller
         if(UserRole::is_admin($request)){
             $uid = $request->user()->id;
             $students = $students
-            ->where('id', 'like', '%' . $id . '%')
-            ->whereHas('organizations', function ($query) use ($orgName) {
-                $query->where('name', 'like', '%'.$orgName.'%');
-            })
-            ->paginate($paginate);
+            ->where('id', 'like', '%' . $id . '%');
+            if($orgName){
+                $students = $students
+                ->whereHas('organizations', function ($query) use ($orgName) {
+                    $query->where('name', 'like', '%'.$orgName.'%');
+                });
+            }
+            $students = $students->paginate($paginate);
         } else if(UserRole::is_organization($request)){
             $table = DB::table('organizations')
             ->where('user_id', '=',$request->user()->id)
@@ -99,52 +103,44 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|email|max:255|unique:'.User::class,
-        //     'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        //     'contact'=> 'requitrd',
-        //     'username'=> 'required|string|max:30|unique:'.User::class,
-        //     'address' => 'required|string|min:20'
-        // ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'gender' => 'required|string|max:255',
+            'address' => 'required|string|max:255|min:10',
+            'contact_number'=> 'required',
+            'guardian_name' => 'required|string',
+            'guardian_relationship' => 'required|string',
+            'email' => 'required|string|email|max:255|unique:'.User::class,
+            'username'=> 'required|string|max:30|unique:'.User::class,
+            'password' => ['required', Rules\Password::defaults()],
+        ]);
 
         if(UserRole::is_student($request)){
             return redirect('/not-allowed');
         }
+        
+        // return redirect('/student');
+
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'gender' => $request->gender,
             'address'=> $request->address,
-            'contact'=> $request->contact,
+            'contact_number'=> $request->contact_number,
+            'guardian_name' => $request->guardian_name,
+            'guardian_relationship' => $request->guardian_relationship,
+            'email' => $request->email,
             'username'=> $request->username,
+            'password' => Hash::make($request->password),
             'role'=> 'student',
         ]);
 
         $student = Student::create([
-            'parent_name'=> $request->parent_name??'',
-            'parent_relationship' => $request->parent_relationship
+            'guardian_name'=> $request->guardian_name??'',
+            'guardian_relationship' => $request->guardian_relationship
         ]);
         $student->users()->associate($user);
         $student->save();
-      
-
         return redirect('/student/view/'.$student->id);
-
-        // event(new Registered($user));
-        // $organization = Organization::create([
-        //     'created_by'=> $request->user()->id,
-        //     'name'=> $request->name,  
-        //     'logo'=>'/laptop.jpg'
-        // ]);
-
-
-        // try {
-        //     Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
-        // } catch (\Throwable $th) {
-        //     //throw $th;
-        // }
-        // return redirect('/organization/view/');
     }
 
     public function show(Request $request, string $id)
@@ -154,12 +150,24 @@ class StudentController extends Controller
         }
         $student = Student::with([
             'organizations', 'checkpoints','users', 'organizations.users', 'instructors', 'instructors.users'
-            ])
+        ])
         ->find($id);
+        if(!UserRole::is_admin($request)){
+            $student->setRelation('organizations', Collection::make([]));
+        }
         $collection = $request->query('collection');
         $searchBy = $request->query('searchBy')??'name';
         $q = $request->query('q')??'';
-        $searchData = ($collection && $searchBy) ? DBUtils::get_search_data($collection, $searchBy, $q)??array() : array();
+        $searchData = array();
+        if($collection && $searchBy){
+            if(UserRole::is_admin($request)){
+                $searchData = DBUtils::get_admin_search_data($collection, $searchBy, $q);
+            }else if(UserRole::is_organization($request)){
+                $searchData = DBUtils::get_organization_search_data($collection, $searchBy, $q, $request->user()->id);
+            }else if(UserRole::is_instructor($request)){
+                $searchData = DBUtils::get_instructor_search_data($collection, $searchBy, $q, $request->user()->id);
+            }
+        }
         if(!$student){
             return Inertia::render('Student/show/index',
                 [
@@ -223,17 +231,15 @@ class StudentController extends Controller
             return Redirect::route('organization.show',['id'=>$form['id']]);
         }
     }
-    public function attach(Request $request){
-        if(!UserRole::is_admin($request) || !UserRole::is_organization($request)){
-            return redirect('/dashboard');
-        }
+    public function attachEntity(Request $request){
         $form = $request->all();
         $student_id = $form['id']??'1';
         $entity_type = $form['entityType'];
         $entity_id = $form['entityId'];
-        if($student_id && $entity_type && $entity_id){
+        if((UserRole::is_admin($request) || UserRole::is_organization($request)) && $student_id && $entity_type && $entity_id){
             $student = Student::with(['instructors', 'organizations', 'checkpoints'])
             ->find($student_id);
+            Log::info($entity_type);
             if($student){
                 if($entity_type == 'organization'){
                     $organizations = $student->organizations()->find($entity_id);
@@ -253,8 +259,43 @@ class StudentController extends Controller
                     }
                 }
             }
+            return redirect('/student/view/'.$student_id);
+        }else {
+            return redirect('/dashboard');
         }
-        return redirect('/student/view/'.$student_id);
+    }
+    public function detachEntity(Request $request){
+        $form = $request->all();
+        $student_id = $form['id']??'1';
+        $entity_type = $form['entityType'];
+        $entity_id = $form['entityId'];
+        if((UserRole::is_admin($request) || UserRole::is_organization($request)) && $student_id && $entity_type && $entity_id){
+            $student = Student::with(['instructors', 'organizations', 'checkpoints'])
+            ->find($student_id);
+            // Log::info($entity_type);
+            if($student){
+                if($entity_type == 'organization'){
+                    $organizations = $student->organizations()->find($entity_id);
+                    if(!$organizations){
+                        $student->organizations()->detach($entity_id);
+                    }
+                }else if($entity_type == 'instructor'){
+                    $instructor = $student->instructors()->find($entity_id);
+                    if(!$instructor){
+                        $student->instructors()->detach($entity_id);
+                    }
+                }
+                else {
+                   $checkpoint = $student->checkpoints()->find($entity_id);
+                    if(!$checkpoint){
+                        $student->checkpoints()->detach($entity_id);
+                    }
+                }
+            }
+            return redirect('/student/view/'.$student_id);
+        }else {
+            return redirect('/dashboard');
+        }
     }
     public function destroy(Request $request, string $id)
     {

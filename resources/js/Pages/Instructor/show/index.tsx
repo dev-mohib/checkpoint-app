@@ -6,8 +6,11 @@ import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
 import { XmarkIcon } from '@/Components/icons'
-import { Instructor, PageProps } from '@/types'
+import { Checkpoint, Instructor, PageProps } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
+import { StudentsTableView } from '@/Components/daisy/StudentsTableView'
+import { OrganizationsTableView } from '@/Components/daisy/OrganizationTableView'
+import { CheckpointsTableView } from '@/Components/daisy/CheckpointTableView'
 
 const _local = {
   q : '',
@@ -15,12 +18,8 @@ const _local = {
   collection : 'organization'
 }
 const ViewInstructor = () => {
-
-  const { instructor, isEmpty } = usePage<PageProps<{isEmpty : boolean, instructor : Instructor,}>>().props 
-
-  const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
-  const [filter, setFilter ] = useState(local)
-
+  const { instructor, isEmpty, auth } = usePage<PageProps<{isEmpty : boolean, instructor : Instructor,}>>().props 
+  // const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
   const { get, delete : deleteInstructorRequest} = useForm()
   const handleDeleteInstructor = () => {
     // organization.destroy
@@ -65,9 +64,13 @@ const ViewInstructor = () => {
             </tr>
           </thead>
           <tbody>
-            <tr className=''>
+            <tr>
               <td>Name</td>
               <td>{instructor.users.name}</td>
+            </tr>
+            <tr>
+              <td>Gender</td>
+              <td>{instructor.users.gender??'Not Spcified'}</td>
             </tr>
             <tr>
               <td>Username</td>
@@ -89,22 +92,56 @@ const ViewInstructor = () => {
               <td>Qualification</td>
               <td>{instructor.qualification}</td>
             </tr>
+            <tr>
+              <td>Access Validity Start</td>
+              <td>{instructor.access_validity_start}</td>
+            </tr>
+            <tr>
+              <td>Access Validity End</td>
+              <td>{instructor.access_validity_end}</td>
+            </tr>
           </tbody>
         </table>
       </div>
-      {
-        instructor.students && <Students students={instructor.students}/>
-      }
-      {
-        instructor.organization && <Organizations organizations={instructor.organization}/>
-      }
-      {
-        instructor.checkpoints && <Checkpoints checkpoints={instructor.checkpoints}/>
-      }
+      <div>
+        <h1 className='py-4 text-secondary font-extrabold'>Photo Identification</h1>
+        <div className='flex-r-b w-1/2'>
+          <div>
+            <img className='h-36' src={`/storage/instructor-photo-front/${instructor.photo_id_front}`} alt='Instructor Photo ID Front'/>
+            <h1 className='w-full text-center my-3'>Front</h1>
+          </div>
+          <div>
+            <img className='h-36' src={`/storage/instructor-photo-back/${instructor.photo_id_back}`} alt='Instructor Photo ID Front'/>
+            <h1 className='w-full text-center my-3'>Back</h1>
+          </div>
+        </div>
+      </div>
+      <StudentsTableView students={instructor.students} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization') ? true : false}
+        collection={{
+          name : 'instructor',
+          id : instructor.id
+        }}
+      />
+      <OrganizationsTableView organizations={instructor.organizations} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization') ? true : false}
+        collection={{
+          name : 'instructor',
+          id : instructor.id
+        }}
+      />
+      <CheckpointsTableView checkpoints={instructor.checkpoints} 
+        canDetach={(auth.role == 'admin' || auth.role =='organization') ? true : false}
+        collection={{
+          name : 'instructor',
+          id : instructor.id
+        }}
+      /> 
     </>
   )
 }
 const Options = ({id}:{id : any}) => {
+  const { role } = usePage<PageProps>().props.auth
   const attachEntity = (collection:string)=>{
     get(route('instructor.show', {
       id,
@@ -118,9 +155,13 @@ const Options = ({id}:{id : any}) => {
   <details className="dropdown z-30">
     <summary className="m-1 btn pr-28 btn-primary">Actions</summary>
     <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-      <li><a onClick={() => attachEntity('organization')}>Attach Organization</a></li>
-      <li><a onClick={() => attachEntity('student')}>Attach Student</a></li>
-      <li><a onClick={() => attachEntity('checkpoint')}>Attach Checkpoint</a></li>
+      {role == 'admin' &&
+        <li><a onClick={() => attachEntity('organization')}>Attach Organization</a></li>}
+      {(role == 'admin' || role =='organization') &&
+        <li><a onClick={() => attachEntity('student')}>Attach Student</a></li>}
+      {(role == 'admin' || role =='organization') &&
+        <li><a onClick={() => attachEntity('checkpoint')}>Attach Checkpoint</a></li>
+      }
       <li><Link href={route('instructor.showEdit',{id})}>Edit Instructor</Link></li>
       <li onClick={_ => {
         // @ts-ignore
@@ -128,135 +169,6 @@ const Options = ({id}:{id : any}) => {
       }}><a className='text-red-600 hover:text-red-600'>Delete Instructor</a></li>
     </ul>
   </details>
-  )
-}
-
-const Organizations = ({organizations} : {organizations : any[]}) => {
-  return(
-    <>
-      <h1 className='py-4 text-secondary font-extrabold'>Organizations</h1>
-      {organizations.length > 0 ?<table className='table bg-base-100 shadow-md'>
-        <thead>
-          <tr className='text-base-100 bg-primary'>
-            <td className='font-extrabold text-lg '>Name</td>
-            <td className='font-extrabold text-lg '>Email</td>
-            <td className='font-extrabold text-lg '>Address</td>
-            <td className='font-extrabold text-lg '></td>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            organizations.map((organization : any, index) => <tr key={organization.id}  className='hover'>
-              <td><div className="flex items-center space-x-3 ml-3 my-3">
-                      <div className="avatar">
-                          <div className="mask mask-squircle w-10 h-10">
-                              <img src={organization.logo} alt="Avatar" />
-                          </div>
-                      </div>
-                      <div>
-                          <div className="font-bold">{organization.name}</div>
-                      </div>
-                  </div></td>
-              <td>{organization.users.email}</td>
-              <td>{organization.users.address}</td>
-              <td>
-                <Link href={route('organization.show', {id : organization.id})}>
-                  <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                </Link>
-              </td>
-            </tr>)
-          }
-        </tbody>
-      </table>
-      :
-      <div className='w-full border-2 shadow-md'>
-        <div className='bg-primary h-16 w-full'></div>
-        <div className='w-full flex-c-c h-32 font-bold text-2xl'>
-          No Organizations
-        </div>
-      </div>
-      }
-    </>
-  )
-}
-
-const Students = ({students} : {students : any[]}) => {
-  return(
-    <>
-      <h1 className='py-4 text-secondary font-extrabold'>Students</h1>
-      {students.length > 0 ?<table className='table bg-base-100 shadow-md'>
-        <thead>
-        <tr className='text-base-100 bg-primary'>
-            <td className='font-extrabold text-lg'>Name</td>
-            <td className='font-extrabold text-lg'>Email</td>
-            <td className='font-extrabold text-lg'>Address</td>
-            <td className='font-extrabold text-lg'></td>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            students.map((student : any, index) => <tr key={student.id}  className='hover'>
-                <td>{student.users.name}</td>
-                <td>{student.users.email}</td>
-                <td>{student.users.address}</td>
-              <td>
-                <Link href={route('student.index')}>
-                  <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                </Link>
-              </td>
-            </tr>)
-          }
-        </tbody>
-      </table>
-      :
-      <div className='w-full border-2 shadow-md'>
-        <div className='bg-primary h-16 w-full'></div>
-        <div className='w-full flex-c-c h-32 font-bold text-2xl'>
-          No Students
-        </div>
-      </div>  
-    }
-    </>
-  )
-}
-
-const Checkpoints = ({checkpoints} : {checkpoints : any[]}) => {
-  return(
-    <>
-      <h1 className='py-4 text-secondary font-extrabold'>Checkpoints</h1>
-      {checkpoints.length > 0 ? <table className='table bg-base-100 shadow-md'>
-        <thead>
-        <tr className='text-base-100 bg-primary'>
-            <td className='font-extrabold text-lg '>Name</td>
-            <td className='font-extrabold text-lg '>Validity</td>
-            <td className='font-extrabold text-lg '>Grades</td>
-            <td className='font-extrabold text-lg '></td>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            checkpoints.map((checkpoint : any, index) => <tr key={checkpoint.id}  className='hover'>
-                <td>{checkpoint.name}</td>
-                <td>{checkpoint.validity_period}</td>
-                <td>{checkpoint.achieved_gradepoints}/{checkpoint.total_gradepoints}</td>
-              <td>
-                <Link href={route('checkpoint.index')}>
-                  <NavigateIcon className="w-6 h-6 hover:opacity-50"/>
-                </Link>
-              </td>
-            </tr>)
-          }
-        </tbody>
-      </table>
-      :
-      <div className='w-full border-2 shadow-md'>
-        <div className='bg-primary h-16 w-full'></div>
-        <div className='w-full flex-c-c h-32 font-bold text-2xl'>
-          No Checkpoints
-        </div>
-      </div>
-      }
-    </>
   )
 }
 

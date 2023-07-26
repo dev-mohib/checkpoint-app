@@ -7,24 +7,24 @@ import { PlusIcon } from '@/Components/icons';
 import Modal from '@/Components/daisy/modal';
 import { XmarkIcon } from '@/Components/icons'
 import { PageProps } from '@/types';
+import { ErrorMessage } from '@/Components/daisy/ErrorMessage';
 
 const AdminCreate = () => {
   const [input, setInput] = useState('')
-  const [searchBy, setSearchBy] = useState('name')
-
-  const [files, setFiles] = React.useState<any[]>([])
 
   const formData = {
     name: '',
-    email: '',
+    gender : '',
     address : '',
     contact_number : '',
+    email: '',
     username: '',
     password : '',
-    qualification : '',
+    guardian_name : '',
+    guardian_relationship : ''
 }
 const local = localStorage.getItem('rememberStudent')
-const { data, setData, post } = useForm<typeof formData>(local ? JSON.parse(local) : formData);
+const { data, setData, post, errors } = useForm<typeof formData>(local ? JSON.parse(local) : formData);
 
 
 const submit: FormEventHandler = (e) => {
@@ -41,82 +41,94 @@ const submit: FormEventHandler = (e) => {
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Student</h2>
-
         {/* <form> */}
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">Name</label>
+            <label className="block font-semibold mb-2" htmlFor="name">Name</label>
+            <ErrorMessage message={errors.name}/>
             <input type="text" id="name" name="name" 
-              placeholder='Hauck PLC' className="input border-2 border-base-200 input-ghost w-full" 
+              placeholder='Stephan Mertz' className="input border-2 border-base-200 input-ghost w-full" 
               value={data.name}
               onChange={(e) => setData("name" ,e.target.value)}
               />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="address">Address</label>
-            <textarea id="address" name="address" rows={2} 
+            <label className="block font-semibold mb-2" htmlFor="address">Address</label>
+            <ErrorMessage message={errors.address}/>
+            <textarea id="address" name="address" rows={2} placeholder='	Apt. 750, West Reeseberg'
             className="input border-2 border-base-200 input-ghost w-full"
             value={data.address}
               onChange={(e) => setData("address" ,e.target.value)}
             ></textarea>
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="address">Qaulifications</label>
-            <input type="text" id="qualification" name="qualification" 
-              placeholder='MSc. Data Science..' className="input border-2 border-base-200 input-ghost w-full" 
-              value={data.qualification}
-              onChange={(e) => setData("qualification" ,e.target.value)}
-              />
+          <div className="mr-2 w-full">
+            <label className="block font-semibold mb-2" htmlFor="contact_number">Contact Number</label>
+            <ErrorMessage message={errors.contact_number}/>
+            <input type="tel" id="contact" name="contact" placeholder='+92 303 5214014'  
+              className="input border-2 border-base-200 input-ghost w-full" 
+              value={data.contact_number}
+              onChange={(e) => setData("contact_number", e.target.value)}
+            />
           </div>
-          <div className="mb-6 flex">
-            <div className="mr-2">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="contact">Contact</label>
-              <input type="tel" id="contact" name="contact" placeholder='+42'  
-                className="input border-2 border-base-200 input-ghost w-full" 
-                value={data.contact_number}
-                onChange={(e) => setData("contact_number" ,e.target.value)}
-              />
-            </div>
-            <div className="ml-2">
-              <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Logo</label>
-              <input type="file" id="logo" name="logo" accept="image/*" className="file-input  w-full  file-input-primary" />
-            </div>
+          <div className="mb-6 mr-6">
+            <label className="block font-semibold mb-2" htmlFor="gender">Gender</label>
+            <ErrorMessage message={errors.gender}/>
+            <select className="select select-bordered w-full max-w-xs" onChange={e => setData("gender", e.target.value)}>
+              <option selected disabled>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div className="mb-6 w-full mr-6">
+            <label className="block font-semibold mb-2" htmlFor="address">Guardian Name</label>
+            <ErrorMessage message={errors.guardian_name}/>
+            <input type="text" id="guardian_name" name="guardian_name" 
+              placeholder='Sam' className="input border-2 border-base-200 input-ghost w-full" 
+              value={data.guardian_name}
+              onChange={(e) => setData("guardian_name" ,e.target.value)}
+            />
+          </div>
+          <div className="mb-6 mr-6">
+            <label className="block font-semibold mb-2" htmlFor="guardian_relationship">Guardian Relationship</label>
+            <ErrorMessage message={errors.guardian_relationship}/>
+            <select className="select select-bordered w-full max-w-xs" onChange={e => setData("guardian_relationship", e.target.value)}>
+              <option selected disabled>Select Guardian Relationship</option>
+              <option value="Parents">Parents</option>
+              <option value="Grandfather">Grandfather</option>
+              <option value="Grandmother">Grandmother</option>
+              <option value="Brother">Brother</option>
+              <option value="Sister">Sister</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="email">Email</label>
-            <input type="email" id="email" name="email" 
+            <label className="block font-semibold mb-2" htmlFor="email">Email</label>
+            <ErrorMessage message={errors.email}/>
+            <input type="email" id="email" name="email" placeholder='abc@example.com'
               className="input border-2 border-base-200 input-ghost w-full" 
               value={data.email}
               onChange={(e) => setData("email" ,e.target.value)}
             />
           </div>
-
+          <div className="mb-6 w-full">
+              <label className="block font-semibold mb-2" htmlFor="username">Username</label>
+              <ErrorMessage message={errors.username}/>
+              <input type="text" id="username" name="username" placeholder='john123'
+                className="input border-2 border-base-200 input-ghost w-full"
+                value={data.username}
+                onChange={(e) => setData("username" ,e.target.value)}
+                />
+            </div>
+          
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="username">Username</label>
-            <input type="text" id="username" name="username" 
-              className="input border-2 border-base-200 input-ghost w-full"
-              value={data.username}
-              onChange={(e) => setData("username" ,e.target.value)}
-              />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2" htmlFor="password">Password</label>
-            <input type="password" id="password" name="password" 
-              className="winput border-2 border-base-200 input-ghost w-full" 
+            <label className="block font-semibold mb-2" htmlFor="password">Password</label>
+            <ErrorMessage message={errors.password}/>
+            <input type="password" id="password" name="password" placeholder='*****'
+              className="input border-2 border-base-200 input-ghost w-full" 
               value={data.password}
               onChange={(e) => setData("password" ,e.target.value)}
               />
           </div>
-          <label className="block text-gray-700 font-semibold mb-2" htmlFor="logo">Registration Document</label>
-          <FilePond
-            files={files}
-            onupdatefiles={setFiles}
-            allowMultiple={true}
-            maxFiles={3}
-            server="/api/upload/organization-document"
-            name="organization-document" /* sets the file input name, it's filepond by default */
-            labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-          />
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={submit}>Submit</button>
           </div>

@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         Organization::factory()->count(10)->create();
         Instructor::factory()->count(10)->create();
         Student::factory()->count(10)->create();
-        Checkpoint::factory()->count(20)->create();
+        Checkpoint::factory()->count(35)->create();
         OrganizationInstructor::factory()->count(10)->create();
         InstuctorStudent::factory()->count(10)->create();
         OrganizationStudent::factory()->count(10)->create();

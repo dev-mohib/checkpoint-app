@@ -12,6 +12,7 @@ use App\Models\Student;
 use App\Models\User;
 use Faker\Core\Uuid;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -31,13 +32,11 @@ class CheckpointController extends Controller
         $orgId = $request->query('orgId');
         $instructorName = $request->query('instructorName');
         $studentName = $request->query('studentName');
+        $paginate = $request->paginate??10;
 
         $userId = $request->user()->id;
-            $checkpoints = Checkpoint::with(['organizations', 'students.users', 'instructors','instructors.users'])
+            $checkpoints = Checkpoint::with(['organizations','students', 'students.users', 'instructors','instructors.users'])
             ->where('name', 'like', '%'.$name.'%')
-            ->whereHas('organizations', function ($query) use ($orgName) {
-                $query->where('name', 'like', '%'.$orgName.'%');
-            })
             ->whereHas('organizations', function ($query) use ($orgId) {
                 $query->where('id', 'like', '%'.$orgId.'%');
             })
@@ -52,65 +51,47 @@ class CheckpointController extends Controller
                 $checkpoints = $checkpoints
                 ->whereHas('organizations', function ($query) use ($orgName) {
                     $query->where('name', 'like', '%'.$orgName.'%');
-                })->paginate(5);
+                })
+                ->orWhereNull('organization_id')->paginate($paginate);
             } else if(UserRole::is_organization($request)){
                 $checkpoints = $checkpoints
                 ->whereHas('organizations', function ($query) use ($userId) {
                     $query->where('organizations.id', $userId);
-                })->paginate(5);
+                })->paginate($paginate);
             }else if(UserRole::is_instructor($request)){
                 $checkpoints = $checkpoints
                 ->whereHas('instructors', function ($query) use ($userId) {
                     $query->where('instructors.id', $userId);
-                })->paginate(5);
+                })->paginate($paginate);
             }else if(UserRole::is_student($request)){
                 $checkpoints = $checkpoints
                 ->whereHas('students', function ($query) use ($userId) {
                     $query->where('students.id', $userId);
-                })->paginate(5);
+                })->paginate($paginate);
             }
 
             return Inertia::render('Checkpoint/index', ['title' => 'Checkpoints', 'activeMenu'=> 'checkpoint', 'checkpoints'=>$checkpoints, 'canAccess'=>true]);
     }
     public function create(Request $request)
     {
-        $searchBy = $request->query('searchBy');
-        $query = $request->query('query');
-        if($searchBy == 'name'){
-            $searchData =DB::table('organizations')->
-            where('name', 'like', '%'.$query.'%')->get();
-            return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student', 'showSearch'=>true, 'searchData'=>$searchData]);
-        }
-        if($searchBy == 'id'){
-            $searchData = DB::table('organizations')->where('id', $query)->get();
-            return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student', 'showSearch'=>true, 'searchData'=>$searchData]);
-        }
-
-        return Inertia::render('Student/create/index', ['title' => 'Create Student', 'activeMenu'=> 'student']);
+        return Inertia::render('Checkpoint/create/index', ['title' => 'Create Checkpoint', 'activeMenu'=> 'checkpoint', 'canAccess'=>true]);
     }
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|email|max:255|unique:'.User::class,
-        //     'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        //     'contact'=> 'requitrd',
-        //     'username'=> 'required|string|max:30|unique:'.User::class,
-        //     'address' => 'required|string|min:20'
-        // ]);
-
+        $request['validity_period'] = $request->type != 'Completion' ? 'Permanent' : $request['validity_period'];
+        $request->validate([
+            'name' => 'required|string|max:255|min:5',
+            'description' => 'required|string|max:400|min:10',
+            'type' => 'required',
+            'validity_period' =>  'required'
+        ]);
         $checkpoint = Checkpoint::create([
             'name'=> $request->name,
-            'description' => $request->description
+            'description' => $request->description,
+            'validity_period'=> $request->validity_period
         ]);
 
         return redirect('/checkpoint/view/'.$checkpoint->id);
-        // try {
-        //     Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
-        // } catch (\Throwable $th) {
-        //     //throw $th;
-        // }
-        // return redirect('/organization/view/');
     }
     public function show(Request $request, string $id)
     {
@@ -121,8 +102,18 @@ class CheckpointController extends Controller
         $collection = $request->query('collection');
         $searchBy = $request->query('searchBy')??'name';
         $q = $request->query('q')??'';
-        $searchData = ($collection && $searchBy) ? DBUtils::get_search_data($collection, $searchBy, $q)??array() : array();
+        $searchData = array();
 
+        if($collection && $searchBy){
+            if(UserRole::is_admin($request)){
+                $searchData = DBUtils::get_admin_search_data($collection, $searchBy, $q);
+            }else if(UserRole::is_organization($request)){
+                $searchData = DBUtils::get_organization_search_data($collection, $searchBy, $q, $request->user()->id);
+            }else if(UserRole::is_instructor($request)){
+                $searchData = DBUtils::get_instructor_search_data($collection, $searchBy, $q, $request->user()->id);
+            }
+        }
+        Log::info($checkpoint);
         if(!$checkpoint){
             return Inertia::render('Checkpoint/show/index',
                 [
@@ -178,7 +169,7 @@ class CheckpointController extends Controller
             return Redirect::route('organization.show',['id'=>$form['id']]);
         }
     }
-    public function attach(Request $request){
+    public function attachEntity(Request $request){
         if(!UserRole::is_admin($request) || !UserRole::is_organization($request)){
             return redirect('/dashboard');
         }
@@ -205,6 +196,39 @@ class CheckpointController extends Controller
                    $student = $checkpoint->students()->find($entity_id);
                     if(!$student){
                         $checkpoint->students()->attach($entity_id);
+                    }
+                }
+            }
+        }
+        return redirect('/checkpoint/view/'.$checkpoint_id);
+    }
+    public function detachEntity(Request $request){
+        if(!UserRole::is_admin($request) || !UserRole::is_organization($request)){
+            return redirect('/dashboard');
+        }
+        $form = $request->all();
+        $checkpoint_id = $form['id'];
+        $entity_type = $form['entityType'];
+        $entity_id = $form['entityId'];
+        if($checkpoint_id && $entity_type && $entity_id){
+            $checkpoint = Checkpoint::with(['instructors', 'organizations', 'students'])
+            ->find($checkpoint_id);
+            if($checkpoint){
+                if($entity_type == 'organization'){
+                    $organizations = $checkpoint->organizations()->find($entity_id);
+                    if(!$organizations){
+                        $checkpoint->organizations()->detach($entity_id);
+                    }
+                }else if($entity_type == 'instructor'){
+                    $instructor = $checkpoint->instructors()->find($entity_id);
+                    if(!$instructor){
+                        $checkpoint->instructors()->detach($entity_id);
+                    }
+                }
+                else {
+                   $student = $checkpoint->students()->find($entity_id);
+                    if(!$student){
+                        $checkpoint->students()->detach($entity_id);
                     }
                 }
             }

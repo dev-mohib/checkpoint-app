@@ -2,7 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+.stroke{
+    stroke: black
+}
+.fill{
+    fill: black
+}
 
+  html[data-theme='dark'] {
+    .stroke{
+        stroke: white
+    }
+    .fill{
+        fill : white
+    }
+  }
+  
 .mainLayout{}
 .SideBar{}
 .Navbar{

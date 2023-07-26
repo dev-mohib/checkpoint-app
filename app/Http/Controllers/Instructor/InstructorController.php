@@ -9,8 +9,9 @@ use App\Models\Instructor;
 use App\Models\Organization;
 use App\Models\Student;
 use App\Models\User;
-use Faker\Core\Uuid;
+use Illuminate\Validation\Rules;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -36,6 +37,7 @@ class InstructorController extends Controller
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
             return redirect('/not-allowed');
         }
+
         $instructors = Instructor::with(['organizations', 'users'])
             ->whereHas('users', function ($query) use ($name) {
                 $query->where('name', 'like', '%'.$name.'%');
@@ -46,16 +48,15 @@ class InstructorController extends Controller
             ->whereHas('users', function ($query) use ($email) {
                 $query->where('email', 'like', '%'.$email.'%');
             })
-            ->whereHas('users', function ($query) use ($address) {
-                $query->where('address', 'like', '%'.$address.'%');
-            })
             ->whereHas('users', function ($query) use ($orgId) {
                 $query->where('id', 'like', '%'.$orgId.'%');
             })
-            ->where('id', 'like', '%' . $id . '%')
-            ->whereHas('organizations', function ($query) use ($orgName) {
-                $query->where('name', 'like', '%'.$orgName.'%');
-            });
+            ->where('id', 'like', '%' . $id . '%');
+            if($orgName){
+                $instructors = $instructors->whereHas('organizations', function ($query) use ($orgName) {
+                    $query->where('name', 'like', '%'.$orgName.'%');
+                });
+            }
         if(UserRole::is_admin($request)){
             $instructors = $instructors->paginate($paginate);
         } else {
@@ -81,14 +82,17 @@ class InstructorController extends Controller
     }
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required|string|max:255',
-        //     'email' => 'required|string|email|max:255|unique:'.User::class,
-        //     'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        //     'contact'=> 'requitrd',
-        //     'username'=> 'required|string|max:30|unique:'.User::class,
-        //     'address' => 'required|string|min:20'
-        // ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:'.User::class,
+            'address' => 'required|string|min:10',
+            'contact_number' => 'required|string',
+            'username'=> 'required|string|max:30|min:7|unique:'.User::class,
+            'password' => ['required', Rules\Password::defaults()],//'confirmed'
+            'qualification'=> 'required',
+            'photo_id_front' => 'required',
+            'photo_id_back' => 'required',
+        ]);
 
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
             return redirect('/not-allowed');
@@ -99,33 +103,27 @@ class InstructorController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address'=> $request->address,
-            'contact'=> $request->contact,
+            'contact_number'=> $request->contact_number,
             'username'=> $request->username,
             'role'=> 'instructor',
         ]);
-        
+        $photo_id_front = $request->photo_id_front;
+        $photo_id_back = $request->photo_id_back;
+
         $instructor = Instructor::create([
-            'qualification'=> $request->qualification
+            'qualification'=> $request->qualification,
+            'photo_id_front'=> $photo_id_front,
+            'photo_id_back'=> $photo_id_back
         ]);
         $instructor->users()->associate($user);
         $instructor->save();
-
+        if($photo_id_front){
+            Storage::move('temp/instructor-photo-front/'.$photo_id_front, 'public/instructor-photo-front/'.$photo_id_front);
+        }
+        if($photo_id_back){
+            Storage::move('temp/instructor-photo-back/'.$photo_id_back, 'public/instructor-photo-back/'.$photo_id_back);
+        }
         return redirect('/instructor/view/'.$instructor->id);
-
-        // event(new Registered($user));
-        // $organization = Organization::create([
-        //     'created_by'=> $request->user()->id,
-        //     'name'=> $request->name,  
-        //     'logo'=>'/laptop.jpg'
-        // ]);
-
-
-        // try {
-        //     Storage::copy('temp/64a6a0829d03a-1688641666.png', 'app/organizations/file.png');
-        // } catch (\Throwable $th) {
-        //     //throw $th;
-        // }
-        // return redirect('/organization/view/');
     }
     public function show(Request $request, string $id)
     {
@@ -137,10 +135,16 @@ class InstructorController extends Controller
             'students.organizations'
         ])->find($id);
         
+        if(!UserRole::is_admin($request)){
+            $instructor->setRelation('organizations', Collection::make([]));
+        }
         $collection = $request->query('collection')??'';
         $searchBy = $request->query('searchBy')??'';
         $q = $request->query('q')??'';
-        $searchData = ($collection && $searchBy) ? DBUtils::get_search_data($collection, $searchBy, $q)??array() : array();
+        $searchData = array();
+        if($collection && $searchBy){
+            $searchData = UserRole::is_admin($request) ? DBUtils::get_admin_search_data($collection, $searchBy, $q)??array() : DBUtils::get_organization_search_data($collection, $searchBy, $q, $request->user()->id);
+        }
         if(!$instructor){
             return Inertia::render('Instructor/show/index',
                 [
@@ -202,10 +206,8 @@ class InstructorController extends Controller
             return Redirect::route('organization.show',['id'=>$form['id']]);
         }
     }
-    public function attach(Request $request){
-        if(!UserRole::is_admin($request) || !UserRole::is_organization($request)){
-            return redirect('/dashboard');
-        }
+    public function attachEntity(Request $request){
+        if(UserRole::is_admin($request) || UserRole::is_organization($request)){
         $form = $request->all();
         $instructor_id = $form['id']??'1';
         $entity_type = $form['entityType'];
@@ -236,7 +238,47 @@ class InstructorController extends Controller
                 }
             }
         }
-        return redirect('/instructor/view/'.$instructor_id);
+            return redirect('/instructor/view/'.$instructor_id);
+         }else {
+        return redirect('/dashboard');
+     }
+    }
+    public function detachEntity(Request $request){
+        if(UserRole::is_admin($request) || UserRole::is_organization($request)){
+        $form = $request->all();
+        $instructor_id = $form['id'];
+        $entity_type = $form['entityType'];
+        $entity_id = $form['entityId'];
+        if($instructor_id && $entity_type && $entity_id){
+            $instructor = Instructor::with(['students', 'organizations', 'checkpoints'])
+            ->find($instructor_id);
+            if($instructor){
+                if($entity_type == 'organization'){
+                    $organizations = $instructor->organizations()->find($entity_id);
+                    if(!$organizations){
+                        $instructor->organizations()->detach($entity_id);
+                    }
+                    // else{
+                    //     Log::info('Instructor is already attached');
+                    // }
+                }else if($entity_type == 'student'){
+                    $student = $instructor->students()->find($entity_id);
+                    if(!$student){
+                        $instructor->students()->detach($entity_id);
+                    }
+                }
+                else {
+                   $checkpoint = $instructor->checkpoints()->find($entity_id);
+                    if(!$checkpoint){
+                        $instructor->checkpoints()->detach($entity_id);
+                    }
+                }
+            }
+        }
+            return redirect('/instructor/view/'.$instructor_id);
+         }else {
+        return redirect('/dashboard');
+     }
     }
     public function search(Request $request){
 

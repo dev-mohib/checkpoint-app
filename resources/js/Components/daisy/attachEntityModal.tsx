@@ -9,7 +9,7 @@ export const AttachEntityModal = ({id, routeName='organization'}: {routeName:str
         { searchData : {id : string, name : string}[]}>>().props
 
     const [entityId, setEntityId] = React.useState('')
-
+    console.log({searchData})
     const { put } = useForm()
     const [filter, setFilter] = useState(
     {
@@ -20,7 +20,7 @@ export const AttachEntityModal = ({id, routeName='organization'}: {routeName:str
     const attachEntity = () => {
       // @ts-ignore
       document.getElementById(`AttachEntityModal-${routeName}`).close()
-      put(route(routeName + '.attach',{
+      put(route(routeName + '.attachEntity',{
         id,
         entityId,
         entityType : ziggy?.query.collection??''
