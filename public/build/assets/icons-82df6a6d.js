@@ -1,1 +1,0 @@
-import{j as o}from"./app-81b7f5e0.js";const i=c=>o("img",{...c,src:"https://img.icons8.com/fluency/48/graduation-cap.png",alt:"graduation-cap"}),a=c=>o("img",{...c,src:"https://img.icons8.com/pastel-glyph/64/circled-chevron-right.png",alt:"circled-chevron-right"});export{i as C,a as N};
