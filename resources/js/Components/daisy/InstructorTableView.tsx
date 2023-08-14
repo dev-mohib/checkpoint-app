@@ -10,18 +10,26 @@ export const InstructorsTableView = ({instructors, canDetach = false, collection
   const [id, setId] = React.useState<null | number>(null)
   const { put } = useForm()
   const handleDetach = () => {
+    
     if(id){
       put(
         route(
           collection.name + '.detachEntity',
         {
-        id,
-        entityId : collection.id,
+        id : collection.id,
+        entityId : id,
         entityType : 'instructor'
-      }
-      ))
+        }
+        ), 
+        {
+          onFinish : () => {
+          // @ts-ignore
+          document.getElementById('detachInstructorModal').close()
+          }
+      })
     }
   }
+
     if(instructors && instructors.length > 0)
     return(
       <>

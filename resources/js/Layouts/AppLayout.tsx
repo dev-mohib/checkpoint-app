@@ -1,9 +1,9 @@
+import React from 'react'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Navbar from '@/Components/daisy/navbar'
 import Sidebar from '@/Components/daisy/sidebar'
 import { PageProps } from '@/types'
 import { Head, usePage } from '@inertiajs/react'
-import React, { ComponentElement, PropsWithChildren } from 'react'
 
 const AppLayout = ({
   children, 

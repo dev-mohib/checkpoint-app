@@ -4,10 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
     //
+    public function uploadFilePond(Request $request, string $path){
+        $id = $request->query('id');
+        if($request->hasFile(key: $path)){
+            $file = $request->file($path);
+            $path = 'temp/'.$path.'/'.$id.'.'.$file->extension();
+            $file->storeAs(path: $path);
+            return $path;
+        }
+    }
+
+    public function deleteFilePond(Request $request, string $path){
+        $id = $request->query('id');
+        $path = 'temp/'.$path.'/'.$id;
+        Log::info($path);
+        Storage::delete($path);
+
+    }
 
     public function storeOrganizationDoc(Request $request){
         $key = $request->query('key');
@@ -20,17 +38,17 @@ class UploadController extends Controller
         return '';
     }
 
-    public function uploadFilePond(Request $request){
+    public function storeCheckpointImage(Request $request){
         $key = $request->query('key');
-        $name = $request->query('name');
-        if($request->hasFile(key: $key)){
-            $file = $request->file($key);
-            $path = 'temp/'.$key.'/'.$name.'.'.$file->extension();
+        if($request->hasFile(key: 'checkpoint-image')){
+            $file = $request->file('checkpoint-image');
+            $path = 'temp/checkpoint-image/'.$key.'.'.$file->extension();
             $file->storeAs(path: $path);
             return $path;
         }
-        return '';
+        return 'IMG-12345678.jpg';
     }
+
 
     public function storeOrganizationLogo(Request $request){
         $key = $request->query('key');

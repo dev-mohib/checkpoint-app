@@ -1,13 +1,13 @@
-import React, { FormEventHandler, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-import { XmarkIcon } from '@/Components/icons'
 import { Checkpoint, Instructor, Organization, PageProps, Student } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
 import { EmptyTableBox } from '@/Components/daisy/EmptyTableBox'
+import { paths, storage } from '@/utils/constants'
 
 const _local = {
   q : '',
@@ -22,14 +22,14 @@ const ViewOrganization = () => {
     showModal : boolean
   }>>().props
 
-
   const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
   const [filter, setFilter ] = useState(local)
+  console.log({checkpoint})
   const { get, delete : deleteOrg} = useForm()
-  const handleDeleteOrg = () => {
-    deleteOrg('/instructor/'+checkpoint.id, {
+  const handleDeleteCheckpoint = () => {
+    deleteOrg('/checkpoint/'+checkpoint.id, {
       onSuccess : () => {
-        console.log("organization deleted")
+        console.log("checkpoint deleted")
       },
       onError : (e) => console.log("Found an error ", e)
     })
@@ -68,12 +68,14 @@ const ViewOrganization = () => {
       <tr>
         <td>Badge</td>
         <td>
-          <img src={`/storage/checkpoint-general/default.jpg`} className="h-20 cursor-pointer" />
+          <img src={storage("checkpoint-badge", checkpoint.badge)} 
+          className="h-20 cursor-pointer" />
         </td>
       </tr>
       <tr>
         <td>Digital Certificate</td>
-        <img src={`/storage/checkpoint-general/default.jpg`} className="h-20 ml-3 my-2 cursor-pointer" />
+        <img src={storage("checkpoint-certificate", checkpoint.certificate)} 
+        className="h-20 ml-3 my-2 cursor-pointer" />
       </tr>
     </>
   )
@@ -88,13 +90,13 @@ const ViewOrganization = () => {
         <td>
           Achieved Gradepoints
         </td>
-        <td>{checkpoint.achieved_gradpoints?checkpoint.achieved_gradpoints:<span className='text-gray-400'>Not Added</span>}</td>
+        <td>{checkpoint.achieved_gradepoints?checkpoint.achieved_gradepoints:<span className='text-gray-400'>Not Added</span>}</td>
       </tr>  
     </>
   )
 
   const Slider = ({
-    path = 'checkpoint-general', 
+    path = paths.checkpoint_image, 
     images = []} : 
     {path? :string, images : string[]}
     ) => {
@@ -105,7 +107,7 @@ const ViewOrganization = () => {
       {images.length > 0 ?<>
         <div className="carousel w-96">
             {images.map((image, i) => <div key={i}  id={"item"+i} className="carousel-item w-full">
-              <img src={`/storage/${path}/${image}`} className="w-96" />
+              <img src={storage("checkpoint-image", image)} className="w-96" />
             </div>) }
           </div> 
           <div className="flex justify-center w-full py-2 gap-2 bg-primary">
@@ -123,7 +125,7 @@ const ViewOrganization = () => {
       <Modal id="deleteCheckpointModal" title="Delete Checkpoint">
         <h1>Do you really want to delete this Checkpoint?</h1>
         <div className='w-full flex justify-end'>
-          <div onClick={handleDeleteOrg}  className='btn btn-error m-2'>YES!</div>
+          <div onClick={handleDeleteCheckpoint}  className='btn btn-error m-2'>YES!</div>
           <button className='btn btn-ghost my-2'>CANCEL</button>
         </div>
       </Modal>
@@ -169,7 +171,7 @@ const ViewOrganization = () => {
           </tbody>
         </table>
       </div>
-      <Slider images={['default.jpg', 'default.jpg', 'default.jpg']} />
+      <Slider images={checkpoint.images?JSON.parse(checkpoint.images):[]} />
       <h1 className='py-4 text-black font-extrabold text-3xl mt-4 font-sans'>Relationships</h1>
       
       <h1 className='py-4 text-secondary font-extrabold'>Belongs To (Organization)</h1>

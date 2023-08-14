@@ -1,9 +1,10 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
-import { NavigateIcon } from '@/Components/icons/icons';
 import { Link, useForm, usePage  } from '@inertiajs/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Organization, OrganizationPagination, PageProps } from '@/types';
+import { OrganizationPagination, PageProps } from '@/types';
+import { ArrowForwardIcon } from '@/Components/icons/svg/arrow_forward';
+import { storage } from '@/utils/constants';
 
   const Table = () => {
     const { organizations, ziggy } = usePage<PageProps<{organizations : OrganizationPagination}>>().props
@@ -87,13 +88,13 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
                 </tr>
             </thead>
             <tbody>
-                {organizations.data.map((row : any, index : number) => (
+                {organizations.data.map((row, index : number) => (
                 <tr key={index} className='cursor-pointer hover'>
                   <td>
                     <div className="flex items-center space-x-3 ml-3 my-3">
                         <div className="avatar">
                             <div className="mask mask-squircle w-10 h-10">
-                                <img src={`/storage/organization-logo/${row.logo}`} alt="Avatar" />
+                                <img src={storage("organization-logo", row.logo)} alt="Avatar" />
                             </div>
                         </div>
                         <div>
@@ -109,7 +110,7 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
                   <td className='py-2 px-4'>
                     <div className='w-full flex-c-c'>
                       <Link href={route('organization.show', {id : row.id})}>
-                        <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
+                      <ArrowForwardIcon className="dark:stroke-white" width='25px' height='35px'/>
                       </Link>
                     </div>
                   </td>
@@ -154,26 +155,4 @@ import { Organization, OrganizationPagination, PageProps } from '@/types';
     );
   };
 
-
-  const SearchFilter = ({input, setInput, onClick} : {input : string, setInput: any, onClick:MouseEventHandler<HTMLButtonElement>}) => {
-    return(
-        <div className="join my-5 border-2 border-primary">
-            <div>
-                <div>
-                  <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
-                </div>
-            </div>
-            <select className="select select-bordered join-item">
-                <option disabled selected>Search By</option>
-                <option>Name</option>
-                <option>ID</option>
-                <option>Email</option>
-                <option>Username</option>
-            </select>
-            <div className="indicator">
-                <button onClick={onClick}  className="btn join-item btn-primary">Search</button>
-            </div>
-        </div>
-    )
-}
 export default Table;

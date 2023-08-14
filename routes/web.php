@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Checkpoint\CheckpointController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Instructor\InstructorController;
 use App\Http\Controllers\Organization\OrganizationController;
 use App\Http\Controllers\ProfileController;
@@ -33,9 +34,7 @@ Route::get('/app', function () {
 })->middleware(['auth', 'verified'])->name('app');
 
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard/index', ['activeMenu' => 'dashboard', 'title'=>'Dashboard', 'canAccess'=>true]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

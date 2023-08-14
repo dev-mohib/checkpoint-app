@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
-import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-import { Checkpoint, Instructor, Organization, PageProps, Student } from '@/types'
+import { Organization, PageProps } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
 import { InstructorsTableView } from '@/Components/daisy/InstructorTableView'
 import { StudentsTableView } from '@/Components/daisy/StudentsTableView'
 import { CheckpointsTableView } from '@/Components/daisy/CheckpointTableView'
+import { storage } from '@/utils/constants'
 
 const ViewOrganization = () => {
   const { isFound, organization, auth} = usePage<PageProps<{organization : Organization, isFound : boolean, logoUrl : string, searchInstructor: any[]}>>().props
@@ -49,7 +49,7 @@ const ViewOrganization = () => {
       <div className='flex-c-c'>
         <div className="avatar">
           <div className="w-24 rounded-full">
-            <img src={`/storage/organization-logo/${organization.logo}`} />
+            <img src={storage("organization-logo", organization.logo)} />
           </div>
         </div>
         <h1 className='py-2 text-secondary font-extrabold'>{organization.name}</h1>

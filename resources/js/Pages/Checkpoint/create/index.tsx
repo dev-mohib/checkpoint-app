@@ -1,8 +1,8 @@
+import React, { FormEventHandler } from 'react'
 import { ErrorMessage } from '@/Components/daisy/ErrorMessage';
 import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
-import { Head, Link, useForm } from '@inertiajs/react'
-import React, { FormEventHandler, useEffect, useState } from 'react'
+import { Head, useForm } from '@inertiajs/react'
 import { FilePond } from 'react-filepond'
 
 const Index = () => {
@@ -42,28 +42,7 @@ const DisableFileInput = ({label}:any) => (
     </div>
   </div>
 )
-const ImageInput = () => (
-  <div className="mb-6">
-      <div className="mr-2">
-        <label className="block font-semibold mb-2" htmlFor="badge">Badge</label>
-        {/* <ErrorMessage message={errors.badge}/> */}
-      </div>
-        <FilePond
-          files={checkpointBadge}
-          onupdatefiles={setCheckpointBadge}
-          maxFiles={1}
-          server={`/api/upload/checkpoint-badge??key=IMG-${timestamp}`}
-          name="checkpoint-badge" /* sets the file input name, it's filepond by default */
-          labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-          onprocessfile={(err, file) => {
-            if(!err){
-              // setLogoUploaded(true)
-              // setData("badge", 'IMG-' + timestamp + '.' + file.fileExtension)
-            }
-          }}
-        />
-    </div>
-)
+
   return (
     <AppLayout> 
       <Head title='Create Student'/>
@@ -71,7 +50,6 @@ const ImageInput = () => (
       <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Checkpoint</h2>
-
         {/* <form> */}
           <div className="mb-6">
             <label className="block font-semibold mb-2" htmlFor="name">Name</label>
@@ -138,7 +116,6 @@ const ImageInput = () => (
         {/* </form> */}
       </div>
     </div>
-
     </AppLayout>
   )
 }

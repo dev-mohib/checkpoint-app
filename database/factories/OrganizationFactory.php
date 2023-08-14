@@ -17,7 +17,7 @@ class OrganizationFactory extends Factory
         return [
             //
             'name'=> fake()->company(),
-            'logo'=>'/default.png',
+            // 'logo'=>'',
             'user_id'=>$this->id++
         ];
     }

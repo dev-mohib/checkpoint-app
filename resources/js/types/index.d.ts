@@ -9,7 +9,7 @@ export interface User {
     contact_number: string
     date_of_birth?: string
     address: string;
-    gender?: 'male' | 'female' | 'other'
+    gender?: 'male' | 'female' | 'other' | string
     type: 'admin' | 'student' | 'organization' | 'instructor';
     role: 'admin' | 'student' | 'organization' | 'instructor';
     status: string
@@ -114,9 +114,9 @@ export interface Checkpoint {
     id: number
     name: string
     description: string
-    status : 'active' | 'expired' | 'disabled' | 'draft'
-    images : any
-    type: 'General' | 'Completion' | 'Grade Based'
+    status : 'active' | 'expired' | 'disabled' | 'draft' | string
+    images? : any
+    type: 'General' | 'Completion' | 'Grade Based' | string
     organization_id: number;
     instructor_id: string
     student_id: string
@@ -125,7 +125,7 @@ export interface Checkpoint {
     instructor_recommendation?: string
     badge?: string
     certificate?: string
-    achieved_gradpoints: string
+    achieved_gradepoints: string
     total_gradepoints: string
     is_approved?: boolean
     has_submitted?: boolean

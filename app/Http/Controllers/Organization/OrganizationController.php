@@ -3,21 +3,16 @@
 namespace App\Http\Controllers\Organization;
 
 use App\Http\Controllers\Controller;
-use App\Http\Utils\AppMedia;
 use App\Http\Utils\DBUtils;
 use App\Http\Utils\UserRole;
 use App\Models\Checkpoint;
-use App\Models\Instructor;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Organization;
-use App\Models\Student;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
@@ -79,7 +74,7 @@ class OrganizationController extends Controller
             'logoRef' => 'required'
         ]);
         
-        Log::info('Validation completed');
+       
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -193,7 +188,7 @@ class OrganizationController extends Controller
             return redirect('/dashboard');
         }
         $form = $request->all();
-        $organization_id = $form['id']??'1';
+        $organization_id = $form['id'];
         $entity_type = $form['entityType'];
         $entity_id = $form['entityId'];
         if($organization_id && $entity_type && $entity_id){
@@ -202,31 +197,19 @@ class OrganizationController extends Controller
             if($organization){
                 if($entity_type == 'instructor'){
                     $instructor = $organization->instructors()->find($entity_id);
-                    if(!$instructor){
+                    if($instructor){
                         $organization->instructors()->detach($entity_id);
-                    }else{
-                        Log::info('Instructor is already attached');
                     }
                 }else if($entity_type == 'student'){
                     $student = $organization->students()->find($entity_id);
-                    if(!$student){
+                    if($student){
                         $organization->students()->detach($entity_id);
-                    }else {
-                        Log::info('Student is already attached');
                     }
                 }
                 else {
                    $checkpoint = Checkpoint::find($entity_id);
                    $checkpoint->organization_id = null;
                    $checkpoint->save();
-                    // if(!$checkpoint){
-                    //     // ->detach($entity_id) to remove
-                    //     $organization->checkpoints()->associate($entity_id);
-                    //     $organization->save();
-
-                    // }else {
-                    //         Log::info('Checkpoint is already attached');
-                    // }
                 }
             }
         }
@@ -285,7 +268,9 @@ class OrganizationController extends Controller
                 })->exists();
 
                 if(!$alreadyAttached){
-                    $instructor->users->delete();
+                    Storage::delete('public/instructor-photo-back/'.$instructor->photo_id_back);
+                    Storage::delete('public/instructor-photo-front/'.$instructor->photo_id_front);
+                    $instructor->users()->delete();
                     $instructor->delete();
                 }
             }
@@ -297,11 +282,12 @@ class OrganizationController extends Controller
                 })->exists();
 
                 if(!$alreadyAttached){
-                    $student->users->delete();
+                    $student->users()->delete();
                     $student->delete();
                 }
             }
-           
+            Storage::delete('public/organization-logo/'.$organization->logo);
+            Storage::delete('public/organization-document/'.$organization->registration_doc);
             $organization->users->delete();
             $organization->delete();
         }

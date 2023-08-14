@@ -64,8 +64,8 @@ class InstructorFactory extends Factory
         return [
             'qualification'=> $v,
             'user_id'=> $this->id++,
-            'photo_id_front'=>'default.jpg',
-            'photo_id_back'=>'default.jpg',
+            // 'photo_id_front'=>'default.jpg',
+            // 'photo_id_back'=>'default.jpg',
             'access_validity_start'=> $pastDate[array_rand($pastDate)],
             'access_validity_end' => $futureDate[array_rand($futureDate)]
         ];

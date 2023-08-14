@@ -36,23 +36,6 @@ class DatabaseSeeder extends Seeder
             'address'=> 'Lahore, Pakistan',
             'password'=> '$2y$10$KlLiaPQcPkSCFY4tBdSIaOIts5awS0l2XQBhyywqmWKlfFyAqQWPe'
         ]);
-
-        // foreach(Organization::all() as $oragnization){
-        //     $instructors = Instructor::all()->take(rand(1,5))->pluck('id');
-        //     // $students = Instructor::all()->take(rand(1,5))->pluck('id');
-        //     // $oragnization->users()->attach($instructors);
-        //     Log::info($oragnization);
-        //     Log::info($instructors);
-        //     // $oragnization->instructors()->attach
-        //     // $oragnization->users()->attach($students);
-        // }
-
-        // $this->call(UserSeeder::class);
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        //     'password'=>'password'
-        // ]);
     }
 
 }

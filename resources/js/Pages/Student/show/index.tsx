@@ -1,12 +1,10 @@
-import React, { FormEventHandler, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
-import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-import { XmarkIcon } from '@/Components/icons'
-import { Checkpoint, Organization, PageProps, Student } from '@/types'
+import { PageProps, Student } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
 import { OrganizationsTableView } from '@/Components/daisy/OrganizationTableView'
 import { CheckpointsTableView } from '@/Components/daisy/CheckpointTableView'
@@ -24,12 +22,12 @@ const ViewOrganization = () => {
   const local : typeof _local  = JSON.parse(localStorage.getItem('rememberStudentAttach')?? JSON.stringify(_local))
   const [filter, setFilter ] = useState(local)
 
-  const {data, get, processing, delete : deleteOrg} = useForm()
+  const {data, get, processing, delete : deleteStudent} = useForm()
   const handleDeleteOrg = () => {
     // organization.destroy
-    deleteOrg('/Student/'+student.id, {
+    deleteStudent('/student/'+student.id, {
       onSuccess : () => {
-        console.log("organization deleted")
+        console.log("student deleted")
       },
       onError : (e) => console.log("Found an error ", e)
     })
@@ -62,7 +60,7 @@ const ViewOrganization = () => {
   return (
     <div>
       <Head title={student.users.name}/>
-      <Modal id="deleteInstrucrorModal" title="Delete Organization">
+      <Modal id="deleteStudentModal" title="Delete Organization">
         <h1>Do you really want to delete this Students?</h1>
         <div className='w-full flex justify-end'>
           <div onClick={handleDeleteOrg}  className='btn btn-error m-2'>YES!</div>
@@ -162,7 +160,7 @@ const Options = ({id}:{id : any}) => {
       <li><Link href={route('student.showEdit',{id})}>Edit Student</Link></li>
       <li onClick={_ => {
         // @ts-ignore
-        document.getElementById('deleteInstrucrorModal').showModal()
+        document.getElementById('deleteStudentModal').showModal()
       }}><a className='text-red-600 hover:text-red-600'>Delete Instructor</a></li>
     </ul>
   </details>

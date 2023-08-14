@@ -10,6 +10,7 @@ class Checkpoint extends Model
     use HasFactory;
     // protected $keyType = 'string';
     protected $table = 'checkpoints';
+    protected $casts = ['images' => 'array'];
     protected $fillable = [
         'id',
         'name',

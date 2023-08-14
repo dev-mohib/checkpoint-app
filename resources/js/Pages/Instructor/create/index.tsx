@@ -1,8 +1,8 @@
+import React, { FormEventHandler } from 'react'
 import { ErrorMessage } from '@/Components/daisy/ErrorMessage';
 import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
-import { Head, useForm, usePage } from '@inertiajs/react'
-import React, { FormEventHandler } from 'react'
+import { Head, useForm } from '@inertiajs/react'
 import { FilePond } from 'react-filepond'
 
 const AdminCreate = () => {
@@ -87,7 +87,7 @@ const submit: FormEventHandler = (e) => {
               onupdatefiles={setPhotoFront}
               maxFiles={1}
               server={`/api/upload/photo-id-front?key=IMG-${timestamp}`}
-              name="instructor-photo-front" /* sets the file input name, it's filepond by default */
+              name="instructor-photo-front"
               labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
               onprocessfile={(err, file) => {
                 if(!err){
@@ -104,7 +104,7 @@ const submit: FormEventHandler = (e) => {
                 onupdatefiles={setPhotoBack}
                 maxFiles={1}
                 server={`/api/upload/photo-id-back?key=IMG-${timestamp}`}
-                name="instructor-photo-back" /* sets the file input name, it's filepond by default */
+                name="instructor-photo-back"
                 labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
                 onprocessfile={(err, file) => {
                   if(!err){

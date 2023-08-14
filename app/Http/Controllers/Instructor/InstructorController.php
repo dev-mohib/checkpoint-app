@@ -5,19 +5,16 @@ namespace App\Http\Controllers\Instructor;
 use App\Http\Controllers\Controller;
 use App\Http\Utils\DBUtils;
 use App\Http\Utils\UserRole;
+use App\Models\Checkpoint;
 use App\Models\Instructor;
 use App\Models\Organization;
-use App\Models\Student;
 use App\Models\User;
 use Illuminate\Validation\Rules;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -28,7 +25,6 @@ class InstructorController extends Controller
         $name = $request->query('name')??'';
         $email = $request->query('email')??'';
         $id = $request->query('id')??'';
-        $address = $request->query('address')??'';
         $username = $request->query('username')??'';
         $orgName = $request->query('orgName')??'';
         $orgId = $request->query('orgId');
@@ -60,11 +56,7 @@ class InstructorController extends Controller
         if(UserRole::is_admin($request)){
             $instructors = $instructors->paginate($paginate);
         } else {
-            $organization = DB::table('organizations')
-            ->where('user_id', '=',$request->user()->id)
-            ->select(['id'])
-            ->first();
-            $id = $organization->id;
+            $id = DBUtils::getOrganizationId($request);
             $instructors = $instructors
             ->whereHas('organizations', function ($query) use ($id) {
                 $query->where('organizations.id', $id);
@@ -221,9 +213,6 @@ class InstructorController extends Controller
                     if(!$organizations){
                         $instructor->organizations()->attach($entity_id);
                     }
-                    // else{
-                    //     Log::info('Instructor is already attached');
-                    // }
                 }else if($entity_type == 'student'){
                     $student = $instructor->students()->find($entity_id);
                     if(!$student){
@@ -231,10 +220,9 @@ class InstructorController extends Controller
                     }
                 }
                 else {
-                   $checkpoint = $instructor->checkpoints()->find($entity_id);
-                    if(!$checkpoint){
-                        $instructor->checkpoints()->attach($entity_id);
-                    }
+                    $checkpoint = Checkpoint::find($entity_id);
+                    $checkpoint->instructor_id = $instructor_id;
+                    $checkpoint->save();
                 }
             }
         }
@@ -255,29 +243,28 @@ class InstructorController extends Controller
             if($instructor){
                 if($entity_type == 'organization'){
                     $organizations = $instructor->organizations()->find($entity_id);
-                    if(!$organizations){
+                    if($organizations){
                         $instructor->organizations()->detach($entity_id);
                     }
-                    // else{
-                    //     Log::info('Instructor is already attached');
-                    // }
                 }else if($entity_type == 'student'){
                     $student = $instructor->students()->find($entity_id);
-                    if(!$student){
+                    if($student){
                         $instructor->students()->detach($entity_id);
                     }
                 }
                 else {
                    $checkpoint = $instructor->checkpoints()->find($entity_id);
-                    if(!$checkpoint){
-                        $instructor->checkpoints()->detach($entity_id);
-                    }
+                   if($checkpoint){  
+                    $checkpoint = Checkpoint::find($entity_id);
+                    $checkpoint->instructor_id = null;
+                    $checkpoint->save();
+                }
                 }
             }
         }
-            return redirect('/instructor/view/'.$instructor_id);
+            return Redirect::to('/instructor/view/'.$instructor_id);
          }else {
-        return redirect('/dashboard');
+        return Redirect::to('/dashboard');
      }
     }
     public function search(Request $request){
@@ -318,43 +305,38 @@ class InstructorController extends Controller
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
             return redirect('/not-allowed');
         }
-        $organization = Organization::find($id);
-        if($organization){
-            $instructors = $organization->instructors;
-            $checkpoints = $organization->checkpoints;
-            $students = $organization->students;
+        $instructor = Instructor::find($id);
 
-            foreach($checkpoints as $checkpoint){
-                $checkpoint->delete();
-            }
-
-            foreach($instructors as $instructor){
-                $organization->instructors()->detach($instructor);
-                $alreadyAttached = Organization::whereHas('instructors', function ($query) use ($instructor) {
-                    $query->where('instructors.id', $instructor->id);
-                })->exists();
-
-                if(!$alreadyAttached){
-                    $instructor->users->delete();
-                    $instructor->delete();
-                }
-            }
-
-            foreach($students as $student){
-                $organization->students()->detach($student);
-                $alreadyAttached = Organization::whereHas('students', function ($query) use ($student) {
-                    $query->where('students.id', $student->id);
-                })->exists();
-
-                if(!$alreadyAttached){
-                    $student->users->delete();
-                    $student->delete();
-                }
-            }
-           
-            $organization->users->delete();
-            $organization->delete();
+        if(!$instructor){
+            return Redirect::route('instructor.index');
         }
-        return Redirect::route('organization.index');
+        $students = $instructor->students;
+        $checkpoints = $instructor->checkpoints;
+
+        
+        Storage::delete('public/instructor-photo-back/'.$instructor->photo_id_back);
+        Storage::delete('public/instructor-photo-front/'.$instructor->photo_id_front);
+        
+        foreach($checkpoints as $checkpoint){
+            $checkpoint->delete();
+        }
+
+        foreach($students as $student){
+            $instructor->students()->detach($student);
+            $alreadyAttached = Organization::whereHas('students', function ($query) use ($student) {
+                $query->where('students.id', $student->id);
+            })->exists();
+
+            if(!$alreadyAttached){
+                $student->users->delete();
+                $student->delete();
+            }
+        }
+
+        $instructor->organizations()->detach();
+        $instructor->users->delete();
+        $instructor->delete();
+           
+        return Redirect::route('instructor.index');
     }
 }

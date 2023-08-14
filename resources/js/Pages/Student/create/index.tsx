@@ -1,12 +1,8 @@
 import Breadcrumb from '@/Components/daisy/breadcrumb';
 import AppLayout from '@/Layouts/AppLayout'
-import { Head, Link, useForm, usePage } from '@inertiajs/react'
-import React, { FormEventHandler, useEffect, useState } from 'react'
-import { FilePond } from 'react-filepond'
-import { PlusIcon } from '@/Components/icons';
-import Modal from '@/Components/daisy/modal';
-import { XmarkIcon } from '@/Components/icons'
-import { PageProps } from '@/types';
+import { Head, useForm, usePage } from '@inertiajs/react'
+import React, { FormEventHandler, useState } from 'react'
+
 import { ErrorMessage } from '@/Components/daisy/ErrorMessage';
 
 const AdminCreate = () => {

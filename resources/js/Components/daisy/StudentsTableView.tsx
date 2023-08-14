@@ -16,11 +16,17 @@ export const StudentsTableView = ({students, canDetach = false, collection} : {s
         route(
           collection.name + '.detachEntity',
         {
-        id : collection.id,
-        entityId : id,
-        entityType : 'student'
-      }
-      ))
+          id : collection.id,
+          entityId : id,
+          entityType : 'student'
+        }
+      ),
+      {
+        onFinish : () => {
+        // @ts-ignore
+        document.getElementById('detachStudentModal').close()
+        }
+      })
     }
   }
     if(students && students.length>0)

@@ -5,12 +5,9 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Utils\DBUtils;
 use App\Http\Utils\UserRole;
-use App\Models\Instructor;
-use App\Models\Organization;
+use App\Models\Checkpoint;
 use App\Models\Student;
 use App\Models\User;
-use Faker\Core\Uuid;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +15,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class StudentController extends Controller
@@ -202,34 +197,46 @@ class StudentController extends Controller
 
     public function update(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'gender' => 'required|string|max:255',
+            'address' => 'required|string|max:255|min:10',
+            'contact_number'=> 'required',
+            'guardian_name' => 'required|string',
+            'guardian_relationship' => 'required|string',
+            'email' => 'required|string|email|max:255|unique:'.User::class,
+            'username'=> 'required|string|max:30|unique:'.User::class,
+            'password' => ['required', Rules\Password::defaults()],
+        ]);
         if(UserRole::is_student($request)){
             return redirect('/not-allowed');
         }
         $form = $request->all();
-        $org = Organization::with('users')
+        $student = Student::with('users')
         ->find($form['id']);
 
-        $org->name = $form['name'];
-        $org->save();
+        $student->guardian_name = $form['guardian_name'];
+        $student->guardian_relationship = $form['guardian_relationship'];
+        $student->save();
 
-        $user = $org->users;
-        $user->contact_number = $form['contact_number'];
-        if($form['password'])
-            $user->password = $form['password'];
+        $user = $student->users;
+        $user->name = $form['name'];
         $user->email = $form['email'];
         $user->address = $form['address'];
+        $user->contact_number = $form['contact_number'];
+        $user->gender = $form['gender'];
         $user->username = $form['username'];
+        if($form['password'] != 'Default123')
+            $user->password = Hash::make($form['password']);
 
         $user->save();
 
-        
-        // $email = $request->form
-        if(true){
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }else {
-            // return Inertia::render('Organization/edit/index',['organization' => $update, 'isSuccess'=> true, 'title'=>'Organization','activeMenu'=>'organization']);
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }
+        // if(true){
+            return Redirect::route('student.show',['id'=>$form['id']]);
+        // }else {
+        //     // return Inertia::render('Organization/edit/index',['organization' => $update, 'isSuccess'=> true, 'title'=>'Organization','activeMenu'=>'organization']);
+        //     return Redirect::route('student.show',['id'=>$form['id']]);
+        // }
     }
     public function attachEntity(Request $request){
         $form = $request->all();
@@ -266,35 +273,39 @@ class StudentController extends Controller
     }
     public function detachEntity(Request $request){
         $form = $request->all();
-        $student_id = $form['id']??'1';
+        $student_id = $form['id'];
         $entity_type = $form['entityType'];
         $entity_id = $form['entityId'];
+
         if((UserRole::is_admin($request) || UserRole::is_organization($request)) && $student_id && $entity_type && $entity_id){
             $student = Student::with(['instructors', 'organizations', 'checkpoints'])
             ->find($student_id);
-            // Log::info($entity_type);
             if($student){
                 if($entity_type == 'organization'){
                     $organizations = $student->organizations()->find($entity_id);
-                    if(!$organizations){
+                    if($organizations){
                         $student->organizations()->detach($entity_id);
                     }
                 }else if($entity_type == 'instructor'){
                     $instructor = $student->instructors()->find($entity_id);
-                    if(!$instructor){
+                    if($instructor){
                         $student->instructors()->detach($entity_id);
                     }
                 }
                 else {
                    $checkpoint = $student->checkpoints()->find($entity_id);
-                    if(!$checkpoint){
-                        $student->checkpoints()->detach($entity_id);
+                    if($checkpoint){  
+                        // Log::info('We found the checkpoint');   
+                    $checkpoint = Checkpoint::find($entity_id);
+                    $checkpoint->student_id = null;
+                    $checkpoint->save();
                     }
                 }
             }
-            return redirect('/student/view/'.$student_id);
+            return Redirect::to('/student/view/'.$student_id);
+            // return redirect('/student/view/'.$student_id);
         }else {
-            return redirect('/dashboard');
+            return Redirect::to('/dashboard');
         }
     }
     public function destroy(Request $request, string $id)
@@ -302,43 +313,21 @@ class StudentController extends Controller
         if(UserRole::is_student($request)){
             return redirect('/not-allowed');
         }
-        $organization = Organization::find($id);
-        if($organization){
-            $instructors = $organization->instructors;
-            $checkpoints = $organization->checkpoints;
-            $students = $organization->students;
+        $student = Student::find($id);
 
-            foreach($checkpoints as $checkpoint){
-                $checkpoint->delete();
-            }
-
-            foreach($instructors as $instructor){
-                $organization->instructors()->detach($instructor);
-                $alreadyAttached = Organization::whereHas('instructors', function ($query) use ($instructor) {
-                    $query->where('instructors.id', $instructor->id);
-                })->exists();
-
-                if(!$alreadyAttached){
-                    $instructor->users->delete();
-                    $instructor->delete();
-                }
-            }
-
-            foreach($students as $student){
-                $organization->students()->detach($student);
-                $alreadyAttached = Organization::whereHas('students', function ($query) use ($student) {
-                    $query->where('students.id', $student->id);
-                })->exists();
-
-                if(!$alreadyAttached){
-                    $student->users->delete();
-                    $student->delete();
-                }
-            }
-           
-            $organization->users->delete();
-            $organization->delete();
+        if(!$student){
+            return Redirect::route('student.index');
         }
-        return Redirect::route('organization.index');
+        $checkpoints = $student->checkpoints;
+        
+        foreach($checkpoints as $checkpoint){
+            $checkpoint->delete();
+        }
+        $student->organizations()->detach();
+        $student->instructors()->detach();
+
+        $student->users()->delete();
+        $student->delete();
+        return Redirect::route('student.index');
     }
 }

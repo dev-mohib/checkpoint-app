@@ -4,6 +4,7 @@ namespace App\Http\Utils;
 
 use App\Models\Instructor;
 use App\Models\Organization;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -104,6 +105,26 @@ class DBUtils{
         return array();
     }
     public static function get_attach_list($roll, $table1, $table2){
-
+    }
+    public static function getOrganizationId(Request $request){
+        $organization = DB::table('organizations')
+            ->where('user_id', '=',$request->user()->id)
+            ->select(['id'])
+            ->first();
+        return $organization->id;
+    }
+    public static function getStudentId(Request $request){
+        $student = DB::table('students')
+            ->where('user_id', '=',$request->user()->id)
+            ->select(['id'])
+            ->first();
+        return $student->id;
+    }
+    public static function getInstructorId(Request $request){
+        $instructor = DB::table('instructors')
+            ->where('user_id', '=',$request->user()->id)
+            ->select(['id'])
+            ->first();
+        return $instructor->id;
     }
 }

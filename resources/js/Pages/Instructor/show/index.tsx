@@ -1,31 +1,25 @@
-import React, { FormEventHandler, useEffect, useState } from 'react'
+import React from 'react'
 import { useForm, usePage } from '@inertiajs/react'
 import AppLayout from '@/Layouts/AppLayout'
 import { Head, Link } from '@inertiajs/react'
-import { NavigateIcon } from '@/Components/icons/icons'
 import Breadcrumb from '@/Components/daisy/breadcrumb'
 import Modal from '@/Components/daisy/modal'
-import { XmarkIcon } from '@/Components/icons'
-import { Checkpoint, Instructor, PageProps } from '@/types'
+import { Instructor, PageProps } from '@/types'
 import { AttachEntityModal } from '@/Components/daisy/attachEntityModal'
 import { StudentsTableView } from '@/Components/daisy/StudentsTableView'
 import { OrganizationsTableView } from '@/Components/daisy/OrganizationTableView'
 import { CheckpointsTableView } from '@/Components/daisy/CheckpointTableView'
+import { storage } from '@/utils/constants'
 
-const _local = {
-  q : '',
-  searchBy : 'name',
-  collection : 'organization'
-}
+
 const ViewInstructor = () => {
   const { instructor, isEmpty, auth } = usePage<PageProps<{isEmpty : boolean, instructor : Instructor,}>>().props 
-  // const local : typeof _local  = JSON.parse(localStorage.getItem('rememberInstructorAttach')?? JSON.stringify(_local))
-  const { get, delete : deleteInstructorRequest} = useForm()
+  const { delete : deleteInstructorRequest} = useForm()
   const handleDeleteInstructor = () => {
     // organization.destroy
     deleteInstructorRequest('/instructor/'+instructor.id, {
       onSuccess : () => {
-        console.log("organization deleted")
+        console.log("instructor deleted")
       },
       onError : (e) => console.log("Found an error ", e)
     })
@@ -42,7 +36,7 @@ const ViewInstructor = () => {
   return (
     <>
       <Head title={instructor.users.name}/>
-      <Modal id="deleteInstrucrorModal" title="Delete Organization">
+      <Modal id="deleteInstructorModal" title="Delete Organization">
         <h1>Do you really want to delete this Instructors?</h1>
         <div className='w-full flex justify-end'>
           <div onClick={handleDeleteInstructor}  className='btn btn-error m-2'>YES!</div>
@@ -107,11 +101,11 @@ const ViewInstructor = () => {
         <h1 className='py-4 text-secondary font-extrabold'>Photo Identification</h1>
         <div className='flex-r-b w-1/2'>
           <div>
-            <img className='h-36' src={`/storage/instructor-photo-front/${instructor.photo_id_front}`} alt='Instructor Photo ID Front'/>
+            <img className='h-36' src={storage("instructor-photo-front", instructor.photo_id_front)} alt='Instructor Photo ID Front'/>
             <h1 className='w-full text-center my-3'>Front</h1>
           </div>
           <div>
-            <img className='h-36' src={`/storage/instructor-photo-back/${instructor.photo_id_back}`} alt='Instructor Photo ID Front'/>
+            <img className='h-36' src={storage("instructor-photo-back", instructor.photo_id_back)} alt='Instructor Photo ID Front'/>
             <h1 className='w-full text-center my-3'>Back</h1>
           </div>
         </div>
@@ -165,7 +159,7 @@ const Options = ({id}:{id : any}) => {
       <li><Link href={route('instructor.showEdit',{id})}>Edit Instructor</Link></li>
       <li onClick={_ => {
         // @ts-ignore
-        document.getElementById('deleteInstrucrorModal').showModal()
+        document.getElementById('deleteInstructorModal').showModal()
       }}><a className='text-red-600 hover:text-red-600'>Delete Instructor</a></li>
     </ul>
   </details>

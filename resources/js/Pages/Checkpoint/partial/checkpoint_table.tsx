@@ -1,11 +1,9 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
-import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
 import { Link, useForm, usePage  } from '@inertiajs/react';
-import Filter from './filter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { CheckpointPagination, PageProps } from '@/types';
-import { EmptyTableBox } from '@/Components/daisy/EmptyTableBox';
+import { ArrowForwardIcon } from '@/Components/icons/svg/arrow_forward';
 
   const Table = () => {
     const { checkpoints, ziggy } = usePage<PageProps<{checkpoints : CheckpointPagination}>>().props
@@ -135,7 +133,7 @@ import { EmptyTableBox } from '@/Components/daisy/EmptyTableBox';
               <td className='py-2 px-4'>
                 <div className='w-full flex-c-c'>
                   <Link href={route('checkpoint.show', {id : row.id})}>
-                    <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
+                  <ArrowForwardIcon className="dark:stroke-white" width='25px' height='35px'/>
                   </Link>
                 </div>
               </td>

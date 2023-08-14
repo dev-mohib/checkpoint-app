@@ -6,6 +6,7 @@ import { EmptyTableBox } from './EmptyTableBox'
 import { DetachIcon } from '../icons/svg/detach'
 import { ArrowForwardIcon } from '../icons/svg/arrow_forward'
 import Modal from './modal'
+import { storage } from '@/utils/constants'
 
 export const OrganizationsTableView = ({organizations, canDetach = false, collection} : {organizations? : Organization[], canDetach?: boolean, collection: {name: string, id: any}}) => {
   const [id, setId] = React.useState<null | number>(null)
@@ -19,8 +20,13 @@ export const OrganizationsTableView = ({organizations, canDetach = false, collec
         id : collection.id,
         entityId : id,
         entityType : 'organization'
-      }
-      ))
+      }),
+      {
+        onFinish : () => {
+        // @ts-ignore
+        document.getElementById('detachOrganizationModal').close()
+        }
+      })
     }
   }
     if(organizations && organizations.length > 0)
@@ -49,7 +55,7 @@ export const OrganizationsTableView = ({organizations, canDetach = false, collec
                 <td><div className="flex items-center space-x-3 ml-3 my-3">
                         <div className="avatar">
                             <div className="mask mask-squircle w-10 h-10">
-                                <img src={`/storage/organization-logo/${organization.logo}`} alt="Avatar" />
+                                <img src={storage("organization-logo", organization.logo)} alt="Avatar" />
                             </div>
                         </div>
                         <div>

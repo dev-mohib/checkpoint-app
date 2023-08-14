@@ -50,6 +50,10 @@ Route::post('/upload/photo-id-front', [UploadController::class, 'storeInstructor
 Route::post('/upload/photo-id-back', [UploadController::class, 'storeInstructorPhotoBack']);
 Route::post('/upload/checkpoint-badge', [UploadController::class, 'storeCheckpointBadge']);
 Route::post('/upload/checkpoint-certificate', [UploadController::class, 'storeCheckpointCertificate']);
+Route::post('/upload/checkpoint-image', [UploadController::class, 'storeCheckpointImage']);
+
+Route::post('/filepond/{path}', [UploadController::class, 'uploadFilePond']);
+Route::delete('/filepond/{path}', [UploadController::class, 'deleteFilePond']);
 
 Route::delete('/upload/organization-document', [UploadController::class, 'deleteOrganizationDoc']);
 Route::delete('/upload/organization-logo', [UploadController::class, 'deleteOrganizationLogo']);

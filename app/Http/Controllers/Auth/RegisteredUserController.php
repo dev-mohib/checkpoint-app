@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 
 class RegisteredUserController extends Controller
 {
@@ -47,7 +45,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        Log::info($user);
+        // Log::info($user);
         event(new Registered($user));
 
         Auth::login($user);

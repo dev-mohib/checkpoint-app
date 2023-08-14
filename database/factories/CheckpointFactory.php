@@ -74,7 +74,7 @@ class CheckpointFactory extends Factory
             'type' => $type[array_rand($type)],
             'achieved_gradepoints' => rand(60, 95),
             'total_gradepoints' => 100,
-            'images' => json_encode(['1.jpg', '2.jpg', '3.jpg'])
+            'images' => json_encode([''])
         ];
     }
 }

@@ -9,16 +9,23 @@ export const CheckpointsTableView = ({checkpoints, canDetach = false, collection
   const [id, setId] = React.useState<null | number>(null)
   const { put } = useForm()
   const handleDetach = () => {
+    
     if(id){
       put(
         route(
           collection.name + '.detachEntity',
         {
-        id,
-        entityId : collection.id,
+        id : collection.id,
+        entityId : id,
         entityType : 'checkpoint'
       }
-      ))
+      ), 
+      {
+        onFinish : () => {
+        // @ts-ignore
+        document.getElementById('detachCheckpointModal').close()
+        }
+      })
     }
   }
     if(checkpoints && checkpoints.length > 0)

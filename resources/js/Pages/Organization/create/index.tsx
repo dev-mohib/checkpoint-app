@@ -1,7 +1,7 @@
+import React, { FormEventHandler, useState } from 'react'
 import { ErrorMessage } from '@/Components/daisy/ErrorMessage'
 import AppLayout from '@/Layouts/AppLayout'
-import { useForm, usePage } from '@inertiajs/react'
-import React, { FormEventHandler, HTMLAttributes, useState } from 'react'
+import { useForm } from '@inertiajs/react'
 import { FilePond } from 'react-filepond'
 
 const CreateOrganization = () => {
@@ -29,7 +29,6 @@ const submit: FormEventHandler = (e) => {
      <div className="w-full mx-auto mt-8">
       <div className="bg-base-100 p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold mb-6">Create Organization</h2>
-
         {/* <form> */}
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2" htmlFor="name">Name</label>
@@ -40,7 +39,6 @@ const submit: FormEventHandler = (e) => {
               onChange={(e) => setData('name', e.target.value)}
               />
           </div>
-
           <div className="mb-6">
             <label className="block text-gray-700 font-semibold mb-2" htmlFor="address">Address</label>
             <ErrorMessage message={errors.address}/>
@@ -50,7 +48,6 @@ const submit: FormEventHandler = (e) => {
               onChange={(e) => setData('address', e.target.value)}
             ></textarea>
           </div>
-
           <div className="mb-6 flex">
             <div className="mr-2">
               <label className="block text-gray-700 font-semibold mb-2" htmlFor="contact">Contact</label>
@@ -67,15 +64,13 @@ const submit: FormEventHandler = (e) => {
           <FilePond
             files={logoFiles}
             onupdatefiles={setLogoFiles}
-            // allowMultiple={true}
             acceptedFileTypes={["image/jpg", "jpg", '.jpg']}
             maxFiles={1}
             server={`/api/upload/organization-logo?key=IMG-${timestamp}`}
-            name="organization-logo" /* sets the file input name, it's filepond by default */
+            name="organization-logo"
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             onprocessfile={(err, file) => {
               if(!err){
-                // setLogoUploaded(true)
                 setData("logoRef", 'IMG-' + timestamp + '.' + file.fileExtension)
               }
             }}
@@ -86,15 +81,13 @@ const submit: FormEventHandler = (e) => {
               <FilePond
                 files={docFiles}
                 onupdatefiles={setDocFiles}
-                // allowMultiple={true}
                 acceptedFileTypes={["image/jpg", "jpg", '.jpg']}
                 maxFiles={1}
                 server={`/api/upload/organization-document?key=doc-${timestamp}`}
-                name="organization-document" /* sets the file input name, it's filepond by default */
+                name="organization-document"
                 labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
                 onprocessfile={(err, file) => {
                   if(!err){
-                    // setDocUploaded(true)
                     setData("regDocRef",'doc-' + timestamp + '.' + file.fileExtension)
                   }
                 }}

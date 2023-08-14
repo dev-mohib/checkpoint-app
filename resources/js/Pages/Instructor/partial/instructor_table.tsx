@@ -1,9 +1,9 @@
 import React, { MouseEventHandler, useEffect, useState } from 'react';
-import { ClearIcon, NavigateIcon } from '@/Components/icons/icons';
-import { Link, useForm, usePage  } from '@inertiajs/react';
+import { Link, usePage  } from '@inertiajs/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { InstructorPagination, PageProps } from '@/types';
+import { ArrowForwardIcon } from '@/Components/icons/svg/arrow_forward';
 
   const Table = () => {
     const { ziggy, instructors } = usePage<PageProps<{instructors : InstructorPagination}>>().props
@@ -49,9 +49,8 @@ import { InstructorPagination, PageProps } from '@/types';
                     <div className='input-group flex-r-c'>
                       <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
                       <button onClick={() => setInput('')}  className='btn bg-base-100 hover:bg-base-100 join-item'>
-                          {/* <ClearIcon className="w-4 h-4"/> */}
                           <FontAwesomeIcon icon={faXmark}/>
-                        </button>
+                      </button>
                     </div>
                 <select className="select select-bordered join-item" value={filter} onChange={(e) => setFilter(e.target.value)}>
                     <option disabled selected value="all">Search By</option>
@@ -117,7 +116,7 @@ import { InstructorPagination, PageProps } from '@/types';
                   <td className='py-2 px-4'>
                     <div className='w-full flex-c-c'>
                       <Link href={route('instructor.show', {id : row.id})}>
-                        <NavigateIcon className="w-6 h-6 hover:opacity-60"/>
+                      <ArrowForwardIcon className="dark:stroke-white" width='25px' height='35px'/>
                       </Link>
                     </div>
                   </td>
@@ -163,25 +162,4 @@ import { InstructorPagination, PageProps } from '@/types';
   };
 
 
-  const SearchFilter = ({input, setInput, onClick} : {input : string, setInput: any, onClick:MouseEventHandler<HTMLButtonElement>}) => {
-    return(
-        <div className="join my-5 border-2 border-primary">
-            <div>
-                <div>
-                  <input value={input} onChange={(e) => setInput(e.target.value)}  className="input input-bordered join-item" placeholder="Search..."/>
-                </div>
-            </div>
-            <select className="select select-bordered join-item">
-                <option disabled selected>Search By</option>
-                <option>Name</option>
-                <option>ID</option>
-                <option>Email</option>
-                <option>Username</option>
-            </select>
-            <div className="indicator">
-                <button onClick={onClick}  className="btn join-item btn-primary">Search</button>
-            </div>
-        </div>
-    )
-}
 export default Table;
