@@ -204,17 +204,33 @@ class StudentController extends Controller
             'contact_number'=> 'required',
             'guardian_name' => 'required|string',
             'guardian_relationship' => 'required|string',
-            'email' => 'required|string|email|max:255|unique:'.User::class,
-            'username'=> 'required|string|max:30|unique:'.User::class,
-            'password' => ['required', Rules\Password::defaults()],
+            'email' => 'required|string|email|max:255',
+            'username'=> 'required|string|max:30',
         ]);
         if(UserRole::is_student($request)){
             return redirect('/not-allowed');
         }
+
         $form = $request->all();
+
         $student = Student::with('users')
         ->find($form['id']);
-
+        
+        if($form['email'] != $student->users->email){
+            $request->validate([
+                'email' => 'unique:'.User::class
+            ]);
+        }
+        if($form['username'] != $student->users->username){
+            $request->validate([
+                'username' => 'unique:'.User::class
+            ]);
+        }
+        if($form['password']){
+            $request->validate([
+                'password' => ['required', Rules\Password::defaults()]
+            ]);
+        }
         $student->guardian_name = $form['guardian_name'];
         $student->guardian_relationship = $form['guardian_relationship'];
         $student->save();

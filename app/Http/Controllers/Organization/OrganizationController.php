@@ -220,13 +220,39 @@ class OrganizationController extends Controller
         if(!UserRole::is_admin($request)){
             return redirect('/dashboard');
         }
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255|min:10',
+            'contact_number'=> 'required',
+            'email' => 'required|string|email|max:255',
+            'username'=> 'required|string|max:30',
+        ]);
         $form = $request->all();
+
+       
         $org = Organization::with('users')
         ->find($form['id']);
 
+        if($form['email'] != $org->users->email){
+            $request->validate([
+                'email' => 'unique:'.User::class
+            ]);
+        }
+        if($form['username'] != $org->users->username){
+            $request->validate([
+                'username' => 'unique:'.User::class
+            ]);
+        }
+        if($form['password']){
+            $request->validate([
+                'password' => ['required', Rules\Password::defaults()]
+            ]);
+        }
         $org->name = $form['name'];
-        $org->save();
-
+        if($form['logoRef']){
+            $org->logo=$form['logoRef'];
+            Storage::move('temp/organization-logo/'.$form['logoRef'], 'public/organization-logo/'.$form['logoRef']);
+        }
         $user = $org->users;
         $user->contact_number = $form['contact_number'];
         if($form['password'])
@@ -236,15 +262,10 @@ class OrganizationController extends Controller
         $user->username = $form['username'];
 
         $user->save();
+        $org->save();
 
-        
-        // $email = $request->form
-        if(true){
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }else {
-            // return Inertia::render('Organization/edit/index',['organization' => $update, 'isSuccess'=> true, 'title'=>'Organization','activeMenu'=>'organization']);
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }
+        return Redirect::route('organization.show',['id'=>$form['id']]);
+       
     }
     public function destroy(Request $request, string $id)
     {

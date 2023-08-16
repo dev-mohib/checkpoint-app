@@ -78,7 +78,6 @@ export const AttachEntityModal = ({id, routeName='organization'}: {routeName:str
                   >
                   {ziggy?.query?.collection == 'organization'&& <div className="avatar">
                       <div className="mask mask-squircle w-10 h-10">
-                          {/* <img src={data.logo??'/organization.png'} alt="Avatar" /> */}
                           <img src={storage("organization-logo", data.logo)} alt="Avatar" />
                       </div>
                   </div>}

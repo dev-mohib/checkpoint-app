@@ -28,15 +28,13 @@ const AdminEdit = () => {
     photo_id_back  :''
 }
 const local = localStorage.getItem('rememberInstructor')
-const { data, setData, post, errors } = useForm<typeof formData>(local ? JSON.parse(local) : formData);
+const { data, setData, put, errors } = useForm<typeof formData>(local ? JSON.parse(local) : formData);
 
 
 const submit: FormEventHandler = (e) => {
   e.preventDefault();
-  if(!data.password){
-    setData('password', 'Default123')
-  }
-  post(route('instructor.store'));
+  
+  put(route('instructor.edit'));
   localStorage.removeItem('rememberInstructor')
 };
 
@@ -55,7 +53,7 @@ const submit: FormEventHandler = (e) => {
               placeholder='Mr. Stephan Mertz' className="input border-2 border-base-200 input-ghost w-full" 
               value={data.name}
               onChange={(e) => setData("name" ,e.target.value)}
-              />
+            />
           </div>
           <div className="mb-6">
             <label className="block font-semibold mb-2" htmlFor="address">Address</label>
@@ -73,7 +71,7 @@ const submit: FormEventHandler = (e) => {
               placeholder='MSc. Data Science..' className="input border-2 border-base-200 input-ghost w-full" 
               value={data.qualification}
               onChange={(e) => setData("qualification" ,e.target.value)}
-              />
+            />
           </div>
           <div className="mr-2">
             <label className="block font-semibold mb-2" htmlFor="contact">Contact</label>
@@ -135,7 +133,7 @@ const submit: FormEventHandler = (e) => {
               className="input border-2 border-base-200 input-ghost w-full"
               value={data.username}
               onChange={(e) => setData("username" ,e.target.value)}
-              />
+            />
           </div>
 
           <div className="mb-6">
@@ -145,7 +143,7 @@ const submit: FormEventHandler = (e) => {
               className="winput border-2 border-base-200 input-ghost w-full" 
               value={data.password}
               onChange={(e) => setData("password" ,e.target.value)}
-              />
+            />
           </div>
           <div className="flex justify-end">
             <button className="btn btn-primary" onClick={submit}>Submit</button>

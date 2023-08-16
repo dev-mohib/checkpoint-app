@@ -9,7 +9,8 @@ const EditOrganization = () => {
   const [timestamp] = useState(Date.now())
   const { organization } = usePage<PageProps<{organization : Organization}>>().props
   console.log({organization})
-  const { data, setData,post, errors } = useForm({
+  const { data, setData,put, errors } = useForm({
+    id:organization.id,
     name: organization.name,
     email: organization.users.email,
     address : organization.users.address,
@@ -25,7 +26,7 @@ const [logoFiles, setLogoFiles] = React.useState<any[]>([])
 
 const submit: FormEventHandler = (e) => {
   e.preventDefault();
-  post(route('organization.update'));
+  put(route('organization.edit'));
 };
   return (
     <div> 

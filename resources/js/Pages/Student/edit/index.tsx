@@ -8,8 +8,8 @@ import { PageProps, Student } from '@/types';
 
 const AdminCreate = () => {
  const { student } = usePage<PageProps<{student : Student}>>().props
- console.log({student})
   const formData = {
+    id: student.id,
     name: student.users.name,
     gender : student.users.gender,
     address : student.users.address,
@@ -26,9 +26,6 @@ const { data, setData, put, errors } = useForm<typeof formData>(local ? JSON.par
 
 const submit: FormEventHandler = (e) => {
   e.preventDefault();
-  if(data.password == ''){
-    setData('password', 'Default123')
-  }
   put(route('student.edit'));
   localStorage.removeItem('rememberStudent')
 };

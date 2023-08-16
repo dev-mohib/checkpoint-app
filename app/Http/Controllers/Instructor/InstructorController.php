@@ -172,31 +172,55 @@ class InstructorController extends Controller
         if(UserRole::is_student($request) || UserRole::is_instructor($request)){
             return redirect('/not-allowed');
         }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            // 'gender' => 'required|string|max:255',
+            'address' => 'required|string|max:255|min:10',
+            'contact_number'=> 'required',
+            'email' => 'required|string|email|max:255',
+            'username'=> 'required|string|max:30',
+        ]);
         $form = $request->all();
-        $org = Organization::with('users')
+        $instructor = Instructor::with(['users'])
         ->find($form['id']);
 
-        $org->name = $form['name'];
-        $org->save();
-
-        $user = $org->users;
+        if($form['email'] != $instructor->users->email){
+            $request->validate([
+                'email' => 'unique:'.User::class
+            ]);
+        }
+        if($form['username'] != $instructor->users->username){
+            $request->validate([
+                'username' => 'unique:'.User::class
+            ]);
+        }
+        if($form['password']){
+            $request->validate([
+                'password' => ['required', Rules\Password::defaults()]
+            ]);
+        }
+        $user = $instructor->users;
         $user->contact_number = $form['contact_number'];
+        $user->name = $form['name'];
         if($form['password'])
             $user->password = $form['password'];
         $user->email = $form['email'];
         $user->address = $form['address'];
         $user->username = $form['username'];
 
+        if($form['photo_id_front']){
+            $instructor->photo_id_front=$form['photo_id_front'];
+            Storage::move('temp/instructor-photo-front/'.$form['photo_id_front'], 'public/instructor-photo-front/'.$form['photo_id_front']);
+        }
+        if($form['photo_id_back']){
+            $instructor->photo_id_back=$form['photo_id_back'];
+            Storage::move('temp/instructor-photo-back/'.$form['photo_id_back'], 'public/instructor-photo-back/'.$form['photo_id_back']);
+        }
+        $instructor->save();
         $user->save();
 
-        
-        // $email = $request->form
-        if(true){
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }else {
-            // return Inertia::render('Organization/edit/index',['organization' => $update, 'isSuccess'=> true, 'title'=>'Organization','activeMenu'=>'organization']);
-            return Redirect::route('organization.show',['id'=>$form['id']]);
-        }
+        return Redirect::route('instructor.show',['id'=>$form['id']]);
     }
     public function attachEntity(Request $request){
         if(UserRole::is_admin($request) || UserRole::is_organization($request)){
