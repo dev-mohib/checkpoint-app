@@ -3,6 +3,7 @@ import Modal from './modal'
 import { XmarkIcon } from '../icons'
 import { Link, useForm, usePage } from '@inertiajs/react'
 import { PageProps } from '@/types'
+import { storage } from '@/utils/constants'
 
 export const AttachEntityModal = ({id, routeName='organization'}: {routeName:string, id : any}) => {
     const { searchData = [], ziggy } = usePage<PageProps<
@@ -77,7 +78,8 @@ export const AttachEntityModal = ({id, routeName='organization'}: {routeName:str
                   >
                   {ziggy?.query?.collection == 'organization'&& <div className="avatar">
                       <div className="mask mask-squircle w-10 h-10">
-                          <img src={data.logo??'/organization.png'} alt="Avatar" />
+                          {/* <img src={data.logo??'/organization.png'} alt="Avatar" /> */}
+                          <img src={storage("organization-logo", data.logo)} alt="Avatar" />
                       </div>
                   </div>}
                   <div className='font-bold'>{data.name}</div>
