@@ -39,7 +39,7 @@ const Index = () => {
     achieved_gradepoints : checkpoint.achieved_gradepoints,
     instructor_recommendation : checkpoint.instructor_recommendation,
     instructor_input: checkpoint.instructor_input,
-    images : checkpoint.images.map(i => ({src:i, action : null}))
+    images : checkpoint.images.map((i : any) => ({src:i, action : null}))
 }
 
 const local = localStorage.getItem('rememberCheckpoint')

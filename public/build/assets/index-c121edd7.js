@@ -1,1 +1,0 @@
-import{j as t}from"./app-eece0f73.js";import{A as r}from"./AppLayout-75200e08.js";import o from"./student_table-af1b98b4.js";import"./icons-32cd2e22.js";import"./index-d9f545ad.js";const i=()=>t(r,{AdminComponent:t(o,{}),OrganizationComponent:t(o,{}),InstructorComponent:t(o,{}),breadcrumb:[{title:"Home",href:"/dashboard"},{title:"Students",href:null}]});export{i as default};
