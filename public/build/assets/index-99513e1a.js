@@ -1,1 +1,0 @@
-import{a as s,j as e,b as t}from"./app-ddf6f56e.js";const l=()=>s("div",{className:"min-h-screen flex-c-c",children:[e(t,{title:"Not Alowed"}),e("div",{className:"text-3xl text-gray-400",children:" This user is not active "})]});export{l as default};

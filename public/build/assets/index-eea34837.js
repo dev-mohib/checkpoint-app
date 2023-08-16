@@ -1,0 +1,1 @@
+import{j as a}from"./app-6ac0cb59.js";import{Card as e}from"./cards-98f31d74.js";const o=()=>a("div",{children:a("div",{className:"flex justify-around",children:[{name:"organization"},{name:"instructor"},{name:"student"},{name:"checkpoint"}].map((n,r)=>a(e,{name:n.name},r))})}),m=o;export{m as default};
